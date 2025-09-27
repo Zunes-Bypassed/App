@@ -2012,17 +2012,23 @@ Components.Window = (function()
 	local New = Creator.New
 
 	return function(Config)
-		local Window = {
-			Minimized = false,
-			Maximized = false,
-			Size = Config.Size,
-			CurrentPos = 0,
-			TabWidth = Config.TabWidth or 220,
-			Position = UDim2.fromOffset(
-				Camera.ViewportSize.X / 2 - Config.Size.X.Offset / 2,
-				Camera.ViewportSize.Y / 2 - Config.Size.Y.Offset / 2
-			),
-		}
+        local screenW, screenH = Camera.ViewportSize.X, Camera.ViewportSize.Y
+    
+        local defaultWidth = math.floor(screenW * 0.5)
+        local defaultHeight = math.floor(screenH * 0.6)
+        local defaultTabWidth = math.max(180, math.floor(screenW * 0.18))
+    
+        local Window = {
+            Minimized = false,
+            Maximized = false,
+            Size = UDim2.fromOffset(defaultWidth, defaultHeight),
+            CurrentPos = 0,
+            TabWidth = defaultTabWidth,
+            Position = UDim2.fromOffset(
+                screenW / 2 - defaultWidth / 2,
+                screenH / 2 - defaultHeight / 2
+            ),
+        }
 
 		local Dragging, DragInput, MousePos, StartPos = false
 		local Resizing, ResizePos = false
@@ -4616,10 +4622,8 @@ function Library:CreateWindow(Config)
 
 	local Window = Components.Window({
 		Parent = GUI,
-		Size = Config.Size,
 		Title = Config.Title,
-		SubTitle = Config.SubTitle,
-		TabWidth = Config.TabWidth,
+		SubTitle = Config.SubTitle
 	})
 
 	Library.Window = Window

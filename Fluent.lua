@@ -9,6 +9,40 @@ local httpService = game:GetService("HttpService")
 local ProtectGui = protectgui or (syn and syn.protect_gui) or function() end
 local RenderStepped = RunService.RenderStepped
 
+-- Table to store all function buttons
+local AllFunctions = {}
+
+-- Function to add button reference for search
+local function RegisterFunctionButton(btn)
+    table.insert(AllFunctions, btn)
+end
+
+-- Create Search Bar
+local SearchBar = Instance.new("TextBox")
+SearchBar.Name = "SearchBar"
+SearchBar.Size = UDim2.new(1, -20, 0, 30)
+SearchBar.Position = UDim2.new(0, 10, 0, 10)
+SearchBar.PlaceholderText = "Tìm kiếm chức năng..."
+SearchBar.Text = ""
+SearchBar.TextColor3 = Color3.fromRGB(255, 255, 255)
+SearchBar.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+SearchBar.BorderSizePixel = 0
+SearchBar.ClearTextOnFocus = false
+SearchBar.Parent = game:GetService("CoreGui"):WaitForChild("FluentUI")
+
+-- Search filter logic
+SearchBar:GetPropertyChangedSignal("Text"):Connect(function()
+    local query = string.lower(SearchBar.Text)
+    for _, btn in ipairs(AllFunctions) do
+        if query == "" or string.find(string.lower(btn.Text), query) then
+            btn.Visible = true
+        else
+            btn.Visible = false
+        end
+    end
+end)
+
+
 local Themes = {
 	Names = {
 		"Obsidian"

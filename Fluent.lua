@@ -2015,16 +2015,17 @@ Components.Window = (function()
         local screenW, screenH = Camera.ViewportSize.X, Camera.ViewportSize.Y
         local isMobile = game:GetService("UserInputService").TouchEnabled
     
-        local defaultWidth, defaultHeight
+        local defaultWidth, defaultHeight, defaultTabWidth
+    
         if isMobile then
-            defaultWidth = math.floor(screenW * 0.8)
-            defaultHeight = math.floor(screenH * 0.75)
+            defaultWidth = math.floor(screenW * 0.9)
+            defaultHeight = math.floor(screenH * 0.7)
+            defaultTabWidth = math.min(math.floor(defaultWidth * 0.4), defaultWidth - 100)
         else
             defaultWidth = math.floor(screenW * 0.5)
             defaultHeight = math.floor(screenH * 0.6)
+            defaultTabWidth = math.min(math.floor(defaultWidth / 3), defaultWidth - 100)
         end
-    
-        local defaultTabWidth = math.floor(defaultWidth / 3)
     
         local Window = {
             Minimized = false,

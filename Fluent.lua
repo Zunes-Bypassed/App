@@ -2011,23 +2011,27 @@ Components.Window = (function()
 	local Instant = Flipper.Instant.new
 	local New = Creator.New
 
-	return function(Config)
-        local screenW, screenH = Camera.ViewportSize.X, Camera.ViewportSize.Y
+	return function()
+        local viewportSize = Camera.ViewportSize
+        local screenW, screenH = viewportSize.X, viewportSize.Y
+        local isMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
     
-        local baseWidth = Config.Size and Config.Size.X.Offset or math.floor(screenW * 0.5)
-        local baseHeight = Config.Size and Config.Size.Y.Offset or math.floor(screenH * 0.6)
+        local defaultW = math.floor(screenW * (isMobile and 0.9 or 0.6))
+        local defaultH = math.floor(screenH * (isMobile and 0.9 or 0.7))
+        local autoSize = UDim2.fromOffset(defaultW, defaultH)
     
-        local autoTabWidth = math.floor(baseWidth / 3)
+        local autoTabWidth = isMobile and math.clamp(math.floor(defaultW * 0.35), 160, 260)
+                                        or math.clamp(math.floor(defaultW * 0.25), 180, 300)
     
         local Window = {
             Minimized = false,
             Maximized = false,
-            Size = UDim2.fromOffset(baseWidth, baseHeight),
+            Size = autoSize,
             CurrentPos = 0,
             TabWidth = autoTabWidth,
             Position = UDim2.fromOffset(
-                screenW / 2 - baseWidth / 2,
-                screenH / 2 - baseHeight / 2
+                screenW / 2 - defaultW / 2,
+                screenH / 2 - defaultH / 2
             ),
         }
 

@@ -1,3 +1,90 @@
+local __LUCID_OPT__ = {}
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local HttpService = game:GetService("HttpService")
+__LUCID_OPT__.Players = Players
+__LUCID_OPT__.RunService = RunService
+__LUCID_OPT__.TweenService = TweenService
+__LUCID_OPT__.UserInputService = UserInputService
+__LUCID_OPT__.HttpService = HttpService
+
+function __LUCID_OPT__.SafeColor3(c, fallback)
+    if typeof(c) == "Color3" then return c end
+    if type(c) == "table" and c.r and c.g and c.b then
+        return Color3.new(c.r, c.g, c.b)
+    end
+    return fallback or Color3.fromRGB(255,255,255)
+end
+
+function __LUCID_OPT__.Tween(instance, props, time, style, direction, callback)
+    time = time or 0.2
+    style = style or Enum.EasingStyle.Quad
+    direction = direction or Enum.EasingDirection.Out
+    local info = TweenInfo.new(time, style, direction)
+    local suc, tween = pcall(function()
+        return TweenService:Create(instance, info, props)
+    end)
+    if not suc then
+        for k,v in pairs(props) do
+            pcall(function() instance[k] = v end)
+        end
+        if callback then callback() end
+        return nil
+    end
+    tween:Play()
+    if callback then
+        tween.Completed:Connect(function() callback() end)
+    end
+    return tween
+end
+
+function __LUCID_OPT__.SafeConnect(tbl, key, signal, func)
+    if tbl[key] then
+        if typeof(tbl[key]) == "RBXScriptConnection" then
+            pcall(function() tbl[key]:Disconnect() end)
+        end
+        tbl[key] = nil
+    end
+    tbl[key] = signal:Connect(func)
+    return tbl[key]
+end
+
+__LUCID_OPT__._boundLoops = {}
+function __LUCID_OPT__.BindLoop(key, fn)
+    if __LUCID_OPT__._boundLoops[key] then return end
+    __LUCID_OPT__._boundLoops[key] = RunService.Heartbeat:Connect(fn)
+end
+function __LUCID_OPT__.UnbindLoop(key)
+    if __LUCID_OPT__._boundLoops[key] then
+        pcall(function() __LUCID_OPT__._boundLoops[key]:Disconnect() end)
+        __LUCID_OPT__._boundLoops[key] = nil
+    end
+end
+
+function __LUCID_OPT__.Profile(name, fn)
+    local start = tick()
+    local ok, res = pcall(fn)
+    local took = tick() - start
+    if not ok then
+        warn(("__LUCID_OPT__ Profile '%s' errored: %s"):format(tostring(name), tostring(res)))
+    else
+        if took > 0.01 then 
+            warn(("__LUCID_OPT__ Profile '%s' took %.4f s"):format(tostring(name), took))
+        end
+    end
+    return ok, res, took
+end
+
+function __LUCID_OPT__.BatchSet(instance, props)
+    for k,v in pairs(props) do
+        pcall(function() instance[k] = v end)
+    end
+end
+
+_G.__LUCID_OPT__ = __LUCID_OPT__
+
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 
@@ -232,10 +319,10 @@ function Instant:step()
 	}
 end
 
-local VELOCITY_THRESHOLD = 0
-local POSITION_THRESHOLD = 0
+local VELOCITY_THRESHOLD = 0.001
+local POSITION_THRESHOLD = 0.001
 
-local EPS = 0
+local EPS = 0.0001
 
 local Spring = {}
 Spring.__index = Spring
@@ -564,7 +651,6 @@ local Creator = {
             BackgroundColor3 = Color3.new(1, 1, 1),
             BorderColor3 = Color3.new(0, 0, 0),
             ScrollBarImageColor3 = Color3.new(0, 0, 0),
-            ScrollBarThickness = 0,
         },
         TextLabel = {
             BackgroundColor3 = Color3.new(1, 1, 1),

@@ -1708,7 +1708,12 @@ Components.Notification = (function()
             NewNotification.Root.Position = UDim2.new(0, Values.Offset, 0, 0)
             NewNotification.Root.BackgroundTransparency = Values.Opacity
             NewNotification.AcrylicPaint.Frame.BackgroundTransparency = Values.Opacity
-            NewNotification.Root.Size = UDim2.new(1, 0, 0, NewNotification.Holder.Size.Y.Offset) * Values.Scale
+            NewNotification.Root.Size = UDim2.new(
+                1 * Values.Scale, 
+                0, 
+                0, 
+                NewNotification.Holder.Size.Y.Offset * Values.Scale
+            )
         end)
 
         local CloseIcon = NewNotification.CloseButton:FindFirstChild("Icon")

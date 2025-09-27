@@ -2012,26 +2012,26 @@ Components.Window = (function()
 	local New = Creator.New
 
 	return function()
-        local viewportSize = Camera.ViewportSize
-        local screenW, screenH = viewportSize.X, viewportSize.Y
-        local isMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
+        local Viewport = workspace.CurrentCamera.ViewportSize
     
-        local defaultW = math.floor(screenW * (isMobile and 0.9 or 0.6))
-        local defaultH = math.floor(screenH * (isMobile and 0.9 or 0.7))
-        local autoSize = UDim2.fromOffset(defaultW, defaultH)
+        -- Tự động tính Size theo % màn hình
+        local Size = UDim2.fromOffset(
+            math.clamp(Viewport.X * 0.4, 300, 600), -- rộng 40% màn hình
+            math.clamp(Viewport.Y * 0.6, 250, 500)  -- cao 60% màn hình
+        )
     
-        local autoTabWidth = isMobile and math.clamp(math.floor(defaultW * 0.35), 160, 260)
-                                        or math.clamp(math.floor(defaultW * 0.25), 180, 300)
+        -- Tự động tính TabWidth
+        local TabWidth = math.clamp(Viewport.X * 0.18, 160, 280)
     
         local Window = {
             Minimized = false,
             Maximized = false,
-            Size = autoSize,
+            Size = Size,
             CurrentPos = 0,
-            TabWidth = autoTabWidth,
+            TabWidth = TabWidth,
             Position = UDim2.fromOffset(
-                screenW / 2 - defaultW / 2,
-                screenH / 2 - defaultH / 2
+                Viewport.X / 2 - Size.X.Offset / 2,
+                Viewport.Y / 2 - Size.Y.Offset / 2
             ),
         }
 

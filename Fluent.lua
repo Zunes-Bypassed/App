@@ -2211,25 +2211,11 @@ Components.Window = (function()
 			if (Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch) and Resizing then  
                 local Delta = Input.Position - ResizePos  
                 local StartSize = Window.Size  
-            
-                local TargetSize = Vector3.new(
-                    StartSize.X.Offset + Delta.X,
-                    StartSize.Y.Offset + Delta.Y,
-                    0
-                )
-            
-                local minWidth = math.max(
-                    Window.TitleBar.Frame.AbsoluteSize.X,
-                    Window.TabDisplay.AbsoluteSize.X + Window.TabWidth + 40
-                )
-                local minHeight = math.max(
-                    Window.TitleBar.Frame.AbsoluteSize.Y + 100,
-                    Window.TabHolder.AbsoluteSize.Y + 120
-                )
+                local TargetSize = Vector3.new(StartSize.X.Offset, StartSize.Y.Offset, 0) + Vector3.new(1, 1, 0) * Delta  
             
                 SizeMotor:setGoal({
-                    X = Flipper.Instant.new(math.max(TargetSize.X, minWidth)),
-                    Y = Flipper.Instant.new(math.max(TargetSize.Y, minHeight))
+                    X = Flipper.Instant.new(TargetSize.X),
+                    Y = Flipper.Instant.new(TargetSize.Y)
                 })
             end
 		end)

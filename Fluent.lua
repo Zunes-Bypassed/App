@@ -2043,6 +2043,18 @@ Components.Window = (function()
 			BackgroundTransparency = 1,
 			Position = UDim2.new(1, -18, 1, -18),
 		})
+		
+		local ResizeArc = New("Frame", {
+        Size = UDim2.fromOffset(20, 20),
+        Position = UDim2.new(1, -20, 1, -20),
+        BackgroundColor3 = Color3.fromRGB(200, 200, 200),
+        BackgroundTransparency = 0,
+        Parent = ResizeStartFrame,
+    }, {
+        New("UICorner", {
+            CornerRadius = UDim.new(1, 0)
+        })
+    })
 
 		Window.TabHolder = New("ScrollingFrame", {
 			Size = UDim2.fromScale(1, 1),

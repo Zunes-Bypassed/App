@@ -1,4 +1,7 @@
 local function MulUDim2(u, n)
+    if typeof(u) ~= "UDim2" then
+        return u
+    end
     return UDim2.new(
         u.X.Scale * n,
         u.X.Offset * n,

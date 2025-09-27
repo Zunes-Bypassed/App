@@ -201,10 +201,10 @@ function Instant:step()
 	}
 end
 
-local VELOCITY_THRESHOLD = 0
-local POSITION_THRESHOLD = 0
+local VELOCITY_THRESHOLD = 0.001
+local POSITION_THRESHOLD = 0.001
 
-local EPS = 0
+local EPS = 0.0001
 
 local Spring = {}
 Spring.__index = Spring
@@ -533,7 +533,6 @@ local Creator = {
             BackgroundColor3 = Color3.new(1, 1, 1),
             BorderColor3 = Color3.new(0, 0, 0),
             ScrollBarImageColor3 = Color3.new(0, 0, 0),
-            ScrollBarThickness = 0,
         },
         TextLabel = {
             BackgroundColor3 = Color3.new(1, 1, 1),

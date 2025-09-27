@@ -1,15 +1,26 @@
+-- Lucid_optimized.lua
+-- Optimization header prepended to original Lucid.lua
+-- Purpose: provide safe helper utilities and cached services to make refactoring easier.
+-- This file preserves the original code below (unchanged), but adds helpers you can
+-- call manually when refactoring UI code (tweening, safe connections, default color handling).
+-- NOTE: This header tries to be non-invasive and uses a unique namespace to avoid clashes.
+
 local __LUCID_OPT__ = {}
+
+-- Cache commonly used services
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local HttpService = game:GetService("HttpService")
+
 __LUCID_OPT__.Players = Players
 __LUCID_OPT__.RunService = RunService
 __LUCID_OPT__.TweenService = TweenService
 __LUCID_OPT__.UserInputService = UserInputService
 __LUCID_OPT__.HttpService = HttpService
 
+-- Safe default color getter to avoid "Unable to assign property TextColor3. Color3 expected, got nil"
 function __LUCID_OPT__.SafeColor3(c, fallback)
     if typeof(c) == "Color3" then return c end
     if type(c) == "table" and c.r and c.g and c.b then
@@ -18,6 +29,7 @@ function __LUCID_OPT__.SafeColor3(c, fallback)
     return fallback or Color3.fromRGB(255,255,255)
 end
 
+-- Tween helper: tween properties safely with reasonable defaults
 function __LUCID_OPT__.Tween(instance, props, time, style, direction, callback)
     time = time or 0.2
     style = style or Enum.EasingStyle.Quad
@@ -27,6 +39,7 @@ function __LUCID_OPT__.Tween(instance, props, time, style, direction, callback)
         return TweenService:Create(instance, info, props)
     end)
     if not suc then
+        -- fallback: assign directly (safer than erroring)
         for k,v in pairs(props) do
             pcall(function() instance[k] = v end)
         end
@@ -40,7 +53,9 @@ function __LUCID_OPT__.Tween(instance, props, time, style, direction, callback)
     return tween
 end
 
+-- Debounce connection helper to prevent duplicate connections and memory leaks
 function __LUCID_OPT__.SafeConnect(tbl, key, signal, func)
+    -- tbl: table that will hold connection, key: unique key
     if tbl[key] then
         if typeof(tbl[key]) == "RBXScriptConnection" then
             pcall(function() tbl[key]:Disconnect() end)
@@ -51,8 +66,11 @@ function __LUCID_OPT__.SafeConnect(tbl, key, signal, func)
     return tbl[key]
 end
 
+-- Utility: replace polling 'while true do wait() end' loops with RunService.Heartbeat
+-- Usage: __LUCID_OPT__.BindLoop("myKey", function(dt) ... end)
 __LUCID_OPT__._boundLoops = {}
 function __LUCID_OPT__.BindLoop(key, fn)
+    -- bind a function to RunService.Heartbeat
     if __LUCID_OPT__._boundLoops[key] then return end
     __LUCID_OPT__._boundLoops[key] = RunService.Heartbeat:Connect(fn)
 end
@@ -63,6 +81,7 @@ function __LUCID_OPT__.UnbindLoop(key)
     end
 end
 
+-- Lightweight profiler for measuring frame-costly functions
 function __LUCID_OPT__.Profile(name, fn)
     local start = tick()
     local ok, res = pcall(fn)
@@ -70,21 +89,28 @@ function __LUCID_OPT__.Profile(name, fn)
     if not ok then
         warn(("__LUCID_OPT__ Profile '%s' errored: %s"):format(tostring(name), tostring(res)))
     else
-        if took > 0.01 then 
+        if took > 0.01 then -- >10ms
             warn(("__LUCID_OPT__ Profile '%s' took %.4f s"):format(tostring(name), took))
         end
     end
     return ok, res, took
 end
 
+-- Example: fast property set (batch) to reduce multiple property changes that can cause layout thrash
 function __LUCID_OPT__.BatchSet(instance, props)
     for k,v in pairs(props) do
         pcall(function() instance[k] = v end)
     end
 end
 
+-- Expose to global under a safe name so original code can use when refactoring
 _G.__LUCID_OPT__ = __LUCID_OPT__
 
+-- End of optimization header.
+-- Original file content follows below (unchanged). 
+
+
+-- ORIGINAL CONTENT START
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 
@@ -4738,3 +4764,4 @@ function Library:Notify(Config)
 end
 
 return Library
+-- ORIGINAL CONTENT END

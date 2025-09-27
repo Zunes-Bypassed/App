@@ -2014,19 +2014,20 @@ Components.Window = (function()
 	return function(Config)
         local screenW, screenH = Camera.ViewportSize.X, Camera.ViewportSize.Y
     
-        local defaultWidth = math.floor(screenW * 0.5)
-        local defaultHeight = math.floor(screenH * 0.6)
-        local defaultTabWidth = math.max(180, math.floor(screenW * 0.18))
+        local baseWidth = Config.Size and Config.Size.X.Offset or math.floor(screenW * 0.5)
+        local baseHeight = Config.Size and Config.Size.Y.Offset or math.floor(screenH * 0.6)
+    
+        local autoTabWidth = math.floor(baseWidth / 3)
     
         local Window = {
             Minimized = false,
             Maximized = false,
-            Size = UDim2.fromOffset(defaultWidth, defaultHeight),
+            Size = UDim2.fromOffset(baseWidth, baseHeight),
             CurrentPos = 0,
-            TabWidth = defaultTabWidth,
+            TabWidth = autoTabWidth,
             Position = UDim2.fromOffset(
-                screenW / 2 - defaultWidth / 2,
-                screenH / 2 - defaultHeight / 2
+                screenW / 2 - baseWidth / 2,
+                screenH / 2 - baseHeight / 2
             ),
         }
 

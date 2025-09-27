@@ -2208,13 +2208,16 @@ Components.Window = (function()
 				})
 				if Window.Maximized then Window.Maximize(false, true, true) end
 			end
-			if (Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch) and Resizing then
-				local Delta = Input.Position - ResizePos
-				local StartSize = Window.Size
-				local TargetSize = Vector3.new(StartSize.X.Offset, StartSize.Y.Offset, 0) + Vector3.new(1, 1, 0) * Delta
-				local Clamped = Vector2.new(math.clamp(TargetSize.X, 470, 2048), math.clamp(TargetSize.Y, 380, 2048))
-				SizeMotor:setGoal({ X = Flipper.Instant.new(Clamped.X), Y = Flipper.Instant.new(Clamped.Y) })
-			end
+			if (Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch) and Resizing then  
+                local Delta = Input.Position - ResizePos  
+                local StartSize = Window.Size  
+                local TargetSize = Vector3.new(StartSize.X.Offset, StartSize.Y.Offset, 0) + Vector3.new(1, 1, 0) * Delta  
+            
+                SizeMotor:setGoal({
+                    X = Flipper.Instant.new(TargetSize.X),
+                    Y = Flipper.Instant.new(TargetSize.Y)
+                })
+            end
 		end)
 
 		Creator.AddSignal(UserInputService.InputEnded, function(Input)

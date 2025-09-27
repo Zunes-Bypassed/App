@@ -1,3 +1,34 @@
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+
+local function tweenUI(instance, props, duration, style, direction)
+    style = style or Enum.EasingStyle.Quad
+    direction = direction or Enum.EasingDirection.Out
+    duration = duration or 0.25
+    local tweenInfo = TweenInfo.new(duration, style, direction)
+    local tw = TweenService:Create(instance, tweenInfo, props)
+    tw:Play()
+    return tw
+end
+
+local function fadeIn(ui, duration)
+    ui.Visible = true
+    ui.BackgroundTransparency = 1
+    tweenUI(ui, {BackgroundTransparency = 0}, duration or 0.3)
+end
+
+local function fadeOut(ui, duration)
+    tweenUI(ui, {BackgroundTransparency = 1}, duration or 0.3).Completed:Wait()
+    ui.Visible = false
+end
+
+local function smoothResize(ui, newSize, duration)
+    tweenUI(ui, {Size = newSize}, duration or 0.25)
+end
+
+local function smoothMove(ui, newPos, duration)
+    tweenUI(ui, {Position = newPos}, duration or 0.25)
+end
 local Lighting = game:GetService("Lighting")
 local RunService = game:GetService("RunService")
 local LocalPlayer = game:GetService("Players").LocalPlayer
@@ -18,14 +49,6 @@ local Themes = {
         Name = "Obsidian",
     
         Accent = Color3.fromRGB(120, 160, 255),
-    
-        AcrylicMain = Color3.fromRGB(20, 20, 24),
-        AcrylicBorder = Color3.fromRGB(55, 55, 70),
-        AcrylicGradient = ColorSequence.new{
-            ColorSequenceKeypoint.new(0, Color3.fromRGB(18, 18, 22)),
-            ColorSequenceKeypoint.new(1, Color3.fromRGB(28, 28, 36)),
-        },
-        AcrylicNoise = 1,
     
         TitleBarLine = Color3.fromRGB(60, 60, 75),
         Tab = Color3.fromRGB(130, 140, 160),
@@ -75,8 +98,6 @@ local Library = {
 	Unloaded = false,
 	Creator = nil,
 	DialogOpen = false,
-	UseAcrylic = false,
-	Acrylic = false,
 	Transparency = false,
 	MinimizeKeybind = nil,
 	MinimizeKey = Enum.KeyCode.LeftControl or Enum.KeyCode.End
@@ -201,10 +222,10 @@ function Instant:step()
 	}
 end
 
-local VELOCITY_THRESHOLD = 0
-local POSITION_THRESHOLD = 0
+local VELOCITY_THRESHOLD = 0.001
+local POSITION_THRESHOLD = 0.001
 
-local EPS = 0
+local EPS = 0.0001
 
 local Spring = {}
 Spring.__index = Spring
@@ -753,313 +774,6 @@ end
 
 local viewportPointToWorld, getOffset = unpack({ viewportPointToWorld, getOffset })
 
-local BlurFolder = Instance.new("Folder", game:GetService("Workspace").CurrentCamera)
-
-local function createAcrylic()
-	local Part = Creator.New("Part", {
-		Name = "Body",
-		Color = Color3.new(0, 0, 0),
-		Material = Enum.Material.Glass,
-		Size = Vector3.new(1, 1, 0),
-		Anchored = true,
-		CanCollide = false,
-		Locked = true,
-		CastShadow = false,
-		Transparency = 0.98,
-	}, {
-		Creator.New("SpecialMesh", {
-			MeshType = Enum.MeshType.Brick,
-			Offset = Vector3.new(0, 0, -0.000001),
-		}),
-	})
-
-	return Part
-end
-
-function AcrylicBlur()
-	local function createAcrylicBlur(distance)
-		local cleanups = {}
-
-		distance = distance or 0.001
-		local positions = {
-			topLeft = Vector2.new(),
-			topRight = Vector2.new(),
-			bottomRight = Vector2.new(),
-		}
-		local model = createAcrylic()
-		model.Parent = BlurFolder
-
-		local function updatePositions(size, position)
-			positions.topLeft = position
-			positions.topRight = position + Vector2.new(size.X, 0)
-			positions.bottomRight = position + size
-		end
-
-		local function render()
-			local res = game:GetService("Workspace").CurrentCamera
-			if res then
-				res = res.CFrame
-			end
-			local cond = res
-			if not cond then
-				cond = CFrame.new()
-			end
-
-			local camera = cond
-			local topLeft = positions.topLeft
-			local topRight = positions.topRight
-			local bottomRight = positions.bottomRight
-
-			local topLeft3D = viewportPointToWorld(topLeft, distance)
-			local topRight3D = viewportPointToWorld(topRight, distance)
-			local bottomRight3D = viewportPointToWorld(bottomRight, distance)
-
-			local width = (topRight3D - topLeft3D).Magnitude
-			local height = (topRight3D - bottomRight3D).Magnitude
-
-			model.CFrame =
-				CFrame.fromMatrix((topLeft3D + bottomRight3D) / 2, camera.XVector, camera.YVector, camera.ZVector)
-			model.Mesh.Scale = Vector3.new(width, height, 0)
-		end
-
-		local function onChange(rbx)
-			local offset = getOffset()
-			local size = rbx.AbsoluteSize - Vector2.new(offset, offset)
-			local position = rbx.AbsolutePosition + Vector2.new(offset / 2, offset / 2)
-
-			updatePositions(size, position)
-			task.spawn(render)
-		end
-
-		local function renderOnChange()
-			local camera = game:GetService("Workspace").CurrentCamera
-			if not camera then
-				return
-			end
-
-			table.insert(cleanups, camera:GetPropertyChangedSignal("CFrame"):Connect(render))
-			table.insert(cleanups, camera:GetPropertyChangedSignal("ViewportSize"):Connect(render))
-			table.insert(cleanups, camera:GetPropertyChangedSignal("FieldOfView"):Connect(render))
-			task.spawn(render)
-		end
-
-		model.Destroying:Connect(function()
-			for _, item in cleanups do
-				pcall(function()
-					item:Disconnect()
-				end)
-			end
-		end)
-
-		renderOnChange()
-
-		return onChange, model
-	end
-
-	return function(distance)
-		local Blur = {}
-		local onChange, model = createAcrylicBlur(distance)
-
-		local comp = Creator.New("Frame", {
-			BackgroundTransparency = 1,
-			Size = UDim2.fromScale(1, 1),
-		})
-
-		Creator.AddSignal(comp:GetPropertyChangedSignal("AbsolutePosition"), function()
-			onChange(comp)
-		end)
-
-		Creator.AddSignal(comp:GetPropertyChangedSignal("AbsoluteSize"), function()
-			onChange(comp)
-		end)
-
-		Blur.AddParent = function(Parent)
-			Creator.AddSignal(Parent:GetPropertyChangedSignal("Visible"), function()
-				Blur.SetVisibility(Parent.Visible)
-			end)
-		end
-
-		Blur.SetVisibility = function(Value)
-			model.Transparency = Value and 0.98 or 1
-		end
-
-		Blur.Frame = comp
-		Blur.Model = model
-
-		return Blur
-	end
-end
-
-function AcrylicPaint()
-	local New = Creator.New
-	local AcrylicBlur = AcrylicBlur()
-
-	return function(props)
-		local AcrylicPaint = {}
-
-		AcrylicPaint.Frame = New("Frame", {
-			Size = UDim2.fromScale(1, 1),
-			BackgroundTransparency = 0.9,
-			BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-			BorderSizePixel = 0,
-		}, {
-			New("ImageLabel", {
-				Image = "rbxassetid://8992230677",
-				ScaleType = "Slice",
-				SliceCenter = Rect.new(Vector2.new(99, 99), Vector2.new(99, 99)),
-				AnchorPoint = Vector2.new(0.5, 0.5),
-				Size = UDim2.new(1, 120, 1, 116),
-				Position = UDim2.new(0.5, 0, 0.5, 0),
-				BackgroundTransparency = 1,
-				ImageColor3 = Color3.fromRGB(0, 0, 0),
-				ImageTransparency = 0.7,
-			}),
-
-			New("UICorner", {
-				CornerRadius = UDim.new(0, 8),
-			}),
-
-			New("Frame", {
-				BackgroundTransparency = 0,
-				Size = UDim2.fromScale(1, 1),
-				Name = "Background",
-				ThemeTag = {
-					BackgroundColor3 = "AcrylicMain",
-				},
-			}, {
-				New("UICorner", {
-					CornerRadius = UDim.new(0, 8),
-				}),
-			}),
-
-			New("Frame", {
-				BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-				BackgroundTransparency = 0,
-				Size = UDim2.fromScale(1, 1),
-			}, {
-				New("UICorner", {
-					CornerRadius = UDim.new(0, 8),
-				}),
-
-				New("UIGradient", {
-					Rotation = 90,
-					ThemeTag = {
-						Color = "AcrylicGradient",
-					},
-				}),
-			}),
-
-			New("ImageLabel", {
-				Image = "rbxassetid://9968344105",
-				ImageTransparency = 0.98,
-				ScaleType = Enum.ScaleType.Tile,
-				TileSize = UDim2.new(0, 128, 0, 128),
-				Size = UDim2.fromScale(1, 1),
-				BackgroundTransparency = 1,
-			}, {
-				New("UICorner", {
-					CornerRadius = UDim.new(0, 8),
-				}),
-			}),
-
-			New("ImageLabel", {
-				Image = "rbxassetid://9968344227",
-				ImageTransparency = 0.9,
-				ScaleType = Enum.ScaleType.Tile,
-				TileSize = UDim2.new(0, 128, 0, 128),
-				Size = UDim2.fromScale(1, 1),
-				BackgroundTransparency = 1,
-				ThemeTag = {
-					ImageTransparency = "AcrylicNoise",
-				},
-			}, {
-				New("UICorner", {
-					CornerRadius = UDim.new(0, 8),
-				}),
-			}),
-
-			New("Frame", {
-				BackgroundTransparency = 1,
-				Size = UDim2.fromScale(1, 1),
-				ZIndex = 2,
-			}, {
-				New("UICorner", {
-					CornerRadius = UDim.new(0, 8),
-				}),
-				New("UIStroke", {
-					Transparency = 0.5,
-					Thickness = 1,
-					ThemeTag = {
-						Color = "AcrylicBorder",
-					},
-				}),
-			}),
-		})
-
-		local Blur
-
-		if Library.UseAcrylic then
-			Blur = AcrylicBlur()
-			Blur.Frame.Parent = AcrylicPaint.Frame
-			AcrylicPaint.Model = Blur.Model
-			AcrylicPaint.AddParent = Blur.AddParent
-			AcrylicPaint.SetVisibility = Blur.SetVisibility
-		end
-
-		return AcrylicPaint
-	end
-end
-
-local Acrylic = {
-	AcrylicBlur = AcrylicBlur(),
-	CreateAcrylic = createAcrylic,
-	AcrylicPaint = AcrylicPaint(),
-}
-
-function Acrylic.init()
-	local baseEffect = Instance.new("DepthOfFieldEffect")
-	baseEffect.FarIntensity = 0
-	baseEffect.InFocusRadius = 0.1
-	baseEffect.NearIntensity = 1
-
-	local depthOfFieldDefaults = {}
-
-	function Acrylic.Enable()
-		for _, effect in pairs(depthOfFieldDefaults) do
-			effect.Enabled = false
-		end
-		baseEffect.Parent = game:GetService("Lighting")
-	end
-
-	function Acrylic.Disable()
-		for _, effect in pairs(depthOfFieldDefaults) do
-			effect.Enabled = effect.enabled
-		end
-		baseEffect.Parent = nil
-	end
-
-	local function registerDefaults()
-		local function register(object)
-			if object:IsA("DepthOfFieldEffect") then
-				depthOfFieldDefaults[object] = { enabled = object.Enabled }
-			end
-		end
-
-		for _, child in pairs(game:GetService("Lighting"):GetChildren()) do
-			register(child)
-		end
-
-		if game:GetService("Workspace").CurrentCamera then
-			for _, child in pairs(game:GetService("Workspace").CurrentCamera:GetChildren()) do
-				register(child)
-			end
-		end
-	end
-
-	registerDefaults()
-	Acrylic.Enable()
-end
-
 local Components = {
 	Assets = {
 		Close = "rbxassetid://10747384394",
@@ -1590,7 +1304,6 @@ Components.Notification = (function()
         Config.Duration = Config.Duration or nil
 
         local NewNotification = { Closed = false }
-        NewNotification.AcrylicPaint = Acrylic.AcrylicPaint()
 
         NewNotification.Title = New("TextLabel", {
             Position = UDim2.fromOffset(10, 8),
@@ -1654,7 +1367,6 @@ Components.Notification = (function()
             Size = UDim2.new(1, 0, 0, 60),
             Position = UDim2.fromScale(1, 0),
         }, {
-            NewNotification.AcrylicPaint.Frame,
             New("UICorner", { CornerRadius = UDim.new(0, 6) }),
             New("UIStroke", {
                 Transparency = 0.4,
@@ -1676,7 +1388,6 @@ Components.Notification = (function()
         RootMotor:onStep(function(Values)
             NewNotification.Root.Position = UDim2.new(0, Values.Offset, 0, 0)
             NewNotification.Root.BackgroundTransparency = Values.Opacity
-            NewNotification.AcrylicPaint.Frame.BackgroundTransparency = Values.Opacity
             NewNotification.Root.Size = UDim2.new(1, 0, 0, NewNotification.Holder.Size.Y.Offset) * Values.Scale
         end)
 
@@ -1716,9 +1427,6 @@ Components.Notification = (function()
                         Scale = Spring(0.95, { frequency = 5, dampingRatio = 0.75 }),
                     })
                     task.wait(0.3)
-                    if Library.UseAcrylic then
-                        NewNotification.AcrylicPaint.Model:Destroy()
-                    end
                     NewNotification.Holder:Destroy()
                 end)
             end
@@ -1739,8 +1447,7 @@ end)()
 Components.Textbox = (function()
 	local New = Creator.New
 
-	return function(Parent, Acrylic)
-		Acrylic = Acrylic or false
+	return function(Parent)
 		local Textbox = {}
 
 		Textbox.Input = New("TextBox", {
@@ -1779,15 +1486,15 @@ Components.Textbox = (function()
 
 		Textbox.Frame = New("Frame", {
 			Size = UDim2.new(0, 0, 0, 36),
-			BackgroundTransparency = Acrylic and 0.85 or 0,
+			BackgroundTransparency = 0.85
 			Parent = Parent,
-			ThemeTag = { BackgroundColor3 = Acrylic and "Input" or "DialogInput" },
+			ThemeTag = { BackgroundColor3 = "Input" or "DialogInput" },
 		}, {
 			New("UICorner", { CornerRadius = UDim.new(0, 8) }),
 			New("UIStroke", {
 				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-				Transparency = Acrylic and 0.35 or 0.5,
-				ThemeTag = { Color = Acrylic and "InElementBorder" or "DialogButtonBorder" },
+				Transparency = 0.35
+				ThemeTag = { Color = "InElementBorder" or "DialogButtonBorder" },
 			}),
 			Textbox.Container,
 			Textbox.Indicator,
@@ -1824,7 +1531,7 @@ Components.Textbox = (function()
 
 		Creator.AddSignal(Textbox.Input.Focused, function()
 			Update()
-			Creator.OverrideTag(Textbox.Frame, { BackgroundColor3 = Acrylic and "InputFocused" or "DialogHolder" })
+			Creator.OverrideTag(Textbox.Frame, { BackgroundColor3 = "InputFocused" or "DialogHolder" })
 			Creator.OverrideTag(Textbox.Indicator, { BackgroundColor3 = "InputIndicatorFocus" })
 			Textbox.Indicator:TweenSize(UDim2.new(1, -4, 0, 2), "Out", "Quad", 0.25, true)
 			Textbox.Indicator.BackgroundTransparency = 0
@@ -1832,8 +1539,8 @@ Components.Textbox = (function()
 
 		Creator.AddSignal(Textbox.Input.FocusLost, function()
 			Update()
-			Creator.OverrideTag(Textbox.Frame, { BackgroundColor3 = Acrylic and "Input" or "DialogInput" })
-			Creator.OverrideTag(Textbox.Indicator, { BackgroundColor3 = Acrylic and "InputIndicator" or "DialogInputLine" })
+			Creator.OverrideTag(Textbox.Frame, { BackgroundColor3 = "Input" or "DialogInput" })
+			Creator.OverrideTag(Textbox.Indicator, { BackgroundColor3 = "InputIndicator" or "DialogInputLine" })
 			Textbox.Indicator:TweenSize(UDim2.new(0, 0, 0, 2), "Out", "Quad", 0.25, true)
 			Textbox.Indicator.BackgroundTransparency = 1
 		end)
@@ -1997,8 +1704,6 @@ Components.Window = (function()
 		local Resizing, ResizePos = false
 		local MinimizeNotif = false
 
-		Window.AcrylicPaint = Acrylic.AcrylicPaint()
-
 		local Selector = New("Frame", {
 			Size = UDim2.fromOffset(4, 0),
 			BackgroundColor3 = Color3.fromRGB(76, 194, 255),
@@ -2066,7 +1771,6 @@ Components.Window = (function()
 			BackgroundTransparency = 1,
 			Parent = Config.Parent,
 		}, {
-			Window.AcrylicPaint.Frame,
 			Window.TabDisplay,
 			Window.ContainerCanvas,
 			TabFrame,
@@ -2079,10 +1783,6 @@ Components.Window = (function()
 			Parent = Window.Root,
 			Window = Window,
 		})
-
-		if Library.UseAcrylic then
-			Window.AcrylicPaint.AddParent(Window.Root)
-		end
 
 		local SizeMotor = Flipper.GroupMotor.new({ X = Window.Size.X.Offset, Y = Window.Size.Y.Offset })
 		local PosMotor = Flipper.GroupMotor.new({ X = Window.Position.X.Offset, Y = Window.Position.Y.Offset })
@@ -2177,13 +1877,16 @@ Components.Window = (function()
 				})
 				if Window.Maximized then Window.Maximize(false, true, true) end
 			end
-			if (Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch) and Resizing then
-				local Delta = Input.Position - ResizePos
-				local StartSize = Window.Size
-				local TargetSize = Vector3.new(StartSize.X.Offset, StartSize.Y.Offset, 0) + Vector3.new(1, 1, 0) * Delta
-				local Clamped = Vector2.new(math.clamp(TargetSize.X, 470, 2048), math.clamp(TargetSize.Y, 380, 2048))
-				SizeMotor:setGoal({ X = Flipper.Instant.new(Clamped.X), Y = Flipper.Instant.new(Clamped.Y) })
-			end
+			if (Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch) and Resizing then  
+                local Delta = Input.Position - ResizePos  
+                local StartSize = Window.Size  
+                local TargetSize = Vector3.new(StartSize.X.Offset, StartSize.Y.Offset, 0) + Vector3.new(1, 1, 0) * Delta  
+            
+                SizeMotor:setGoal({
+                    X = Flipper.Instant.new(TargetSize.X),
+                    Y = Flipper.Instant.new(TargetSize.Y)
+                })
+            end
 		end)
 
 		Creator.AddSignal(UserInputService.InputEnded, function(Input)
@@ -2217,7 +1920,6 @@ Components.Window = (function()
 		end
 
 		function Window:Destroy()
-			if Library.UseAcrylic then Window.AcrylicPaint.Model:Destroy() end
 			Window.Root:Destroy()
 		end
 
@@ -4573,12 +4275,7 @@ function Library:CreateWindow(Config)
 	end
 
 	Library.MinimizeKey = Config.MinimizeKey
-	Library.UseAcrylic = Config.Acrylic 
-	Library.Acrylic = Config.Acrylic 
 	Library.Theme = Config.Theme
-	if Config.Acrylic then
-		Acrylic.init()
-	end
 
 	local Window = Components.Window({
 		Parent = GUI,
@@ -4604,9 +4301,6 @@ end
 function Library:Destroy()
 	if Library.Window then
 		Library.Unloaded = true
-		if Library.UseAcrylic then
-			Library.Window.AcrylicPaint.Model:Destroy()
-		end
 		Creator.Disconnect()
 		Library.GUI:Destroy()
 	end

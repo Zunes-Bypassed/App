@@ -1,96 +1,3 @@
-local function MulUDim2(u, n)
-    if typeof(u) ~= "UDim2" then
-        return u
-    end
-    return UDim2.new(
-        u.X.Scale * n,
-        u.X.Offset * n,
-        u.Y.Scale * n,
-        u.Y.Offset * n
-    )
-end
-
-local LUCID_OPT = {}
-
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local TweenService = game:GetService("TweenService")
-local UserInputService = game:GetService("UserInputService")
-local HttpService = game:GetService("HttpService")
-
-LUCID_OPT.Players = Players
-LUCID_OPT.RunService = RunService
-LUCID_OPT.TweenService = TweenService
-LUCID_OPT.UserInputService = UserInputService
-LUCID_OPT.HttpService = HttpService
-
-function LUCID_OPT.SafeColor3(c, fallback)
-    if typeof(c) == "Color3" then return c end
-    if type(c) == "table" and c.r and c.g and c.b then
-        return Color3.new(c.r, c.g, c.b)
-    end
-    return fallback or Color3.fromRGB(255,255,255)
-end
-
-function LUCID_OPT.Tween(instance, props, time, style, direction, callback)
-    time = time or 0.2
-    style = style or Enum.EasingStyle.Quad
-    direction = direction or Enum.EasingDirection.Out
-    local info = TweenInfo.new(time, style, direction)
-    local suc, tween = pcall(function()
-        return TweenService:Create(instance, info, props)
-    end)
-    if not suc then
-        for k,v in pairs(props) do
-            pcall(function() instance[k] = v end)
-        end
-        if callback then callback() end
-        return nil
-    end
-    tween:Play()
-    if callback then
-        tween.Completed:Connect(function() callback() end)
-    end
-    return tween
-end
-
-function LUCID_OPT.SafeConnect(tbl, key, signal, func)
-    if tbl[key] then
-        if typeof(tbl[key]) == "RBXScriptConnection" then
-            pcall(function() tbl[key]:Disconnect() end)
-        end
-        tbl[key] = nil
-    end
-    tbl[key] = signal:Connect(func)
-    return tbl[key]
-end
-
-LUCID_OPT._boundLoops = {}
-function LUCID_OPT.BindLoop(key, fn)
-    if LUCID_OPT._boundLoops[key] then return end
-    LUCID_OPT._boundLoops[key] = RunService.Heartbeat:Connect(fn)
-end
-function LUCID_OPT.UnbindLoop(key)
-    if LUCID_OPT._boundLoops[key] then
-        pcall(function() LUCID_OPT._boundLoops[key]:Disconnect() end)
-        LUCID_OPT._boundLoops[key] = nil
-    end
-end
-
-function LUCID_OPT.Profile(name, fn)
-    local start = tick()
-    local ok, res = pcall(fn)
-    local took = tick() - start
-    return ok, res, took
-end
-
-function LUCID_OPT.BatchSet(instance, props)
-    for k,v in pairs(props) do
-        pcall(function() instance[k] = v end)
-    end
-end
-
-_G.LUCID_OPT = LUCID_OPT
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 
@@ -346,7 +253,7 @@ end
 
 function Spring:step(state, dt)
 	local d = self._dampingRatio
-	local f = MulUDim2(self._frequency, 2) * math.pi
+	local f = self._frequency * 2 * math.pi
 	local g = self._targetValue
 	local p0 = state.value
 	local v0 = state.velocity or 0
@@ -357,7 +264,7 @@ function Spring:step(state, dt)
 	local p1, v1
 
 	if d == 1 then 
-		p1 = (offset * (1 + f * dt) + vMulUDim2(dt, 0)) * decay + g
+		p1 = (offset * (1 + f * dt) + v0 * dt) * decay + g
 		v1 = (v0 * (1 - f * dt) - offset * (f * f * dt)) * decay
 	elseif d < 1 then 
 		local c = math.sqrt(1 - d * d)
@@ -381,7 +288,7 @@ function Spring:step(state, dt)
 			y = dt + ((dt * dt) * (b * b) * (b * b) / 20 - b * b) * (dt * dt * dt) / 6
 		end
 
-		p1 = (offset * (i + d * z) + vMulUDim2(y, 0)) * decay + g
+		p1 = (offset * (i + d * z) + v0 * y) * decay + g
 		v1 = (v0 * (i - z * d) - offset * (z * f)) * decay
 	else 
 		local c = math.sqrt(d * d - 1)
@@ -389,14 +296,14 @@ function Spring:step(state, dt)
 		local r1 = -f * (d - c)
 		local r2 = -f * (d + c)
 
-		local co2 = (v0 - offset * r1) / (MulUDim2(f, 2) * c)
+		local co2 = (v0 - offset * r1) / (2 * f * c)
 		local co1 = offset - co2
 
-		local e1 = coMulUDim2(math.exp, 1)(rMulUDim2(dt, 1))
-		local e2 = coMulUDim2(math.exp, 2)(rMulUDim2(dt, 2))
+		local e1 = co1 * math.exp(r1 * dt)
+		local e2 = co2 * math.exp(r2 * dt)
 
 		p1 = e1 + e2 + g
-		v1 = eMulUDim2(r1, 1) + eMulUDim2(r2, 2)
+		v1 = e1 * r1 + e2 * r2
 	end
 
 	local complete = math.abs(v1) < VELOCITY_THRESHOLD and math.abs(p1 - g) < POSITION_THRESHOLD
@@ -1920,7 +1827,7 @@ Components.Textbox = (function()
 		local function Update()
 			local PADDING = 6
 			local Reveal = Textbox.Container.AbsoluteSize.X
-			if not Textbox.Input:IsFocused() or Textbox.Input.TextBounds.X <= Reveal - MulUDim2(PADDING, 2) then
+			if not Textbox.Input:IsFocused() or Textbox.Input.TextBounds.X <= Reveal - 2 * PADDING then
 				Textbox.Input.Position = UDim2.new(0, PADDING, 0, 0)
 			else
 				local Cursor = Textbox.Input.CursorPosition
@@ -2225,7 +2132,7 @@ Components.Window = (function()
 			local Now = tick()
 			local DeltaTime = Now - LastTime
 			if LastValue then
-				Window.SelectorSizeMotor:setGoal(Spring((math.abs(Value - LastValue) / (MulUDim2(DeltaTime, 60))) + 16))
+				Window.SelectorSizeMotor:setGoal(Spring((math.abs(Value - LastValue) / (DeltaTime * 60)) + 16))
 				LastValue = Value
 			end
 			LastTime = Now
@@ -3343,7 +3250,7 @@ ElementsTable.Colorpicker = (function()
 
 			local function GetRGB()
 				local Value = Color3.fromHSV(Hue, Sat, Vib)
-				return { R = math.floor(MulUDim2(Value.r, 255)), G = math.floor(MulUDim2(Value.g, 255)), B = math.floor(MulUDim2(Value.b, 255)) }
+				return { R = math.floor(Value.r * 255), G = math.floor(Value.g * 255), B = math.floor(Value.b * 255) }
 			end
 
 			local SatCursor = New("ImageLabel", {
@@ -3624,7 +3531,7 @@ ElementsTable.Colorpicker = (function()
 						pcall(function()
 							local Value = tonumber(AlphaInput.Input.Text)
 							if Value >= 0 and Value <= 100 then
-								Transparency = 1 - MulUDim2(Value, 0.01)
+								Transparency = 1 - Value * 0.01
 							end
 						end)
 					end

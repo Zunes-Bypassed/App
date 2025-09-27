@@ -2043,19 +2043,14 @@ Components.Window = (function()
 			BackgroundTransparency = 1,
 			Position = UDim2.new(1, -18, 1, -18),
 		})
-		local ResizeArc = New("Frame", {
-            Size = UDim2.fromOffset(24, 24),
-            Position = UDim2.new(1, -12, 1, -12),
+		
+		local ResizeArc = New("ImageLabel", {
+            Size = UDim2.fromOffset(20, 20),
+            Position = UDim2.new(1, -10, 1, -10),
             BackgroundTransparency = 1,
-            Parent = Window.Root,
-        }, {
-            New("UICorner", {
-                CornerRadius = UDim.new(1, 0)
-            }),
-            New("UIStroke", {
-                Thickness = 2,
-                Color = Color3.fromRGB(200, 200, 200),
-            })
+            Image = "rbxassetid://10709767750",
+            ImageColor3 = Color3.fromRGB(180, 180, 180),
+            Parent = Window.Root
         })
 
 		Window.TabHolder = New("ScrollingFrame", {

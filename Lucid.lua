@@ -1,27 +1,27 @@
--- Lucid_optimized.lua
--- Optimization header prepended to original Lucid.lua
--- Purpose: provide safe helper utilities and cached services to make refactoring easier.
--- This file preserves the original code below (unchanged), but adds helpers you can
--- call manually when refactoring UI code (tweening, safe connections, default color handling).
--- NOTE: This header tries to be non-invasive and uses a unique namespace to avoid clashes.
+local function MulUDim2(u, n)
+    return UDim2.new(
+        u.X.Scale * n,
+        u.X.Offset * n,
+        u.Y.Scale * n,
+        u.Y.Offset * n
+    )
+end
 
-local __LUCID_OPT__ = {}
+local LUCID_OPT = {}
 
--- Cache commonly used services
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local HttpService = game:GetService("HttpService")
 
-__LUCID_OPT__.Players = Players
-__LUCID_OPT__.RunService = RunService
-__LUCID_OPT__.TweenService = TweenService
-__LUCID_OPT__.UserInputService = UserInputService
-__LUCID_OPT__.HttpService = HttpService
+LUCID_OPT.Players = Players
+LUCID_OPT.RunService = RunService
+LUCID_OPT.TweenService = TweenService
+LUCID_OPT.UserInputService = UserInputService
+LUCID_OPT.HttpService = HttpService
 
--- Safe default color getter to avoid "Unable to assign property TextColor3. Color3 expected, got nil"
-function __LUCID_OPT__.SafeColor3(c, fallback)
+function LUCID_OPT.SafeColor3(c, fallback)
     if typeof(c) == "Color3" then return c end
     if type(c) == "table" and c.r and c.g and c.b then
         return Color3.new(c.r, c.g, c.b)
@@ -29,8 +29,7 @@ function __LUCID_OPT__.SafeColor3(c, fallback)
     return fallback or Color3.fromRGB(255,255,255)
 end
 
--- Tween helper: tween properties safely with reasonable defaults
-function __LUCID_OPT__.Tween(instance, props, time, style, direction, callback)
+function LUCID_OPT.Tween(instance, props, time, style, direction, callback)
     time = time or 0.2
     style = style or Enum.EasingStyle.Quad
     direction = direction or Enum.EasingDirection.Out
@@ -39,7 +38,6 @@ function __LUCID_OPT__.Tween(instance, props, time, style, direction, callback)
         return TweenService:Create(instance, info, props)
     end)
     if not suc then
-        -- fallback: assign directly (safer than erroring)
         for k,v in pairs(props) do
             pcall(function() instance[k] = v end)
         end
@@ -53,9 +51,7 @@ function __LUCID_OPT__.Tween(instance, props, time, style, direction, callback)
     return tween
 end
 
--- Debounce connection helper to prevent duplicate connections and memory leaks
-function __LUCID_OPT__.SafeConnect(tbl, key, signal, func)
-    -- tbl: table that will hold connection, key: unique key
+function LUCID_OPT.SafeConnect(tbl, key, signal, func)
     if tbl[key] then
         if typeof(tbl[key]) == "RBXScriptConnection" then
             pcall(function() tbl[key]:Disconnect() end)
@@ -66,51 +62,32 @@ function __LUCID_OPT__.SafeConnect(tbl, key, signal, func)
     return tbl[key]
 end
 
--- Utility: replace polling 'while true do wait() end' loops with RunService.Heartbeat
--- Usage: __LUCID_OPT__.BindLoop("myKey", function(dt) ... end)
-__LUCID_OPT__._boundLoops = {}
-function __LUCID_OPT__.BindLoop(key, fn)
-    -- bind a function to RunService.Heartbeat
-    if __LUCID_OPT__._boundLoops[key] then return end
-    __LUCID_OPT__._boundLoops[key] = RunService.Heartbeat:Connect(fn)
+LUCID_OPT._boundLoops = {}
+function LUCID_OPT.BindLoop(key, fn)
+    if LUCID_OPT._boundLoops[key] then return end
+    LUCID_OPT._boundLoops[key] = RunService.Heartbeat:Connect(fn)
 end
-function __LUCID_OPT__.UnbindLoop(key)
-    if __LUCID_OPT__._boundLoops[key] then
-        pcall(function() __LUCID_OPT__._boundLoops[key]:Disconnect() end)
-        __LUCID_OPT__._boundLoops[key] = nil
+function LUCID_OPT.UnbindLoop(key)
+    if LUCID_OPT._boundLoops[key] then
+        pcall(function() LUCID_OPT._boundLoops[key]:Disconnect() end)
+        LUCID_OPT._boundLoops[key] = nil
     end
 end
 
--- Lightweight profiler for measuring frame-costly functions
-function __LUCID_OPT__.Profile(name, fn)
+function LUCID_OPT.Profile(name, fn)
     local start = tick()
     local ok, res = pcall(fn)
     local took = tick() - start
-    if not ok then
-        warn(("__LUCID_OPT__ Profile '%s' errored: %s"):format(tostring(name), tostring(res)))
-    else
-        if took > 0.01 then -- >10ms
-            warn(("__LUCID_OPT__ Profile '%s' took %.4f s"):format(tostring(name), took))
-        end
-    end
     return ok, res, took
 end
 
--- Example: fast property set (batch) to reduce multiple property changes that can cause layout thrash
-function __LUCID_OPT__.BatchSet(instance, props)
+function LUCID_OPT.BatchSet(instance, props)
     for k,v in pairs(props) do
         pcall(function() instance[k] = v end)
     end
 end
 
--- Expose to global under a safe name so original code can use when refactoring
-_G.__LUCID_OPT__ = __LUCID_OPT__
-
--- End of optimization header.
--- Original file content follows below (unchanged). 
-
-
--- ORIGINAL CONTENT START
+_G.LUCID_OPT = LUCID_OPT
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 
@@ -366,7 +343,7 @@ end
 
 function Spring:step(state, dt)
 	local d = self._dampingRatio
-	local f = self._frequency * 2 * math.pi
+	local f = MulUDim2(self._frequency, 2) * math.pi
 	local g = self._targetValue
 	local p0 = state.value
 	local v0 = state.velocity or 0
@@ -377,7 +354,7 @@ function Spring:step(state, dt)
 	local p1, v1
 
 	if d == 1 then 
-		p1 = (offset * (1 + f * dt) + v0 * dt) * decay + g
+		p1 = (offset * (1 + f * dt) + vMulUDim2(dt, 0)) * decay + g
 		v1 = (v0 * (1 - f * dt) - offset * (f * f * dt)) * decay
 	elseif d < 1 then 
 		local c = math.sqrt(1 - d * d)
@@ -401,7 +378,7 @@ function Spring:step(state, dt)
 			y = dt + ((dt * dt) * (b * b) * (b * b) / 20 - b * b) * (dt * dt * dt) / 6
 		end
 
-		p1 = (offset * (i + d * z) + v0 * y) * decay + g
+		p1 = (offset * (i + d * z) + vMulUDim2(y, 0)) * decay + g
 		v1 = (v0 * (i - z * d) - offset * (z * f)) * decay
 	else 
 		local c = math.sqrt(d * d - 1)
@@ -409,14 +386,14 @@ function Spring:step(state, dt)
 		local r1 = -f * (d - c)
 		local r2 = -f * (d + c)
 
-		local co2 = (v0 - offset * r1) / (2 * f * c)
+		local co2 = (v0 - offset * r1) / (MulUDim2(f, 2) * c)
 		local co1 = offset - co2
 
-		local e1 = co1 * math.exp(r1 * dt)
-		local e2 = co2 * math.exp(r2 * dt)
+		local e1 = coMulUDim2(math.exp, 1)(rMulUDim2(dt, 1))
+		local e2 = coMulUDim2(math.exp, 2)(rMulUDim2(dt, 2))
 
 		p1 = e1 + e2 + g
-		v1 = e1 * r1 + e2 * r2
+		v1 = eMulUDim2(r1, 1) + eMulUDim2(r2, 2)
 	end
 
 	local complete = math.abs(v1) < VELOCITY_THRESHOLD and math.abs(p1 - g) < POSITION_THRESHOLD
@@ -1940,7 +1917,7 @@ Components.Textbox = (function()
 		local function Update()
 			local PADDING = 6
 			local Reveal = Textbox.Container.AbsoluteSize.X
-			if not Textbox.Input:IsFocused() or Textbox.Input.TextBounds.X <= Reveal - 2 * PADDING then
+			if not Textbox.Input:IsFocused() or Textbox.Input.TextBounds.X <= Reveal - MulUDim2(PADDING, 2) then
 				Textbox.Input.Position = UDim2.new(0, PADDING, 0, 0)
 			else
 				local Cursor = Textbox.Input.CursorPosition
@@ -2245,7 +2222,7 @@ Components.Window = (function()
 			local Now = tick()
 			local DeltaTime = Now - LastTime
 			if LastValue then
-				Window.SelectorSizeMotor:setGoal(Spring((math.abs(Value - LastValue) / (DeltaTime * 60)) + 16))
+				Window.SelectorSizeMotor:setGoal(Spring((math.abs(Value - LastValue) / (MulUDim2(DeltaTime, 60))) + 16))
 				LastValue = Value
 			end
 			LastTime = Now
@@ -3363,7 +3340,7 @@ ElementsTable.Colorpicker = (function()
 
 			local function GetRGB()
 				local Value = Color3.fromHSV(Hue, Sat, Vib)
-				return { R = math.floor(Value.r * 255), G = math.floor(Value.g * 255), B = math.floor(Value.b * 255) }
+				return { R = math.floor(MulUDim2(Value.r, 255)), G = math.floor(MulUDim2(Value.g, 255)), B = math.floor(MulUDim2(Value.b, 255)) }
 			end
 
 			local SatCursor = New("ImageLabel", {
@@ -3644,7 +3621,7 @@ ElementsTable.Colorpicker = (function()
 						pcall(function()
 							local Value = tonumber(AlphaInput.Input.Text)
 							if Value >= 0 and Value <= 100 then
-								Transparency = 1 - Value * 0.01
+								Transparency = 1 - MulUDim2(Value, 0.01)
 							end
 						end)
 					end
@@ -4764,4 +4741,3 @@ function Library:Notify(Config)
 end
 
 return Library
--- ORIGINAL CONTENT END

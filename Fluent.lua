@@ -2011,27 +2011,30 @@ Components.Window = (function()
 	local Instant = Flipper.Instant.new
 	local New = Creator.New
 
-	return function()
-        local Viewport = workspace.CurrentCamera.ViewportSize
+	return function(Config)
+        local screenW, screenH = Camera.ViewportSize.X, Camera.ViewportSize.Y
+        local isMobile = game:GetService("UserInputService").TouchEnabled
     
-        -- Tự động tính Size theo % màn hình
-        local Size = UDim2.fromOffset(
-            math.clamp(Viewport.X * 0.4, 300, 600), -- rộng 40% màn hình
-            math.clamp(Viewport.Y * 0.6, 250, 500)  -- cao 60% màn hình
-        )
+        local defaultWidth, defaultHeight
+        if isMobile then
+            defaultWidth = math.floor(screenW * 0.8)
+            defaultHeight = math.floor(screenH * 0.75)
+        else
+            defaultWidth = math.floor(screenW * 0.5)
+            defaultHeight = math.floor(screenH * 0.6)
+        end
     
-        -- Tự động tính TabWidth
-        local TabWidth = math.clamp(Viewport.X * 0.18, 160, 280)
+        local defaultTabWidth = math.floor(defaultWidth / 3)
     
         local Window = {
             Minimized = false,
             Maximized = false,
-            Size = Size,
+            Size = UDim2.fromOffset(defaultWidth, defaultHeight),
             CurrentPos = 0,
-            TabWidth = TabWidth,
+            TabWidth = defaultTabWidth,
             Position = UDim2.fromOffset(
-                Viewport.X / 2 - Size.X.Offset / 2,
-                Viewport.Y / 2 - Size.Y.Offset / 2
+                screenW / 2 - defaultWidth / 2,
+                screenH / 2 - defaultHeight / 2
             ),
         }
 

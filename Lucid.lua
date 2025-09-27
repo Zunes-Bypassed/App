@@ -636,6 +636,7 @@ function Creator.GetThemeProperty(Property)
 	if Themes[Library.Theme][Property] then
 		return Themes[Library.Theme][Property]
 	end
+	return Themes["Obsidian"][Property]
 end
 
 function Creator.New(Name, Properties, Children)

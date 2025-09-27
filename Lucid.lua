@@ -1070,324 +1070,319 @@ local Components = {
 }
 
 Components.Element = (function()
-    local New = Creator.New
-    local Spring = Flipper.Spring.new
+	local New = Creator.New
+	local Spring = Flipper.Spring.new
 
-    return function(Title, Desc, Parent, Hover, Options)
-        local Element = {}
-        local Options = Options or {}
+	return function(Title, Desc, Parent, Hover, Options)
+		local Element = {}
+		local Options = Options or {}
 
-        Element.TitleLabel = New("TextLabel", {
-            FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Medium, Enum.FontStyle.Normal),
-            Text = Title,
-            TextColor3 = Creator.GetThemeProperty("Text"),
-            TextSize = 14,
-            TextXAlignment = Enum.TextXAlignment.Left,
-            Size = UDim2.new(1, 0, 0, 16),
-            BackgroundTransparency = 1,
-            ThemeTag = { TextColor3 = "Text" },
-        })
+		Element.TitleLabel = New("TextLabel", {
+			FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Medium, Enum.FontStyle.Normal),
+			Text = Title,
+			TextColor3 = Creator.GetThemeProperty("Text"),
+			TextSize = 13,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			Size = UDim2.new(1, 0, 0, 14),
+			BackgroundTransparency = 1,
+			ThemeTag = {
+				TextColor3 = "Text",
+			},
+		})
 
-        Element.DescLabel = New("TextLabel", {
-            FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json"),
-            Text = Desc,
-            TextColor3 = Creator.GetThemeProperty("SubText"),
-            TextSize = 13,
-            TextWrapped = true,
-            TextXAlignment = Enum.TextXAlignment.Left,
-            AutomaticSize = Enum.AutomaticSize.Y,
-            BackgroundTransparency = 1,
-            Size = UDim2.new(1, 0, 0, 16),
-            ThemeTag = { TextColor3 = "SubText" },
-        })
+		Element.DescLabel = New("TextLabel", {
+			FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json"),
+			Text = Desc,
+			TextColor3 = Creator.GetThemeProperty("SubText"),
+			TextSize = 12,
+			TextWrapped = true,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			AutomaticSize = Enum.AutomaticSize.Y,
+			BackgroundTransparency = 1,
+			Size = UDim2.new(1, 0, 0, 14),
+			ThemeTag = {
+				TextColor3 = "SubText",
+			},
+		})
 
-        Element.LabelHolder = New("Frame", {
-            AutomaticSize = Enum.AutomaticSize.Y,
-            BackgroundTransparency = 1,
-            Position = UDim2.fromOffset(12, 0),
-            Size = UDim2.new(1, -32, 0, 0),
-        }, {
-            New("UIListLayout", {
-                SortOrder = Enum.SortOrder.LayoutOrder,
-                VerticalAlignment = Enum.VerticalAlignment.Center,
-                Padding = UDim.new(0, 4),
-            }),
-            New("UIPadding", {
-                PaddingBottom = UDim.new(0, 10),
-                PaddingTop = UDim.new(0, 10),
-            }),
-            Element.TitleLabel,
-            Element.DescLabel,
-        })
+		Element.LabelHolder = New("Frame", {
+			AutomaticSize = Enum.AutomaticSize.Y,
+			BackgroundTransparency = 1,
+			Position = UDim2.fromOffset(10, 0),
+			Size = UDim2.new(1, -28, 0, 0),
+		}, {
+			New("UIListLayout", {
+				SortOrder = Enum.SortOrder.LayoutOrder,
+				VerticalAlignment = Enum.VerticalAlignment.Center,
+			}),
+			New("UIPadding", {
+				PaddingBottom = UDim.new(0, 13),
+				PaddingTop = UDim.new(0, 13),
+			}),
+			Element.TitleLabel,
+			Element.DescLabel,
+		})
 
-        Element.Border = New("UIStroke", {
-            Transparency = 0.6,
-            Thickness = 1,
-            ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-            Color = Creator.GetThemeProperty("ElementBorder"),
-            ThemeTag = { Color = "ElementBorder" },
-        })
+		Element.Border = New("UIStroke", {
+			Transparency = 0.5,
+			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+			Color = Creator.GetThemeProperty("ElementBorder"),
+			ThemeTag = {
+				Color = "ElementBorder",
+			},
+		})
 
-        Element.Frame = New("TextButton", {
-            Visible = Options.Visible ~= false,
-            Size = UDim2.new(1, 0, 0, 0),
-            BackgroundTransparency = Creator.GetThemeProperty("ElementTransparency"),
-            BackgroundColor3 = Creator.GetThemeProperty("Element"),
-            Parent = Parent,
-            AutomaticSize = Enum.AutomaticSize.Y,
-            Text = "",
-            LayoutOrder = Options.LayoutOrder or 7,
-            ThemeTag = {
-                BackgroundColor3 = "Element",
-                BackgroundTransparency = "ElementTransparency",
-            },
-        }, {
-            New("UICorner", {
-                CornerRadius = UDim.new(0, 6),
-            }),
-            Element.Border,
-            Element.LabelHolder,
-        })
+		Element.Frame = New("TextButton", {
+			Visible = Options.Visible ~= false,
+			Size = UDim2.new(1, 0, 0, 0),
+			BackgroundTransparency = Creator.GetThemeProperty("ElementTransparency"),
+			BackgroundColor3 = Creator.GetThemeProperty("Element"),
+			Parent = Parent,
+			AutomaticSize = Enum.AutomaticSize.Y,
+			Text = "",
+			LayoutOrder = 7,
+			ThemeTag = {
+				BackgroundColor3 = "Element",
+				BackgroundTransparency = "ElementTransparency",
+			},
+		}, {
+			New("UICorner", {
+				CornerRadius = UDim.new(0, 4),
+			}),
+			Element.Border,
+			Element.LabelHolder,
+		})
 
-        function Element:SetTitle(Set)
-            Element.TitleLabel.Text = Set
-        end
+		function Element:SetTitle(Set)
+			Element.TitleLabel.Text = Set
+		end
 
-        function Element:Visible(Bool)
-            Element.Frame.Visible = Bool
-        end
+		function Element:Visible(Bool)
+			Element.Frame.Visible = Bool
+		end
 
-        function Element:SetDesc(Set)
-            Set = Set or ""
-            Element.DescLabel.Visible = Set ~= ""
-            Element.DescLabel.Text = Set
-        end
+		function Element:SetDesc(Set)
+			if Set == nil then
+				Set = ""
+			end
+			if Set == "" then
+				Element.DescLabel.Visible = false
+			else
+				Element.DescLabel.Visible = true
+			end
+			Element.DescLabel.Text = Set
+		end
 
-        function Element:GetTitle()
-            return Element.TitleLabel.Text
-        end
+		function Element:GetTitle()
+			return Element.TitleLabel.Text
+		end
 
-        function Element:GetDesc()
-            return Element.DescLabel.Text
-        end
+		function Element:GetDesc()
+			return Element.DescLabel.Text
+		end
 
-        function Element:Destroy()
-            Element.Frame:Destroy()
-        end
+		function Element:Destroy()
+			Element.Frame:Destroy()
+		end
 
-        Element:SetTitle(Title)
-        Element:SetDesc(Desc)
+		Element:SetTitle(Title)
+		Element:SetDesc(Desc)
 
-        if Hover then
-            local Motor, SetTransparency = Creator.SpringMotor(
-                Creator.GetThemeProperty("ElementTransparency"),
-                Element.Frame,
-                "BackgroundTransparency",
-                false,
-                true
-            )
+		if Hover then
+			local Motor, SetTransparency = Creator.SpringMotor(
+				Creator.GetThemeProperty("ElementTransparency"),
+				Element.Frame,
+				"BackgroundTransparency",
+				false,
+				true
+			)
 
-            Creator.AddSignal(Element.Frame.MouseEnter, function()
-                SetTransparency(math.clamp(Creator.GetThemeProperty("ElementTransparency") - Creator.GetThemeProperty("HoverChange"), 0, 1))
-                Element.Border.Transparency = 0.3
-            end)
-            Creator.AddSignal(Element.Frame.MouseLeave, function()
-                SetTransparency(Creator.GetThemeProperty("ElementTransparency"))
-                Element.Border.Transparency = 0.6
-            end)
-            Creator.AddSignal(Element.Frame.MouseButton1Down, function()
-                SetTransparency(math.clamp(Creator.GetThemeProperty("ElementTransparency") + Creator.GetThemeProperty("HoverChange"), 0, 1))
-            end)
-            Creator.AddSignal(Element.Frame.MouseButton1Up, function()
-                SetTransparency(math.clamp(Creator.GetThemeProperty("ElementTransparency") - Creator.GetThemeProperty("HoverChange"), 0, 1))
-            end)
-        end
+			Creator.AddSignal(Element.Frame.MouseEnter, function()
+				SetTransparency(Creator.GetThemeProperty("ElementTransparency") - Creator.GetThemeProperty("HoverChange"))
+			end)
+			Creator.AddSignal(Element.Frame.MouseLeave, function()
+				SetTransparency(Creator.GetThemeProperty("ElementTransparency"))
+			end)
+			Creator.AddSignal(Element.Frame.MouseButton1Down, function()
+				SetTransparency(Creator.GetThemeProperty("ElementTransparency") + Creator.GetThemeProperty("HoverChange"))
+			end)
+			Creator.AddSignal(Element.Frame.MouseButton1Up, function()
+				SetTransparency(Creator.GetThemeProperty("ElementTransparency") - Creator.GetThemeProperty("HoverChange"))
+			end)
+		end
 
-        return Element
-    end
+		return Element
+	end
 end)()
 Components.Tab = (function()
-    local New = Creator.New
-    local Spring = Flipper.Spring.new
-    local Components = Components
+	local New = Creator.New
+	local Spring = Flipper.Spring.new
+	local Components = Components
 
-    local TabModule = {
-        Window = nil,
-        Tabs = {},
-        Containers = {},
-        SelectedTab = 0,
-        TabCount = 0,
-    }
+	local TabModule = {
+		Window = nil,
+		Tabs = {},
+		Containers = {},
+		SelectedTab = 0,
+		TabCount = 0,
+	}
 
-    function TabModule:Init(Window)
-        TabModule.Window = Window
-        return TabModule
-    end
+	function TabModule:Init(Window)
+		TabModule.Window = Window
+		return TabModule
+	end
 
-    function TabModule:GetCurrentTabPos()
-        local TabHolderPos = TabModule.Window.TabHolder.AbsolutePosition.Y
-        local TabPos = TabModule.Tabs[TabModule.SelectedTab].Frame.AbsolutePosition.Y
-        return TabPos - TabHolderPos
-    end
+	function TabModule:GetCurrentTabPos()
+		local TabHolderPos = TabModule.Window.TabHolder.AbsolutePosition.Y
+		local TabPos = TabModule.Tabs[TabModule.SelectedTab].Frame.AbsolutePosition.Y
+		return TabPos - TabHolderPos
+	end
 
-    function TabModule:New(Title, Icon, Parent)
-        local Window = TabModule.Window
-        local Elements = Library.Elements
-        TabModule.TabCount += 1
-        local TabIndex = TabModule.TabCount
-        local Tab = { Selected = false, Name = Title, Type = "Tab" }
+	function TabModule:New(Title, Icon, Parent)
+		local Window = TabModule.Window
+		local Elements = Library.Elements
+		TabModule.TabCount += 1
+		local TabIndex = TabModule.TabCount
+		local Tab = { Selected = false, Name = Title, Type = "Tab" }
+		if Library:GetIcon(Icon) then Icon = Library:GetIcon(Icon) end
+		if Icon == "" or nil then Icon = nil end
 
-        if Library:GetIcon(Icon) then Icon = Library:GetIcon(Icon) end
-        if Icon == "" or Icon == nil then Icon = nil end
+		Tab.Frame = New("TextButton", {
+			Size = UDim2.new(1, 0, 0, 36),
+			BackgroundTransparency = 1,
+			Parent = Parent,
+			Text = "",
+		}, {
+			New("UICorner", { CornerRadius = UDim.new(0, 8) }),
+			New("Frame", {
+				Name = "AccentLine",
+				Size = UDim2.new(0, 3, 1, -6),
+				Position = UDim2.fromOffset(0, 3),
+				BackgroundColor3 = Color3.fromRGB(0, 195, 255),
+				BackgroundTransparency = 0.8,
+				Visible = false,
+				ThemeTag = { BackgroundColor3 = "Accent" },
+			}),
+			New("TextLabel", {
+				AnchorPoint = Vector2.new(0, 0.5),
+				Position = Icon and UDim2.new(0, 34, 0.5, 0) or UDim2.new(0, 14, 0.5, 0),
+				Text = Title,
+				RichText = true,
+				FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Medium),
+				TextSize = 14,
+				TextXAlignment = "Left",
+				TextYAlignment = "Center",
+				Size = UDim2.new(1, -12, 1, 0),
+				BackgroundTransparency = 1,
+				ThemeTag = { TextColor3 = "Text" },
+			}),
+			New("ImageLabel", {
+				AnchorPoint = Vector2.new(0, 0.5),
+				Size = UDim2.fromOffset(18, 18),
+				Position = UDim2.new(0, 10, 0.5, 0),
+				BackgroundTransparency = 1,
+				Image = Icon,
+				ThemeTag = { ImageColor3 = "Text" },
+			}),
+		})
 
-        Tab.Frame = New("TextButton", {
-            Size = UDim2.new(1, 0, 0, 40),
-            BackgroundColor3 = Creator.GetThemeProperty("TabBackground"),
-            BackgroundTransparency = 1,
-            Parent = Parent,
-            Text = "",
-            AutoButtonColor = false,
-        }, {
-            New("UICorner", { CornerRadius = UDim.new(0, 6) }),
-            New("Frame", {
-                Name = "AccentLine",
-                Size = UDim2.new(0, 0, 1, -8),
-                Position = UDim2.fromOffset(0, 4),
-                BackgroundColor3 = Creator.GetThemeProperty("Accent"),
-                BackgroundTransparency = 0.3,
-                Visible = true,
-                ThemeTag = { BackgroundColor3 = "Accent" },
-            }),
-            New("TextLabel", {
-                AnchorPoint = Vector2.new(0, 0.5),
-                Position = Icon and UDim2.new(0, 36, 0.5, 0) or UDim2.new(0, 14, 0.5, 0),
-                Text = Title,
-                RichText = true,
-                FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Medium),
-                TextSize = 15,
-                TextXAlignment = "Left",
-                TextYAlignment = "Center",
-                Size = UDim2.new(1, -12, 1, 0),
-                BackgroundTransparency = 1,
-                ThemeTag = { TextColor3 = "Text" },
-            }),
-            New("ImageLabel", {
-                AnchorPoint = Vector2.new(0, 0.5),
-                Size = UDim2.fromOffset(20, 20),
-                Position = UDim2.new(0, 10, 0.5, 0),
-                BackgroundTransparency = 1,
-                Image = Icon,
-                ThemeTag = { ImageColor3 = "Text" },
-            }),
-        })
+		local ContainerLayout = New("UIListLayout", {
+			Padding = UDim.new(0, 8),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		})
 
-        local AccentLine = Tab.Frame.AccentLine
-        Tab.AccentMotor = Flipper.SingleMotor.new(0)
-        Tab.AccentMotor:onStep(function(v)
-            AccentLine.Size = UDim2.new(0, v, 1, -8)
-        end)
+		Tab.ContainerFrame = New("ScrollingFrame", {
+			Size = UDim2.fromScale(1, 1),
+			BackgroundTransparency = 1,
+			Parent = Window.ContainerHolder,
+			Visible = false,
+			ScrollBarImageColor3 = Color3.fromRGB(255, 255, 255),
+			ScrollBarImageTransparency = 0.9,
+			ScrollBarThickness = 2,
+			BorderSizePixel = 0,
+			CanvasSize = UDim2.fromScale(0, 0),
+			ScrollingDirection = Enum.ScrollingDirection.Y,
+		}, {
+			ContainerLayout,
+			New("UIPadding", {
+				PaddingLeft = UDim.new(0, 8),
+				PaddingRight = UDim.new(0, 8),
+				PaddingTop = UDim.new(0, 4),
+				PaddingBottom = UDim.new(0, 4),
+			}),
+		})
 
-        local ContainerLayout = New("UIListLayout", {
-            Padding = UDim.new(0, 10),
-            SortOrder = Enum.SortOrder.LayoutOrder,
-        })
+		Creator.AddSignal(ContainerLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
+			Tab.ContainerFrame.CanvasSize = UDim2.new(0, 0, 0, ContainerLayout.AbsoluteContentSize.Y + 8)
+		end)
 
-        Tab.ContainerFrame = New("ScrollingFrame", {
-            Size = UDim2.fromScale(1, 1),
-            BackgroundTransparency = 1,
-            Parent = Window.ContainerHolder,
-            Visible = false,
-            ScrollBarImageColor3 = Color3.fromRGB(255, 255, 255),
-            ScrollBarImageTransparency = 0.85,
-            ScrollBarThickness = 3,
-            BorderSizePixel = 0,
-            CanvasSize = UDim2.fromScale(0, 0),
-            ScrollingDirection = Enum.ScrollingDirection.Y,
-        }, {
-            ContainerLayout,
-            New("UIPadding", {
-                PaddingLeft = UDim.new(0, 12),
-                PaddingRight = UDim.new(0, 12),
-                PaddingTop = UDim.new(0, 6),
-                PaddingBottom = UDim.new(0, 6),
-            }),
-        })
+		Tab.Motor, Tab.SetTransparency = Creator.SpringMotor(1, Tab.Frame, "BackgroundTransparency")
 
-        Creator.AddSignal(ContainerLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
-            Tab.ContainerFrame.CanvasSize = UDim2.new(0, 0, 0, ContainerLayout.AbsoluteContentSize.Y + 10)
-        end)
+		Creator.AddSignal(Tab.Frame.MouseEnter, function()
+			Tab.SetTransparency(Tab.Selected and 0.9 or 0.95)
+		end)
+		Creator.AddSignal(Tab.Frame.MouseLeave, function()
+			Tab.SetTransparency(Tab.Selected and 0.85 or 1)
+		end)
+		Creator.AddSignal(Tab.Frame.MouseButton1Down, function()
+			Tab.SetTransparency(0.92)
+		end)
+		Creator.AddSignal(Tab.Frame.MouseButton1Up, function()
+			Tab.SetTransparency(Tab.Selected and 0.9 or 0.95)
+		end)
+		Creator.AddSignal(Tab.Frame.MouseButton1Click, function()
+			TabModule:SelectTab(TabIndex)
+		end)
 
-        Tab.Motor, Tab.SetTransparency = Creator.SpringMotor(1, Tab.Frame, "BackgroundTransparency")
+		TabModule.Containers[TabIndex] = Tab.ContainerFrame
+		TabModule.Tabs[TabIndex] = Tab
+		Tab.Container = Tab.ContainerFrame
+		Tab.ScrollFrame = Tab.Container
 
-        Creator.AddSignal(Tab.Frame.MouseEnter, function()
-            Tab.SetTransparency(Tab.Selected and 0.92 or 0.95)
-        end)
-        Creator.AddSignal(Tab.Frame.MouseLeave, function()
-            Tab.SetTransparency(Tab.Selected and 0.88 or 1)
-        end)
-        Creator.AddSignal(Tab.Frame.MouseButton1Down, function()
-            Tab.SetTransparency(0.9)
-        end)
-        Creator.AddSignal(Tab.Frame.MouseButton1Up, function()
-            Tab.SetTransparency(Tab.Selected and 0.92 or 0.95)
-        end)
-        Creator.AddSignal(Tab.Frame.MouseButton1Click, function()
-            TabModule:SelectTab(TabIndex)
-        end)
+		function Tab:AddSection(SectionTitle)
+			local Section = { Type = "Section" }
+			local SectionFrame = Components.Section(SectionTitle, Tab.Container)
+			Section.Container = SectionFrame.Container
+			Section.ScrollFrame = Tab.Container
+			setmetatable(Section, Elements)
+			return Section
+		end
 
-        TabModule.Containers[TabIndex] = Tab.ContainerFrame
-        TabModule.Tabs[TabIndex] = Tab
-        Tab.Container = Tab.ContainerFrame
-        Tab.ScrollFrame = Tab.Container
+		setmetatable(Tab, Elements)
+		return Tab
+	end
 
-        function Tab:AddSection(SectionTitle)
-            local Section = { Type = "Section" }
-            local SectionFrame = Components.Section(SectionTitle, Tab.Container)
-            Section.Container = SectionFrame.Container
-            Section.ScrollFrame = Tab.Container
-            setmetatable(Section, Elements)
-            return Section
-        end
+	function TabModule:SelectTab(Tab)
+		local Window = TabModule.Window
+		TabModule.SelectedTab = Tab
+		for _, t in next, TabModule.Tabs do
+			t.SetTransparency(1)
+			t.Selected = false
+			t.Frame.AccentLine.Visible = false
+		end
+		local sel = TabModule.Tabs[Tab]
+		sel.SetTransparency(0.9)
+		sel.Selected = true
+		sel.Frame.AccentLine.Visible = true
+		Window.TabDisplay.Text = sel.Name
+		Window.SelectorPosMotor:setGoal(Spring(TabModule:GetCurrentTabPos(), { frequency = 6 }))
+		task.spawn(function()
+			Window.ContainerHolder.Parent = Window.ContainerAnim
+			Window.ContainerPosMotor:setGoal(Spring(15, { frequency = 10 }))
+			Window.ContainerBackMotor:setGoal(Spring(1, { frequency = 10 }))
+			if Window.ContainerFadeMotor then Window.ContainerFadeMotor:setGoal(Spring(1, { frequency = 10 })) end
+			task.wait(0.12)
+			for _, c in next, TabModule.Containers do c.Visible = false end
+			TabModule.Containers[Tab].Visible = true
+			Window.ContainerPosMotor:setGoal(Spring(0, { frequency = 5 }))
+			Window.ContainerBackMotor:setGoal(Spring(0, { frequency = 8 }))
+			if Window.ContainerFadeMotor then Window.ContainerFadeMotor:setGoal(Spring(0, { frequency = 6 })) end
+			task.wait(0.12)
+			Window.ContainerHolder.Parent = Window.ContainerCanvas
+		end)
+	end
 
-        setmetatable(Tab, Elements)
-        return Tab
-    end
-
-    function TabModule:SelectTab(Tab)
-        local Window = TabModule.Window
-        TabModule.SelectedTab = Tab
-        for _, t in next, TabModule.Tabs do
-            t.SetTransparency(1)
-            t.Selected = false
-            t.AccentMotor:setGoal(Flipper.Spring.new(0, { frequency = 6, dampingRatio = 1 }))
-        end
-        local sel = TabModule.Tabs[Tab]
-        sel.SetTransparency(0.92)
-        sel.Selected = true
-        sel.AccentMotor:setGoal(Flipper.Spring.new(4, { frequency = 6, dampingRatio = 1 }))
-        Window.TabDisplay.Text = sel.Name
-        Window.SelectorPosMotor:setGoal(Spring(TabModule:GetCurrentTabPos(), { frequency = 6 }))
-        task.spawn(function()
-            Window.ContainerHolder.Parent = Window.ContainerAnim
-            Window.ContainerPosMotor:setGoal(Spring(15, { frequency = 10 }))
-            Window.ContainerBackMotor:setGoal(Spring(1, { frequency = 10 }))
-            if Window.ContainerFadeMotor then
-                Window.ContainerFadeMotor:setGoal(Spring(1, { frequency = 10 }))
-            end
-            task.wait(0.12)
-            for _, c in next, TabModule.Containers do c.Visible = false end
-            TabModule.Containers[Tab].Visible = true
-            Window.ContainerPosMotor:setGoal(Spring(0, { frequency = 5 }))
-            Window.ContainerBackMotor:setGoal(Spring(0, { frequency = 8 }))
-            if Window.ContainerFadeMotor then
-                Window.ContainerFadeMotor:setGoal(Spring(0, { frequency = 6 }))
-            end
-            task.wait(0.12)
-            Window.ContainerHolder.Parent = Window.ContainerCanvas
-        end)
-    end
-
-    return TabModule
+	return TabModule
 end)()
 Components.Button = (function()
 	local New = Creator.New
@@ -1484,25 +1479,23 @@ Components.Dialog = (function()
 			BackgroundColor3 = Color3.fromRGB(0, 0, 0),
 			BackgroundTransparency = 1,
 			AutoButtonColor = false,
-			ZIndex = 50,
 			Parent = Dialog.Window.Root,
 		})
 
 		local TintMotor, TintTransparency = Creator.SpringMotor(1, NewDialog.TintFrame, "BackgroundTransparency", true)
 
 		NewDialog.Root = New("CanvasGroup", {
-			Size = UDim2.fromOffset(360, 200),
+			Size = UDim2.fromOffset(340, 180),
 			AnchorPoint = Vector2.new(0.5, 0.5),
 			Position = UDim2.fromScale(0.5, 0.5),
 			GroupTransparency = 1,
 			Parent = NewDialog.TintFrame,
-			ZIndex = 51,
 			ThemeTag = { BackgroundColor3 = "Dialog" },
 		}, {
-			New("UICorner", { CornerRadius = UDim.new(0, 12) }),
+			New("UICorner", { CornerRadius = UDim.new(0, 10) }),
 			New("UIStroke", {
-				Transparency = 0.3,
-				Thickness = 1.6,
+				Transparency = 0.35,
+				Thickness = 1.5,
 				ThemeTag = { Color = "DialogBorder" },
 			}),
 		})
@@ -1512,20 +1505,18 @@ Components.Dialog = (function()
 			FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.SemiBold),
 			TextSize = 20,
 			TextXAlignment = Enum.TextXAlignment.Left,
-			Size = UDim2.new(1, -40, 0, 26),
-			Position = UDim2.fromOffset(20, 20),
+			Size = UDim2.new(1, -40, 0, 24),
+			Position = UDim2.fromOffset(20, 18),
 			BackgroundTransparency = 1,
-			ZIndex = 52,
 			ThemeTag = { TextColor3 = "Text" },
 			Parent = NewDialog.Root,
 		})
 
 		NewDialog.ButtonHolder = New("Frame", {
-			Size = UDim2.new(1, -40, 0, 38),
+			Size = UDim2.new(1, -40, 0, 36),
 			AnchorPoint = Vector2.new(0.5, 1),
-			Position = UDim2.new(0.5, 0, 1, -18),
+			Position = UDim2.new(0.5, 0, 1, -15),
 			BackgroundTransparency = 1,
-			ZIndex = 52,
 			Parent = NewDialog.Root,
 		}, {
 			New("UIGridLayout", {
@@ -1537,13 +1528,13 @@ Components.Dialog = (function()
 			}),
 		})
 
-		NewDialog.Scale = New("UIScale", { Scale = 1.1, Parent = NewDialog.Root })
+		NewDialog.Scale = New("UIScale", { Scale = 1.05, Parent = NewDialog.Root })
 		local RootMotor, RootTransparency = Creator.SpringMotor(1, NewDialog.Root, "GroupTransparency")
-		local ScaleMotor, SetScale = Creator.SpringMotor(1.1, NewDialog.Scale, "Scale")
+		local ScaleMotor, SetScale = Creator.SpringMotor(1.05, NewDialog.Scale, "Scale")
 
 		function NewDialog:Open()
 			Library.DialogOpen = true
-			NewDialog.Scale.Scale = 1.15
+			NewDialog.Scale.Scale = 1.08
 			TintTransparency(0.4)
 			RootTransparency(0)
 			SetScale(1)
@@ -1551,12 +1542,7 @@ Components.Dialog = (function()
 
 		function NewDialog:Close()
 			Library.DialogOpen = false
-			TintTransparency(1)
-			RootTransparency(1)
-			SetScale(1.05)
-			task.delay(0.15, function()
-				NewDialog.TintFrame:Destroy()
-			end)
+			NewDialog.TintFrame:Destroy()
 		end
 
 		function NewDialog:Button(Title, Callback)
@@ -1583,7 +1569,7 @@ Components.Notification = (function()
     function Notification:Init(GUI)
         Notification.Holder = New("Frame", {
             Position = UDim2.new(1, -20, 1, -20),
-            Size = UDim2.new(0, 280, 1, -20),
+            Size = UDim2.new(0, 260, 1, -20),
             AnchorPoint = Vector2.new(1, 1),
             BackgroundTransparency = 1,
             Parent = GUI
@@ -1592,40 +1578,40 @@ Components.Notification = (function()
                 HorizontalAlignment = Enum.HorizontalAlignment.Center,
                 SortOrder = Enum.SortOrder.LayoutOrder,
                 VerticalAlignment = Enum.VerticalAlignment.Bottom,
-                Padding = UDim.new(0, 10),
+                Padding = UDim.new(0, 6),
             }),
         })
     end
 
     function Notification:New(Config)
-        Config.Title = Config.Title
-        Config.Content = Config.Content 
-        Config.SubContent = Config.SubContent 
-        Config.Duration = Config.Duration 
+        Config.Title = Config.Title or "Title"
+        Config.Content = Config.Content or "Message"
+        Config.SubContent = Config.SubContent or ""
+        Config.Duration = Config.Duration or nil
 
         local NewNotification = { Closed = false }
         NewNotification.AcrylicPaint = Acrylic.AcrylicPaint()
 
         NewNotification.Title = New("TextLabel", {
-            Position = UDim2.fromOffset(14, 10),
+            Position = UDim2.fromOffset(10, 8),
             Text = Config.Title,
             RichText = true,
-            FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Bold),
-            TextSize = 14,
+            FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Medium),
+            TextSize = 12,
             TextXAlignment = Enum.TextXAlignment.Left,
-            TextColor3 = Color3.fromRGB(255, 255, 255),
-            Size = UDim2.new(1, -40, 0, 16),
+            TextColor3 = Color3.fromRGB(245, 245, 245),
+            Size = UDim2.new(1, -30, 0, 14),
             BackgroundTransparency = 1,
         })
 
         NewNotification.ContentLabel = New("TextLabel", {
             FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json"),
             Text = Config.Content,
-            TextSize = 12,
+            TextSize = 11,
             TextXAlignment = Enum.TextXAlignment.Left,
             AutomaticSize = Enum.AutomaticSize.Y,
-            Size = UDim2.new(1, -28, 0, 14),
-            Position = UDim2.fromOffset(14, 30),
+            Size = UDim2.new(1, -20, 0, 12),
+            Position = UDim2.fromOffset(10, 26),
             TextColor3 = Color3.fromRGB(230, 230, 230),
             BackgroundTransparency = 1,
             TextWrapped = true,
@@ -1634,11 +1620,11 @@ Components.Notification = (function()
         NewNotification.SubContentLabel = New("TextLabel", {
             FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json"),
             Text = Config.SubContent,
-            TextSize = 11,
+            TextSize = 10,
             TextXAlignment = Enum.TextXAlignment.Left,
             AutomaticSize = Enum.AutomaticSize.Y,
-            Size = UDim2.new(1, -28, 0, 12),
-            Position = UDim2.fromOffset(14, 46),
+            Size = UDim2.new(1, -20, 0, 12),
+            Position = UDim2.fromOffset(10, 40),
             TextColor3 = Color3.fromRGB(180, 180, 190),
             BackgroundTransparency = 1,
             TextWrapped = true,
@@ -1647,14 +1633,14 @@ Components.Notification = (function()
 
         NewNotification.CloseButton = New("TextButton", {
             Text = "",
-            Position = UDim2.new(1, -10, 0, 10),
-            Size = UDim2.fromOffset(16, 16),
+            Position = UDim2.new(1, -8, 0, 6),
+            Size = UDim2.fromOffset(14, 14),
             AnchorPoint = Vector2.new(1, 0),
             BackgroundTransparency = 1,
         }, {
             New("ImageLabel", {
                 Image = Components.Close,
-                Size = UDim2.fromOffset(14, 14),
+                Size = UDim2.fromOffset(12, 12),
                 Position = UDim2.fromScale(0.5, 0.5),
                 AnchorPoint = Vector2.new(0.5, 0.5),
                 BackgroundTransparency = 1,
@@ -1665,31 +1651,14 @@ Components.Notification = (function()
 
         NewNotification.Root = New("Frame", {
             BackgroundTransparency = 1,
-            Size = UDim2.new(1, 0, 0, 70),
+            Size = UDim2.new(1, 0, 0, 60),
             Position = UDim2.fromScale(1, 0),
         }, {
             NewNotification.AcrylicPaint.Frame,
-            New("UICorner", { CornerRadius = UDim.new(0, 10) }),
+            New("UICorner", { CornerRadius = UDim.new(0, 6) }),
             New("UIStroke", {
-                Transparency = 0.25,
-                Thickness = 1.3,
-                Color = Color3.fromRGB(120, 120, 120),
-            }),
-            New("UIStroke", {
-                ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-                Transparency = 0.9,
-                Color = Color3.fromRGB(0, 0, 0),
-            }),
-            New("UIGradient", {
-                Rotation = 90,
-                Color = ColorSequence.new{
-                    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
-                    ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 200, 200))
-                },
-                Transparency = NumberSequence.new{
-                    NumberSequenceKeypoint.new(0, 0.92),
-                    NumberSequenceKeypoint.new(1, 1)
-                }
+                Transparency = 0.4,
+                Color = Color3.fromRGB(100, 100, 100),
             }),
             NewNotification.Title,
             NewNotification.ContentLabel,
@@ -1699,11 +1668,11 @@ Components.Notification = (function()
 
         NewNotification.Holder = New("Frame", {
             BackgroundTransparency = 1,
-            Size = UDim2.new(1, 0, 0, 70),
+            Size = UDim2.new(1, 0, 0, 60),
             Parent = Notification.Holder,
         }, { NewNotification.Root })
 
-        local RootMotor = Flipper.GroupMotor.new({ Offset = 40, Opacity = 1, Scale = 0.9 })
+        local RootMotor = Flipper.GroupMotor.new({ Offset = 30, Opacity = 1, Scale = 0.95 })
         RootMotor:onStep(function(Values)
             NewNotification.Root.Position = UDim2.new(0, Values.Offset, 0, 0)
             NewNotification.Root.BackgroundTransparency = Values.Opacity
@@ -1713,10 +1682,10 @@ Components.Notification = (function()
 
         local CloseIcon = NewNotification.CloseButton:FindFirstChild("Icon")
         NewNotification.CloseButton.MouseEnter:Connect(function()
-            game:GetService("TweenService"):Create(CloseIcon, TweenInfo.new(0.15), { ImageColor3 = Color3.fromRGB(255, 100, 100) }):Play()
+            game:GetService("TweenService"):Create(CloseIcon, TweenInfo.new(0.2), { ImageColor3 = Color3.fromRGB(255, 120, 120) }):Play()
         end)
         NewNotification.CloseButton.MouseLeave:Connect(function()
-            game:GetService("TweenService"):Create(CloseIcon, TweenInfo.new(0.15), { ImageColor3 = Color3.fromRGB(220, 220, 220) }):Play()
+            game:GetService("TweenService"):Create(CloseIcon, TweenInfo.new(0.2), { ImageColor3 = Color3.fromRGB(220, 220, 220) }):Play()
         end)
 
         Creator.AddSignal(NewNotification.CloseButton.MouseButton1Click, function()
@@ -1724,16 +1693,16 @@ Components.Notification = (function()
         end)
 
         function NewNotification:Open()
-            local totalHeight = 34 + NewNotification.ContentLabel.AbsoluteSize.Y
+            local totalHeight = 30 + NewNotification.ContentLabel.AbsoluteSize.Y
             if Config.SubContent ~= "" then
-                totalHeight = totalHeight + NewNotification.SubContentLabel.AbsoluteSize.Y + 6
+                totalHeight = totalHeight + NewNotification.SubContentLabel.AbsoluteSize.Y + 4
             end
             NewNotification.Holder.Size = UDim2.new(1, 0, 0, totalHeight)
 
             RootMotor:setGoal({
-                Offset = Spring(0, { frequency = 5.5, dampingRatio = 0.8 }),
-                Opacity = Spring(0, { frequency = 4.5, dampingRatio = 0.7 }),
-                Scale = Spring(1, { frequency = 5.5, dampingRatio = 0.8 }),
+                Offset = Spring(0, { frequency = 5, dampingRatio = 0.75 }),
+                Opacity = Spring(0, { frequency = 5, dampingRatio = 0.75 }),
+                Scale = Spring(1, { frequency = 5, dampingRatio = 0.75 }),
             })
         end
 
@@ -1742,11 +1711,11 @@ Components.Notification = (function()
                 NewNotification.Closed = true
                 task.spawn(function()
                     RootMotor:setGoal({
-                        Offset = Spring(30, { frequency = 5.5, dampingRatio = 0.8 }),
-                        Opacity = Spring(1, { frequency = 5.5, dampingRatio = 0.8 }),
-                        Scale = Spring(0.9, { frequency = 5.5, dampingRatio = 0.8 }),
+                        Offset = Spring(30, { frequency = 5, dampingRatio = 0.75 }),
+                        Opacity = Spring(1, { frequency = 5, dampingRatio = 0.75 }),
+                        Scale = Spring(0.95, { frequency = 5, dampingRatio = 0.75 }),
                     })
-                    task.wait(0.25)
+                    task.wait(0.3)
                     if Library.UseAcrylic then
                         NewNotification.AcrylicPaint.Model:Destroy()
                     end
@@ -1776,10 +1745,10 @@ Components.Textbox = (function()
 
 		Textbox.Input = New("TextBox", {
 			FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json"),
-			TextColor3 = Color3.fromRGB(240, 240, 240),
+			TextColor3 = Color3.fromRGB(235, 235, 235),
 			TextSize = 15,
 			PlaceholderText = "Enter text...",
-			PlaceholderColor3 = Color3.fromRGB(170, 170, 170),
+			PlaceholderColor3 = Color3.fromRGB(160, 160, 160),
 			TextXAlignment = Enum.TextXAlignment.Left,
 			TextYAlignment = Enum.TextYAlignment.Center,
 			BackgroundTransparency = 1,
@@ -1809,27 +1778,16 @@ Components.Textbox = (function()
 		})
 
 		Textbox.Frame = New("Frame", {
-			Size = UDim2.new(0, 0, 0, 38),
-			BackgroundTransparency = Acrylic and 0.82 or 0,
+			Size = UDim2.new(0, 0, 0, 36),
+			BackgroundTransparency = Acrylic and 0.85 or 0,
 			Parent = Parent,
 			ThemeTag = { BackgroundColor3 = Acrylic and "Input" or "DialogInput" },
 		}, {
-			New("UICorner", { CornerRadius = UDim.new(0, 10) }),
+			New("UICorner", { CornerRadius = UDim.new(0, 8) }),
 			New("UIStroke", {
 				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-				Transparency = Acrylic and 0.25 or 0.45,
+				Transparency = Acrylic and 0.35 or 0.5,
 				ThemeTag = { Color = Acrylic and "InElementBorder" or "DialogButtonBorder" },
-			}),
-			New("UIGradient", {
-				Rotation = 90,
-				Color = ColorSequence.new({
-					ColorSequenceKeypoint.new(0, Color3.fromRGB(255,255,255)),
-					ColorSequenceKeypoint.new(1, Color3.fromRGB(230,230,230))
-				}),
-				Transparency = NumberSequence.new({
-					NumberSequenceKeypoint.new(0, 0.92),
-					NumberSequenceKeypoint.new(1, 1)
-				})
 			}),
 			Textbox.Container,
 			Textbox.Indicator,
@@ -1868,9 +1826,8 @@ Components.Textbox = (function()
 			Update()
 			Creator.OverrideTag(Textbox.Frame, { BackgroundColor3 = Acrylic and "InputFocused" or "DialogHolder" })
 			Creator.OverrideTag(Textbox.Indicator, { BackgroundColor3 = "InputIndicatorFocus" })
-			Textbox.Indicator:TweenSize(UDim2.new(1, -6, 0, 2), "Out", "Quad", 0.25, true)
+			Textbox.Indicator:TweenSize(UDim2.new(1, -4, 0, 2), "Out", "Quad", 0.25, true)
 			Textbox.Indicator.BackgroundTransparency = 0
-			Textbox.Frame:TweenSize(UDim2.new(Textbox.Frame.Size.X.Scale, Textbox.Frame.Size.X.Offset, 0, 42), "Out", "Quad", 0.2, true)
 		end)
 
 		Creator.AddSignal(Textbox.Input.FocusLost, function()
@@ -1879,7 +1836,6 @@ Components.Textbox = (function()
 			Creator.OverrideTag(Textbox.Indicator, { BackgroundColor3 = Acrylic and "InputIndicator" or "DialogInputLine" })
 			Textbox.Indicator:TweenSize(UDim2.new(0, 0, 0, 2), "Out", "Quad", 0.25, true)
 			Textbox.Indicator.BackgroundTransparency = 1
-			Textbox.Frame:TweenSize(UDim2.new(Textbox.Frame.Size.X.Scale, Textbox.Frame.Size.X.Offset, 0, 38), "Out", "Quad", 0.2, true)
 		end)
 
 		return Textbox
@@ -1904,11 +1860,6 @@ Components.TitleBar = (function()
 				Text = "",
 			}, {
 				New("UICorner", { CornerRadius = UDim.new(0, 8) }),
-				New("UIStroke", {
-					ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-					Transparency = 1,
-					ThemeTag = { Color = "TitleBarButtonBorder" },
-				}),
 				New("ImageLabel", {
 					Image = Icon,
 					Size = UDim2.fromOffset(18, 18),
@@ -1922,17 +1873,11 @@ Components.TitleBar = (function()
 
 			local _, SetTransparency = Creator.SpringMotor(1, Button.Frame, "BackgroundTransparency")
 
-			AddSignal(Button.Frame.MouseEnter, function()
-				SetTransparency(0.85)
-				Button.Frame.UIStroke.Transparency = 0.6
-			end)
-			AddSignal(Button.Frame.MouseLeave, function()
-				SetTransparency(1, true)
-				Button.Frame.UIStroke.Transparency = 1
-			end)
-			AddSignal(Button.Frame.MouseButton1Down, function() SetTransparency(0.9) end)
-			AddSignal(Button.Frame.MouseButton1Up, function() SetTransparency(0.85) end)
-			AddSignal(Button.Frame.MouseButton1Click, function() Button.Callback() end)
+			AddSignal(Button.Frame.MouseEnter, function() SetTransparency(0.92) end)
+			AddSignal(Button.Frame.MouseLeave, function() SetTransparency(1, true) end)
+			AddSignal(Button.Frame.MouseButton1Down, function() SetTransparency(0.95) end)
+			AddSignal(Button.Frame.MouseButton1Up, function() SetTransparency(0.92) end)
+			AddSignal(Button.Frame.MouseButton1Click, Button.Callback)
 
 			function Button:SetCallback(Func) self.Callback = Func end
 
@@ -1942,7 +1887,7 @@ Components.TitleBar = (function()
 		local hasSubtitle = Config.SubTitle and #Config.SubTitle > 0
 
 		TitleBar.Frame = New("Frame", {
-			Size = UDim2.new(1, 0, 0, 50),
+			Size = UDim2.new(1, 0, 0, 48),
 			BackgroundTransparency = 1,
 			Parent = Config.Parent,
 		}, {
@@ -1957,45 +1902,32 @@ Components.TitleBar = (function()
 					SortOrder = Enum.SortOrder.LayoutOrder,
 					VerticalAlignment = Enum.VerticalAlignment.Center,
 				}),
-				New("Frame", {
-					Size = UDim2.new(0, 36, 0, 36),
-					BackgroundTransparency = 0,
-					ThemeTag = { BackgroundColor3 = "AvatarBg" },
-				}, {
-					New("UICorner", { CornerRadius = UDim.new(1, 0) }),
-					New("UIStroke", {
-						ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-						Transparency = 0.6,
-						ThemeTag = { Color = "AvatarBorder" },
-					}),
-					New("ImageLabel", {
-						Size = UDim2.new(1, 0, 1, 0),
-						BackgroundTransparency = 1,
-						Image = string.format("https://www.roblox.com/headshot-thumbnail/image?userId=%s&width=420&height=420&format=png",
-							tostring(game.Players.LocalPlayer.UserId)),
-					}, {
-						New("UICorner", { CornerRadius = UDim.new(1, 0) }),
-					}),
-				}),
+				New("ImageLabel", {
+					Size = UDim2.new(0, 32, 0, 32),
+					BackgroundTransparency = 1,
+					Image = string.format("https://www.roblox.com/headshot-thumbnail/image?userId=%s&width=420&height=420&format=png",
+						tostring(game.Players.LocalPlayer.UserId)),
+				}, { New("UICorner", { CornerRadius = UDim.new(1, 0) }) }),
 				New("Frame", {
 					BackgroundTransparency = 1,
-					Size = UDim2.new(1, -120, 0, 30),
+					Size = UDim2.new(0, 320, 0, 28),
 				}, {
 					New("UIListLayout", {
-						FillDirection = Enum.FillDirection.Vertical,
+						FillDirection = Enum.FillDirection.Horizontal,
 						SortOrder = Enum.SortOrder.LayoutOrder,
 						VerticalAlignment = Enum.VerticalAlignment.Center,
+						Padding = UDim.new(0, 8),
 					}),
 					New("TextLabel", {
 						Text = Config.Title,
 						RichText = true,
 						FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json",
 							Enum.FontWeight.SemiBold, Enum.FontStyle.Normal),
-						TextSize = 16,
+						TextSize = 15,
 						BackgroundTransparency = 1,
 						TextColor3 = Color3.fromRGB(255, 255, 255),
 						TextXAlignment = Enum.TextXAlignment.Left,
-						TextYAlignment = Enum.TextYAlignment.Bottom,
+						TextYAlignment = Enum.TextYAlignment.Center,
 						AutomaticSize = Enum.AutomaticSize.X,
 					}),
 					hasSubtitle and New("TextLabel", {
@@ -2003,32 +1935,21 @@ Components.TitleBar = (function()
 						TextTransparency = 0.35,
 						RichText = true,
 						FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json",
-							Enum.FontWeight.Medium, Enum.FontStyle.Italic),
+							Enum.FontWeight.Regular, Enum.FontStyle.Italic),
 						TextSize = 12,
 						BackgroundTransparency = 1,
 						TextColor3 = Color3.fromRGB(220, 220, 220),
 						TextXAlignment = Enum.TextXAlignment.Left,
-						TextYAlignment = Enum.TextYAlignment.Top,
+						TextYAlignment = Enum.TextYAlignment.Center,
 						AutomaticSize = Enum.AutomaticSize.X,
 					}) or nil,
 				}),
 			}),
 			New("Frame", {
-				BackgroundTransparency = 1,
+				BackgroundTransparency = 0,
 				Size = UDim2.new(1, 0, 0, 1),
 				Position = UDim2.new(0, 0, 1, 0),
-			}, {
-				New("UIGradient", {
-					Color = ColorSequence.new({
-						ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
-						ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 255, 255)),
-					}),
-					Transparency = NumberSequence.new({
-						NumberSequenceKeypoint.new(0, 0.6),
-						NumberSequenceKeypoint.new(1, 1)
-					}),
-					Rotation = 0,
-				}),
+				ThemeTag = { BackgroundColor3 = "TitleBarLine" },
 			}),
 		})
 

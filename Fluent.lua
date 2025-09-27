@@ -1,3 +1,34 @@
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+
+local function tweenUI(instance, props, duration, style, direction)
+    style = style or Enum.EasingStyle.Quad
+    direction = direction or Enum.EasingDirection.Out
+    duration = duration or 0.25
+    local tweenInfo = TweenInfo.new(duration, style, direction)
+    local tw = TweenService:Create(instance, tweenInfo, props)
+    tw:Play()
+    return tw
+end
+
+local function fadeIn(ui, duration)
+    ui.Visible = true
+    ui.BackgroundTransparency = 1
+    tweenUI(ui, {BackgroundTransparency = 0}, duration or 0.3)
+end
+
+local function fadeOut(ui, duration)
+    tweenUI(ui, {BackgroundTransparency = 1}, duration or 0.3).Completed:Wait()
+    ui.Visible = false
+end
+
+local function smoothResize(ui, newSize, duration)
+    tweenUI(ui, {Size = newSize}, duration or 0.25)
+end
+
+local function smoothMove(ui, newPos, duration)
+    tweenUI(ui, {Position = newPos}, duration or 0.25)
+end
 local Lighting = game:GetService("Lighting")
 local RunService = game:GetService("RunService")
 local LocalPlayer = game:GetService("Players").LocalPlayer
@@ -8,19 +39,6 @@ local Mouse = LocalPlayer:GetMouse()
 local httpService = game:GetService("HttpService")
 local ProtectGui = protectgui or (syn and syn.protect_gui) or function() end
 local RenderStepped = RunService.RenderStepped
-
--- Import SearchBar component
-local SearchBar = require(script.Parent.Components.SearchBar)
-
--- Table to keep all function buttons
-local AllFunctions = {}
-local function RegisterFunctionButton(btn)
-    table.insert(AllFunctions, btn)
-end
-
--- Sau khi Main UI frame tạo xong, bạn thêm dòng này để gắn search bar
--- local search = SearchBar.Create(MainFrame, AllFunctions)
-
 
 local Themes = {
 	Names = {

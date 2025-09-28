@@ -2147,7 +2147,7 @@ Components.TitleBar = (function()
             UDim2.new(1, -124, 0, 6),
             TitleBar.Frame,
             function()
-                local currentTheme = Library.ThemeManager.CurrentTheme or "Dark"
+                local currentTheme = Config.Theme or "Dark"
                 local newTheme
                 if currentTheme == "Dark" then
                     newTheme = "Light"
@@ -2156,6 +2156,7 @@ Components.TitleBar = (function()
                     newTheme = "Dark"
                     TitleBar.ThemeButton.Frame.Icon.Image = Components.Assets.Light
                 end
+                Config.Theme = newTheme
                 Library:SetTheme(newTheme)
             end
         )

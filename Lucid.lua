@@ -188,7 +188,7 @@ local Library = {
 	DialogOpen = false,
 	UseAcrylic = false,
 	Acrylic = false,
-	Transparency = true,
+	Transparency = false,
 	MinimizeKeybind = nil,
 	MinimizeKey = Enum.KeyCode.LeftControl or Enum.KeyCode.End
 }
@@ -1695,11 +1695,10 @@ Components.Notification = (function()
     end
 
     function Notification:New(Config)
-        if Library.Unloaded then return false end
-        Config.Title = Config.Title 
-        Config.Content = Config.Content 
-        Config.SubContent = Config.SubContent 
-        Config.Duration = Config.Duration 
+        Config.Title = Config.Title or "Title"
+        Config.Content = Config.Content or "Message"
+        Config.SubContent = Config.SubContent or ""
+        Config.Duration = Config.Duration or nil
 
         local NewNotification = { Closed = false }
         NewNotification.AcrylicPaint = Acrylic.AcrylicPaint()

@@ -1371,15 +1371,6 @@ Components.Tab = (function()
             Text = "",
         }, {
             New("UICorner", { CornerRadius = UDim.new(0, 8) }),
-            New("Frame", {
-                Name = "AccentLine",
-                Size = UDim2.new(0, 3, 1, -6),
-                Position = UDim2.fromOffset(0, 3),
-                BackgroundColor3 = Color3.fromRGB(0, 195, 255),
-                BackgroundTransparency = 0.8,
-                Visible = false,
-                ThemeTag = { BackgroundColor3 = "Accent" },
-            }),
             New("TextLabel", {
                 AnchorPoint = Vector2.new(0, 0.5),
                 Position = Icon and UDim2.new(0, 34, 0.5, 0) or UDim2.new(0, 14, 0.5, 0),
@@ -1451,10 +1442,6 @@ Components.Tab = (function()
         end)
         Creator.AddSignal(Tab.Frame.MouseButton1Click, function()
             TabModule:SelectTab(TabIndex)
-            local line = Tab.Frame.AccentLine
-            line.Visible = true
-            line.Size = UDim2.new(0, 0, 1, -6)
-            line:TweenSize(UDim2.new(0, 3, 1, -6), "Out", "Quad", 0.25, true)
         end)
 
         TabModule.Containers[TabIndex] = Tab.ContainerFrame
@@ -1488,12 +1475,10 @@ Components.Tab = (function()
         for _, t in next, TabModule.Tabs do
             t.SetTransparency(1)
             t.Selected = false
-            t.Frame.AccentLine.Visible = false
         end
         local sel = TabModule.Tabs[Tab]
         sel.SetTransparency(0.9)
         sel.Selected = true
-        sel.Frame.AccentLine.Visible = true
         Window.TabDisplay.Text = sel.Name
         Window.SelectorPosMotor:setGoal(Spring(TabModule:GetCurrentTabPos(), { frequency = 6 }))
         task.spawn(function()

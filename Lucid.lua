@@ -1401,12 +1401,6 @@ Components.Tab = (function()
                 Image = Icon,
                 ThemeTag = { ImageColor3 = "Text" },
             }),
-            New("UIStroke", {
-                ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-                Color = Color3.fromRGB(0, 195, 255),
-                Transparency = 0.8,
-                Thickness = 1,
-            }),
             New("UIGradient", {
                 Rotation = 90,
                 Color = ColorSequence.new{
@@ -4769,5 +4763,7 @@ function Library:Destroy()
 		Library.GUI:Destroy()
 	end
 end
-
+function Library:Notify(Config)
+	return NotificationModule:New(Config)
+end
 return Library

@@ -4723,6 +4723,7 @@ end
 function Library:Destroy()
 	if not Library.Window then return end
 	Library.Unloaded = true
+
 	if Library.Connections then
 		for _, conn in pairs(Library.Connections) do
 			if typeof(conn) == "RBXScriptConnection" then
@@ -4731,6 +4732,7 @@ function Library:Destroy()
 		end
 		table.clear(Library.Connections)
 	end
+
 	if Library.Options then
 		for _, opt in pairs(Library.Options) do
 			if typeof(opt) == "table" and opt.Destroy then
@@ -4739,15 +4741,19 @@ function Library:Destroy()
 		end
 		table.clear(Library.Options)
 	end
+
 	if Library.Window.AcrylicPaint and Library.Window.AcrylicPaint.Model then
 		Library.Window.AcrylicPaint.Model:Destroy()
 	end
+
 	if Creator and Creator.Disconnect then
 		Creator.Disconnect()
 	end
+
 	if Library.GUI then
 		Library.GUI:Destroy()
 	end
+
 	Library.Window = nil
 	Library.GUI = nil
 end

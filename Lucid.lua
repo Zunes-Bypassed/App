@@ -1392,6 +1392,13 @@ Components.Tab = (function()
                 Image = Icon,
                 ThemeTag = { ImageColor3 = "Text" },
             }),
+            New("UIGradient", {
+                Rotation = 90,
+                Color = ColorSequence.new{
+                    ColorSequenceKeypoint.new(0, Color3.fromRGB(20, 20, 20)),
+                    ColorSequenceKeypoint.new(1, Color3.fromRGB(40, 40, 40))
+                },
+            }),
         })
 
         local ContainerLayout = New("UIListLayout", {
@@ -1490,8 +1497,15 @@ Components.Tab = (function()
             for _, c in next, TabModule.Containers do c.Visible = false end
             local selContainer = TabModule.Containers[Tab]
             selContainer.Visible = true
+            selContainer.AnchorPoint = Vector2.new(1,0)
             selContainer.Position = UDim2.new(1, 0, 0, 0)
-            selContainer:TweenPosition(UDim2.new(0, 0, 0, 0), "Out", "Quart", 0.3, true)
+            selContainer:TweenPosition(
+                UDim2.new(0, 0, 0, 0),
+                Enum.EasingDirection.Out,
+                Enum.EasingStyle.Quart,
+                0.35,
+                true
+            )
             Window.ContainerPosMotor:setGoal(Spring(0, { frequency = 5 }))
             Window.ContainerBackMotor:setGoal(Spring(0, { frequency = 8 }))
             if Window.ContainerFadeMotor then Window.ContainerFadeMotor:setGoal(Spring(0, { frequency = 6 })) end

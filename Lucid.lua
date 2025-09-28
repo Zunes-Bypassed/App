@@ -3834,20 +3834,22 @@ if not success or not LucideData then
     error("Không thể load lucide icons")
 end
 
-local Icons = {}
-for iconName, iconInfo in pairs(LucideData.Icons) do
-    local sheetId = tostring(iconInfo.Image)
-    local assetId = LucideData.Spritesheets[sheetId]
-    if assetId then
-        Icons[iconName] = assetId
-    end
-end
-
 function Library:GetIcon(Name)
-    if type(Name) == "string" and Icons[Name] then
-        return Icons[Name]
-    end
-    return nil
+    if type(Name) ~= "string" then return nil end
+    local iconData = LucideData.Icons[Name]
+    if not iconData then return nil end
+
+    local sheetId = tostring(iconData.Image)
+    local assetId = LucideData.Spritesheets[sheetId]
+    if not assetId then return nil end
+
+    local iconLabel = Instance.new("ImageLabel")
+    iconLabel.BackgroundTransparency = 1
+    iconLabel.Image = assetId
+    iconLabel.ImageRectOffset = iconData.ImageRectPosition
+    iconLabel.ImageRectSize = iconData.ImageRectSize
+
+    return iconLabel
 end
 
 local Elements = {}

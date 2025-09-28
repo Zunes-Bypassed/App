@@ -186,9 +186,9 @@ local Library = {
 	Unloaded = false,
 	Creator = nil,
 	DialogOpen = false,
-	UseAcrylic = false,
-	Acrylic = false,
-	Transparency = false,
+	UseAcrylic = true,
+	Acrylic = true,
+	Transparency = true,
 	MinimizeKeybind = nil,
 	MinimizeKey = Enum.KeyCode.LeftControl or Enum.KeyCode.End
 }

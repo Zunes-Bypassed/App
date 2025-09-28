@@ -1183,6 +1183,7 @@ local Components = {
 		Min = "rbxassetid://10734896206",
 		Max = "rbxassetid://10734886496",
 		Restore = "rbxassetid://10734895530",
+		Search = "rbxassetid://10734943674"
 	},
 }
 
@@ -1954,25 +1955,14 @@ Components.TitleBar = (function()
 		local function BarButton(Icon, Pos, Parent, Callback)
 			local Button = { Callback = Callback or function() end }
 
-			Button.Frame = New("TextButton", {
+			Button.Frame = New("ImageButton", {
 				Size = UDim2.new(0, 36, 1, -6),
 				AnchorPoint = Vector2.new(1, 0),
 				BackgroundTransparency = 1,
 				Parent = Parent,
 				Position = Pos,
-				Text = "",
-			}, {
-				New("UICorner", { CornerRadius = UDim.new(0, 8) }),
-				New("ImageLabel", {
-					Image = Icon,
-					Size = UDim2.fromOffset(18, 18),
-					Position = UDim2.fromScale(0.5, 0.5),
-					AnchorPoint = Vector2.new(0.5, 0.5),
-					BackgroundTransparency = 1,
-					Name = "Icon",
-					ThemeTag = { ImageColor3 = "Text" },
-				}),
-			})
+				Image = Icon,
+			}, { New("UICorner", { CornerRadius = UDim.new(0, 8) }) })
 
 			local _, SetTransparency = Creator.SpringMotor(1, Button.Frame, "BackgroundTransparency")
 
@@ -1983,7 +1973,6 @@ Components.TitleBar = (function()
 			AddSignal(Button.Frame.MouseButton1Click, Button.Callback)
 
 			function Button:SetCallback(Func) self.Callback = Func end
-
 			return Button
 		end
 
@@ -2073,6 +2062,10 @@ Components.TitleBar = (function()
 
 		TitleBar.MinButton = BarButton(Components.Assets.Min, UDim2.new(1, -84, 0, 6), TitleBar.Frame, function()
 			Library.Window:Minimize()
+		end)
+
+		TitleBar.SearchButton = BarButton(Components.Assets.Search, UDim2.new(1, -124, 0, 6), TitleBar.Frame, function()
+			print("Search button clicked")
 		end)
 
 		return TitleBar

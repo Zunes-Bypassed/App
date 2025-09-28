@@ -703,32 +703,67 @@ function Creator.AddSignal(Signal, Function)
 	return Connected
 end
 
+Creator = Creator or {}
+Creator.Signals = Creator.Signals or {}
+Creator.Unloaded = Creator.Unloaded or false
+Creator.ScreenGui = Creator.ScreenGui
+
+function Creator.Connect(event, callback)
+    if not event or type(event.Connect) ~= "function" then return end
+    local conn
+    conn = event:Connect(function(...)
+        if Creator.Unloaded then
+            pcall(function() if conn and conn.Disconnect then conn:Disconnect() end end)
+            return
+        end
+        local ok, err = pcall(callback, ...)
+        if not ok then
+            warn("Creator.Connect callback error:", err)
+        end
+    end)
+    table.insert(Creator.Signals, conn)
+    return conn
+end
+
 function Creator.Disconnect()
-    for Idx = #Creator.Signals, 1, -1 do
-        local Connection = table.remove(Creator.Signals, Idx)
-        if Connection and Connection.Disconnect then
-            pcall(function() Connection:Disconnect() end)
+    if Creator.Unloaded then return end
+    Creator.Unloaded = true
+    for i = #Creator.Signals, 1, -1 do
+        local c = table.remove(Creator.Signals, i)
+        if c then
+            pcall(function()
+                if type(c) == "userdata" or type(c) == "table" then
+                    if c.Disconnect then c:Disconnect() end
+                    if c.disconnect then c:disconnect() end
+                    if c.Destroy then pcall(function() c:Destroy() end) end
+                    if c.DestroyConnection then pcall(function() c:DestroyConnection() end) end
+                end
+            end)
         end
     end
-
-    if Library and Library.Window then
-        pcall(function()
-            Library.Window:Destroy()
-        end)
-        Library.Window = nil
-        Library.WindowFrame = nil
+    Creator.Signals = {}
+    local guiCandidates = { Creator.ScreenGui, Creator.Window, Creator.RootGui }
+    for _, g in ipairs(guiCandidates) do
+        if g and type(g) == "userdata" and g.Destroy then
+            pcall(function() g:Destroy() end)
+        end
     end
+    Creator.ScreenGui = nil
+    Creator.Window = nil
+    Creator.RootGui = nil
+    Creator.Elements = nil
+    Creator.Options = nil
+    Creator.Unloaded = true
+end
 
-    if Library then
-        Library.OpenFrames = {}
-        Library.Options = {}
-    end
-
+function Creator.StartSafeLoop(fn)
     task.spawn(function()
-        for _, t in pairs(debug.getregistry()) do
-            if type(t) == "thread" and coroutine.status(t) == "suspended" then
-                pcall(coroutine.close, t)
+        while not Creator.Unloaded do
+            local ok, err = pcall(fn)
+            if not ok then
+                warn("SafeLoop error:", err)
             end
+            task.wait(0.03)
         end
     end)
 end

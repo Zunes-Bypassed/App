@@ -2433,6 +2433,7 @@ ElementsTable.Button = (function()
 	Element.__type = "Button"
 
 	function Element:New(Config)
+	    if Library.Unloaded then return false end
 		assert(Config.Title, "Button - Missing Title")
 		Config.Callback = Config.Callback or function() end
 
@@ -2899,6 +2900,7 @@ ElementsTable.Paragraph = (function()
 	Paragraph.__type = "Paragraph"
 
 	function Paragraph:New(Config)
+	    if Library.Unloaded then return false end
 		assert(Config.Title, "Paragraph - Missing Title")
 		Config.Content = Config.Content or ""
 
@@ -2922,6 +2924,7 @@ ElementsTable.Slider = (function()
 	Element.__type = "Slider"
 
 	function Element:New(Idx, Config)
+	    if Library.Unloaded then return false end
 		assert(Config.Title, "Slider - Missing Title.")
 		assert(Config.Default, "Slider - Missing default value.")
 		assert(Config.Min, "Slider - Missing minimum value.")
@@ -4765,10 +4768,6 @@ function Library:Destroy()
 		Creator.Disconnect()
 		Library.GUI:Destroy()
 	end
-end
-
-function Library:Notify(Config)
-	return NotificationModule:New(Config)
 end
 
 return Library

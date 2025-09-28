@@ -4719,47 +4719,72 @@ function Library:SetTheme(Value)
 		Creator.UpdateTheme()
 	end
 end
-
 function Library:Destroy()
-	if not Library.Window then return end
-	Library.Unloaded = true
-
-	if Library.Connections then
-		for _, conn in pairs(Library.Connections) do
-			if typeof(conn) == "RBXScriptConnection" then
-				conn:Disconnect()
-			end
+	if self.Window then
+		self.Unloaded = true
+		if self.UseAcrylic and self.Window.AcrylicPaint then
+			pcall(function()
+				self.Window.AcrylicPaint.Model:Destroy()
+			end)
 		end
-		table.clear(Library.Connections)
-	end
-
-	if Library.Options then
-		for _, opt in pairs(Library.Options) do
-			if typeof(opt) == "table" and opt.Destroy then
-				opt:Destroy()
-			end
-		end
-		table.clear(Library.Options)
-	end
-
-	if Library.Window.AcrylicPaint and Library.Window.AcrylicPaint.Model then
-		Library.Window.AcrylicPaint.Model:Destroy()
-	end
-
-	if Creator and Creator.Disconnect then
 		Creator.Disconnect()
+		if self.GUI then
+			self.GUI:Destroy()
+		end
+		self.Window = nil
+		self.GUI = nil
 	end
-
-	if Library.GUI then
-		Library.GUI:Destroy()
-	end
-
-	Library.Window = nil
-	Library.GUI = nil
 end
 
 function Library:Notify(Config)
+	if self.Unloaded then return end
 	return NotificationModule:New(Config)
 end
+
+function Window:Dialog(Config)
+	if Library.Unloaded then return end
+	return Components.Dialog:Create(Config)
+end
+
+function Window:AddToggle(key, data)
+	if Library.Unloaded then return end
+	return Components.Toggle(key, data, self.Container)
+end
+
+function Window:AddSlider(key, data)
+	if Library.Unloaded then return end
+	return Components.Slider(key, data, self.Container)
+end
+
+function Window:AddDropdown(key, data)
+	if Library.Unloaded then return end
+	return Components.Dropdown(key, data, self.Container)
+end
+
+function Window:AddButton(data)
+	if Library.Unloaded then return end
+	return Components.Button(data, self.Container)
+end
+
+function Window:AddInput(key, data)
+	if Library.Unloaded then return end
+	return Components.Input(key, data, self.Container)
+end
+
+function Window:AddColorpicker(key, data)
+	if Library.Unloaded then return end
+	return Components.Colorpicker(key, data, self.Container)
+end
+
+function Window:AddKeybind(key, data)
+	if Library.Unloaded then return end
+	return Components.Keybind(key, data, self.Container)
+end
+
+function Window:AddParagraph(data)
+	if Library.Unloaded then return end
+	return Components.Paragraph(data, self.Container)
+end
+
 
 return Library

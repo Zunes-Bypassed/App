@@ -2909,7 +2909,7 @@ ElementsTable.Slider = (function()
 			AnchorPoint = Vector2.new(0, 0.5),
 			Position = UDim2.new(0, -7, 0.5, 0),
 			Size = UDim2.fromOffset(14, 14),
-			Image = "rbxassetid://99154960539581",
+			Image = "rbxassetid://12266946128",
 			ThemeTag = {
 				ImageColor3 = "Accent",
 			},

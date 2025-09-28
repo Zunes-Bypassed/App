@@ -1664,7 +1664,6 @@ Components.Dialog = (function()
 end)()
 Components.Notification = (function()
     local Spring = Flipper.Spring.new
-    local GroupMotor = Flipper.GroupMotor.new
     local New = Creator.New
     local Notification = {}
 
@@ -1687,29 +1686,25 @@ Components.Notification = (function()
 
     function Notification:New(Config)
         if Library.Unloaded then return false end
-        Config.Title = Config.Title
-        Config.Content = Config.Content
+        Config.Title = Config.Title or ""
+        Config.Content = Config.Content or ""
         Config.SubContent = Config.SubContent or ""
-        Config.Duration = Config.Duration
+        Config.Duration = Config.Duration or 5
 
         local NewNotification = { Closed = false }
-
-        NewNotification.Root = New("Frame", {
-            BackgroundTransparency = 1,
-            Size = UDim2.new(1, 0, 0, 60),
-            Position = UDim2.fromScale(1, 0),
-        })
+        NewNotification.AcrylicPaint = Acrylic.AcrylicPaint()
 
         NewNotification.Title = New("TextLabel", {
             Position = UDim2.fromOffset(10, 8),
             Text = Config.Title,
+            RichText = true,
             FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Medium),
             TextSize = 12,
             TextXAlignment = Enum.TextXAlignment.Left,
             TextColor3 = Color3.fromRGB(245, 245, 245),
             Size = UDim2.new(1, -30, 0, 14),
             BackgroundTransparency = 1,
-        }, { Parent = NewNotification.Root })
+        })
 
         NewNotification.ContentLabel = New("TextLabel", {
             FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json"),
@@ -1722,7 +1717,7 @@ Components.Notification = (function()
             TextColor3 = Color3.fromRGB(230, 230, 230),
             BackgroundTransparency = 1,
             TextWrapped = true,
-        }, { Parent = NewNotification.Root })
+        })
 
         NewNotification.SubContentLabel = New("TextLabel", {
             FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json"),
@@ -1736,7 +1731,7 @@ Components.Notification = (function()
             BackgroundTransparency = 1,
             TextWrapped = true,
             Visible = Config.SubContent ~= "",
-        }, { Parent = NewNotification.Root })
+        })
 
         NewNotification.CloseButton = New("ImageButton", {
             Image = "rbxassetid://10747384394",
@@ -1745,7 +1740,23 @@ Components.Notification = (function()
             AnchorPoint = Vector2.new(1, 0),
             BackgroundTransparency = 1,
             ScaleType = Enum.ScaleType.Fit,
-            Parent = NewNotification.Root
+        })
+
+        NewNotification.Root = New("Frame", {
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, 0, 0, 60),
+            Position = UDim2.fromScale(1, 0),
+        }, {
+            NewNotification.AcrylicPaint.Frame,
+            New("UICorner", { CornerRadius = UDim.new(0, 6) }),
+            New("UIStroke", {
+                Transparency = 0.4,
+                Color = Color3.fromRGB(100, 100, 100),
+            }),
+            NewNotification.Title,
+            NewNotification.ContentLabel,
+            NewNotification.SubContentLabel,
+            NewNotification.CloseButton,
         })
 
         NewNotification.Holder = New("Frame", {
@@ -1754,16 +1765,30 @@ Components.Notification = (function()
             Parent = Notification.Holder,
         }, { NewNotification.Root })
 
-        local RootMotor = GroupMotor.new({ Offset = 30, Opacity = 1, Scale = 0.95 })
+        local RootMotor = Flipper.GroupMotor.new({ Offset = 30, Opacity = 1, Scale = 0.95 })
         RootMotor:onStep(function(Values)
             NewNotification.Root.Position = UDim2.new(0, Values.Offset, 0, 0)
             NewNotification.Root.BackgroundTransparency = Values.Opacity
+            NewNotification.AcrylicPaint.Frame.BackgroundTransparency = Values.Opacity
             NewNotification.Root.Size = UDim2.new(
-                1 * Values.Scale, 
-                0, 
-                0, 
+                1 * Values.Scale,
+                0,
+                0,
                 NewNotification.Holder.Size.Y.Offset * Values.Scale
             )
+        end)
+
+        NewNotification.CloseButton.MouseEnter:Connect(function()
+            game:GetService("TweenService"):Create(
+                NewNotification.CloseButton, TweenInfo.new(0.2),
+                { ImageColor3 = Color3.fromRGB(255, 100, 100) }
+            ):Play()
+        end)
+        NewNotification.CloseButton.MouseLeave:Connect(function()
+            game:GetService("TweenService"):Create(
+                NewNotification.CloseButton, TweenInfo.new(0.2),
+                { ImageColor3 = Color3.fromRGB(220, 220, 220) }
+            ):Play()
         end)
 
         NewNotification.CloseButton.MouseButton1Click:Connect(function()
@@ -1794,6 +1819,9 @@ Components.Notification = (function()
                         Scale = Spring(0.95, { frequency = 5, dampingRatio = 0.75 }),
                     })
                     task.wait(0.3)
+                    if Library.UseAcrylic then
+                        NewNotification.AcrylicPaint.Model:Destroy()
+                    end
                     NewNotification.Holder:Destroy()
                 end)
             end

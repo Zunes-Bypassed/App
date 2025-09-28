@@ -2144,7 +2144,13 @@ Components.TitleBar = (function()
 
         TitleBar.ThemeButton = BarButton(
             Components.Assets.Dark,
-            UDim2.new(1, -124, 0, 6),
+            UDim2.new(1, -124, 0, 6)
+if Library.ThemeManager.CurrentTheme == "Dark" then
+    TitleBar.ThemeButton.Frame.Icon.Image = Components.Assets.Light
+else
+    TitleBar.ThemeButton.Frame.Icon.Image = Components.Assets.Dark
+end
+,
             TitleBar.Frame,
             function()
                 local currentTheme = Library.ThemeManager.CurrentTheme
@@ -2802,7 +2808,7 @@ function Element:New(Idx, Config)
         else  
             Str = Dropdown.Value or ""  
         end  
-        DropdownDisplay.Text = (Str == "" and "---" or Str)  
+        DropdownDisplay.Text = (Str == "" and "
     end  
 
     function Dropdown:BuildDropdownList()  

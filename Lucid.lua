@@ -206,9 +206,9 @@ local Themes = {
         DropdownFrame = Color3.fromRGB(255, 255, 255),
         DropdownHolder = Color3.fromRGB(248, 248, 248),
         DropdownBorder = Color3.fromRGB(230, 230, 230),
-        DropdownOption = Color3.fromRGB(40, 40, 40),
+        DropdownOption = Color3.fromRGB(0, 0, 0),
     
-        Keybind = Color3.fromRGB(50, 50, 50),
+        Keybind = Color3.fromRGB(0, 0, 0),
     
         Input = Color3.fromRGB(255, 255, 255),
         InputFocused = Color3.fromRGB(250, 250, 250),
@@ -222,8 +222,8 @@ local Themes = {
         DialogInput = Color3.fromRGB(255, 255, 255),
         DialogInputLine = Color3.fromRGB(180, 180, 180),
     
-        Text = Color3.fromRGB(40, 40, 40),
-        SubText = Color3.fromRGB(120, 120, 120),
+        Text = Color3.fromRGB(0, 0, 0),
+        SubText = Color3.fromRGB(60, 60, 60),
         Hover = Color3.fromRGB(0, 0, 0),
         HoverChange = 0.04
     }

@@ -186,8 +186,8 @@ local Library = {
 	Unloaded = false,
 	Creator = nil,
 	DialogOpen = false,
-	UseAcrylic = true,
-	Acrylic = true,
+	UseAcrylic = false,
+	Acrylic = false,
 	Transparency = true,
 	MinimizeKeybind = nil,
 	MinimizeKey = Enum.KeyCode.LeftControl or Enum.KeyCode.End
@@ -4738,7 +4738,7 @@ function Library:Destroy()
 end
 
 function Library:Notify(Config)
-	if self.Unloaded then return end
+	if self.Unloaded then return false end
 	return NotificationModule:New(Config)
 end
 

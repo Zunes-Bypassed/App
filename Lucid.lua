@@ -1401,13 +1401,6 @@ Components.Tab = (function()
                 Image = Icon,
                 ThemeTag = { ImageColor3 = "Text" },
             }),
-            New("UIGradient", {
-                Rotation = 90,
-                Color = ColorSequence.new{
-                    ColorSequenceKeypoint.new(0, Color3.fromRGB(20, 20, 20)),
-                    ColorSequenceKeypoint.new(1, Color3.fromRGB(40, 40, 40))
-                },
-            }),
         })
 
         local ContainerLayout = New("UIListLayout", {

@@ -777,30 +777,33 @@ function Creator.New(Name, Properties, Children)
 end
 
 function Creator.SpringMotor(Initial, Instance, Prop, IgnoreDialogCheck, ResetOnThemeChange)
-	IgnoreDialogCheck = IgnoreDialogCheck or false
-	ResetOnThemeChange = ResetOnThemeChange or false
-	local Motor = Flipper.SingleMotor.new(Initial)
-	Motor:onStep(function(value)
-		Instance[Prop] = value
-	end)
+    IgnoreDialogCheck = IgnoreDialogCheck or false
+    ResetOnThemeChange = ResetOnThemeChange or false
 
-	if ResetOnThemeChange then
-		table.insert(Creator.TransparencyMotors, Motor)
-	end
+    local Motor = Flipper.SingleMotor.new(Initial)
+    Motor:onStep(function(value)
+        if Instance and Prop and type(Prop) == "string" then
+            Instance[Prop] = value
+        end
+    end)
 
-	local function SetValue(Value, Ignore)
-		Ignore = Ignore or false
-		if not IgnoreDialogCheck then
-			if not Ignore then
-				if Prop == "BackgroundTransparency" and Library.DialogOpen then
-					return
-				end
-			end
-		end
-		Motor:setGoal(Flipper.Spring.new(Value, { frequency = 8 }))
-	end
+    if ResetOnThemeChange then
+        table.insert(Creator.TransparencyMotors, Motor)
+    end
 
-	return Motor, SetValue
+    local function SetValue(Value, Ignore)
+        Ignore = Ignore or false
+        if not IgnoreDialogCheck then
+            if not Ignore then
+                if Prop == "BackgroundTransparency" and Library.DialogOpen then
+                    return
+                end
+            end
+        end
+        Motor:setGoal(Flipper.Spring.new(Value, { frequency = 8 }))
+    end
+
+    return Motor, SetValue
 end
 
 Library.Creator = Creator
@@ -2076,9 +2079,8 @@ return function(Config)
         Library.Window:Minimize()  
     end)  
 
-    -- Thêm nút Search
-    TitleBar.SearchButton = BarButton(Components.Assets.Search or "rbxassetid://0", UDim2.new(1, -124, 0, 6), TitleBar.Frame, function()
-        print("Search clicked") -- Thay bằng callback của bạn
+    TitleBar.SearchButton = BarButton(Components.Assets.Search, UDim2.new(1, -124, 0, 6), TitleBar.Frame, function()
+        print("Search clicked")
     end)
 
     return TitleBar  

@@ -1739,7 +1739,7 @@ Components.Notification = (function()
             Size = UDim2.fromOffset(16, 16),
             AnchorPoint = Vector2.new(1, 0),
             BackgroundTransparency = 1,
-            ImageColor3 = Color3.fromRGB(220, 220, 220),
+            ScaleType = Enum.ScaleType.Fit,
         })
 
         NewNotification.Root = New("Frame", {

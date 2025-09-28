@@ -4719,6 +4719,7 @@ function Library:SetTheme(Value)
 		Creator.UpdateTheme()
 	end
 end
+
 function Library:Destroy()
 	if self.Window then
 		self.Unloaded = true
@@ -4740,51 +4741,5 @@ function Library:Notify(Config)
 	if self.Unloaded then return end
 	return NotificationModule:New(Config)
 end
-
-function Window:Dialog(Config)
-	if Library.Unloaded then return end
-	return Components.Dialog:Create(Config)
-end
-
-function Window:AddToggle(key, data)
-	if Library.Unloaded then return end
-	return Components.Toggle(key, data, self.Container)
-end
-
-function Window:AddSlider(key, data)
-	if Library.Unloaded then return end
-	return Components.Slider(key, data, self.Container)
-end
-
-function Window:AddDropdown(key, data)
-	if Library.Unloaded then return end
-	return Components.Dropdown(key, data, self.Container)
-end
-
-function Window:AddButton(data)
-	if Library.Unloaded then return end
-	return Components.Button(data, self.Container)
-end
-
-function Window:AddInput(key, data)
-	if Library.Unloaded then return end
-	return Components.Input(key, data, self.Container)
-end
-
-function Window:AddColorpicker(key, data)
-	if Library.Unloaded then return end
-	return Components.Colorpicker(key, data, self.Container)
-end
-
-function Window:AddKeybind(key, data)
-	if Library.Unloaded then return end
-	return Components.Keybind(key, data, self.Container)
-end
-
-function Window:AddParagraph(data)
-	if Library.Unloaded then return end
-	return Components.Paragraph(data, self.Container)
-end
-
 
 return Library

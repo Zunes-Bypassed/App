@@ -137,7 +137,7 @@ local Themes = {
             ColorSequenceKeypoint.new(0, Color3.fromRGB(12, 12, 12)),
             ColorSequenceKeypoint.new(1, Color3.fromRGB(22, 22, 22)),
         },
-        AcrylicNoise = 0.6,
+        AcrylicNoise = 1,
 
         TitleBarLine = Color3.fromRGB(50, 50, 50),
         Tab = Color3.fromRGB(160, 160, 160),

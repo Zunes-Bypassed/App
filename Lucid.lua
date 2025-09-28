@@ -1360,7 +1360,6 @@ Components.Tab = (function()
         local Elements = Library.Elements
         TabModule.TabCount += 1
         local TabIndex = TabModule.TabCount
-
         local Tab = { Selected = false, Name = Title, Type = "Tab" }
 
         if Library:GetIcon(Icon) then Icon = Library:GetIcon(Icon) end
@@ -1375,6 +1374,15 @@ Components.Tab = (function()
             AutoButtonColor = false,
         }, {
             New("UICorner", { CornerRadius = UDim.new(0, 8) }),
+            New("Frame", {
+                Name = "AccentLine",
+                Size = UDim2.new(0, 3, 1, 0),
+                Position = UDim2.new(0, 0, 0, 0),
+                BackgroundColor3 = Color3.fromRGB(0, 195, 255),
+                BackgroundTransparency = 0.8,
+                Visible = false,
+                ThemeTag = { BackgroundColor3 = "Accent" },
+            }),
             New("TextLabel", {
                 AnchorPoint = Vector2.new(0, 0.5),
                 Position = Icon and UDim2.new(0, 34, 0.5, 0) or UDim2.new(0, 14, 0.5, 0),
@@ -1462,9 +1470,11 @@ Components.Tab = (function()
         TabModule.SelectedTab = Tab
         for _, t in next, TabModule.Tabs do
             t.Selected = false
+            t.Frame.AccentLine.Visible = false
         end
         local sel = TabModule.Tabs[Tab]
         sel.Selected = true
+        sel.Frame.AccentLine.Visible = true
         Window.TabDisplay.Text = sel.Name
         Window.SelectorPosMotor:setGoal(Spring(TabModule:GetCurrentTabPos(), { frequency = 6 }))
         task.spawn(function()

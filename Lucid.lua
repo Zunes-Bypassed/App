@@ -1946,129 +1946,144 @@ Components.Textbox = (function()
 	end
 end)()
 Components.TitleBar = (function()
-	local New = Creator.New
-	local AddSignal = Creator.AddSignal
+local New = Creator.New
+local AddSignal = Creator.AddSignal
 
-	return function(Config)
-		local TitleBar = {}
+return function(Config)  
+    local TitleBar = {}  
 
-		local function BarButton(Icon, Pos, Parent, Callback)
-			local Button = { Callback = Callback or function() end }
+    local function BarButton(Icon, Pos, Parent, Callback)  
+        local Button = { Callback = Callback or function() end }  
 
-			Button.Frame = New("ImageButton", {
-				Size = UDim2.new(0, 28, 0, 28),
-				BackgroundTransparency = 1,
-				Parent = Parent,
-				Position = Pos,
-				Image = Icon,
-			}, { New("UICorner", { CornerRadius = UDim.new(0, 6) }) })
+        Button.Frame = New("TextButton", {  
+            Size = UDim2.new(0, 36, 1, -6),  
+            AnchorPoint = Vector2.new(1, 0),  
+            BackgroundTransparency = 1,  
+            Parent = Parent,  
+            Position = Pos,  
+            Text = "",  
+        }, {  
+            New("UICorner", { CornerRadius = UDim.new(0, 8) }),  
+            New("ImageLabel", {  
+                Image = Icon,  
+                Size = UDim2.fromOffset(18, 18),  
+                Position = UDim2.fromScale(0.5, 0.5),  
+                AnchorPoint = Vector2.new(0.5, 0.5),  
+                BackgroundTransparency = 1,  
+                Name = "Icon",  
+                ThemeTag = { ImageColor3 = "Text" },  
+            }),  
+        })  
 
-			local _, SetTransparency = Creator.SpringMotor(1, Button.Frame, "BackgroundTransparency")
+        local _, SetTransparency = Creator.SpringMotor(1, Button.Frame, "BackgroundTransparency")  
 
-			AddSignal(Button.Frame.MouseEnter, function() SetTransparency(0.92) end)
-			AddSignal(Button.Frame.MouseLeave, function() SetTransparency(1, true) end)
-			AddSignal(Button.Frame.MouseButton1Down, function() SetTransparency(0.95) end)
-			AddSignal(Button.Frame.MouseButton1Up, function() SetTransparency(0.92) end)
-			AddSignal(Button.Frame.MouseButton1Click, Button.Callback)
+        AddSignal(Button.Frame.MouseEnter, function() SetTransparency(0.92) end)  
+        AddSignal(Button.Frame.MouseLeave, function() SetTransparency(1, true) end)  
+        AddSignal(Button.Frame.MouseButton1Down, function() SetTransparency(0.95) end)  
+        AddSignal(Button.Frame.MouseButton1Up, function() SetTransparency(0.92) end)  
+        AddSignal(Button.Frame.MouseButton1Click, Button.Callback)  
 
-			function Button:SetCallback(Func) self.Callback = Func end
-			return Button
-		end
+        function Button:SetCallback(Func) self.Callback = Func end  
 
-		local hasSubtitle = Config.SubTitle and #Config.SubTitle > 0
+        return Button  
+    end  
 
-		TitleBar.Frame = New("Frame", {
-			Size = UDim2.new(1, 0, 0, 48),
-			BackgroundTransparency = 1,
-			Parent = Config.Parent,
-		}, {
-			New("Frame", {
-				Size = UDim2.new(1, -20, 1, 0),
-				Position = UDim2.new(0, 16, 0, 0),
-				BackgroundTransparency = 1,
-			}, {
-				New("UIListLayout", {
-					Padding = UDim.new(0, 10),
-					FillDirection = Enum.FillDirection.Horizontal,
-					SortOrder = Enum.SortOrder.LayoutOrder,
-					VerticalAlignment = Enum.VerticalAlignment.Center,
-				}),
-				New("ImageLabel", {
-					Size = UDim2.new(0, 32, 0, 32),
-					BackgroundTransparency = 1,
-					Image = string.format("https://www.roblox.com/headshot-thumbnail/image?userId=%s&width=420&height=420&format=png",
-						tostring(game.Players.LocalPlayer.UserId)),
-				}, { New("UICorner", { CornerRadius = UDim.new(1, 0) }) }),
-				New("Frame", {
-					BackgroundTransparency = 1,
-					Size = UDim2.new(0, 280, 0, 28),
-				}, {
-					New("UIListLayout", {
-						FillDirection = Enum.FillDirection.Horizontal,
-						SortOrder = Enum.SortOrder.LayoutOrder,
-						VerticalAlignment = Enum.VerticalAlignment.Center,
-						Padding = UDim.new(0, 6),
-					}),
-					New("TextLabel", {
-						Text = Config.Title,
-						RichText = true,
-						FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json",
-							Enum.FontWeight.SemiBold, Enum.FontStyle.Normal),
-						TextSize = 14,
-						BackgroundTransparency = 1,
-						TextColor3 = Color3.fromRGB(255, 255, 255),
-						TextXAlignment = Enum.TextXAlignment.Left,
-						TextYAlignment = Enum.TextYAlignment.Center,
-						AutomaticSize = Enum.AutomaticSize.X,
-					}),
-					hasSubtitle and New("TextLabel", {
-						Text = Config.SubTitle,
-						TextTransparency = 0.35,
-						RichText = true,
-						FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json",
-							Enum.FontWeight.Regular, Enum.FontStyle.Italic),
-						TextSize = 11,
-						BackgroundTransparency = 1,
-						TextColor3 = Color3.fromRGB(220, 220, 220),
-						TextXAlignment = Enum.TextXAlignment.Left,
-						TextYAlignment = Enum.TextYAlignment.Center,
-						AutomaticSize = Enum.AutomaticSize.X,
-					}) or nil,
-				}),
-			}),
-			New("Frame", {
-				BackgroundTransparency = 0,
-				Size = UDim2.new(1, 0, 0, 1),
-				Position = UDim2.new(0, 0, 1, 0),
-				ThemeTag = { BackgroundColor3 = "TitleBarLine" },
-			}),
-		})
+    local hasSubtitle = Config.SubTitle and #Config.SubTitle > 0  
 
-		TitleBar.CloseButton = BarButton(Components.Assets.Close, UDim2.new(1, -4, 0, 10), TitleBar.Frame, function()
-			Library.Window:Dialog({
-				Title = "Lucid",
-				Content = "Are you sure you want to close?",
-				Buttons = {
-					{ Title = "OK", Callback = function() Library:Destroy() end },
-					{ Title = "Cancel" },
-				},
-			})
-		end)
+    TitleBar.Frame = New("Frame", {  
+        Size = UDim2.new(1, 0, 0, 48),  
+        BackgroundTransparency = 1,  
+        Parent = Config.Parent,  
+    }, {  
+        New("Frame", {  
+            Size = UDim2.new(1, -20, 1, 0),  
+            Position = UDim2.new(0, 16, 0, 0),  
+            BackgroundTransparency = 1,  
+        }, {  
+            New("UIListLayout", {  
+                Padding = UDim.new(0, 10),  
+                FillDirection = Enum.FillDirection.Horizontal,  
+                SortOrder = Enum.SortOrder.LayoutOrder,  
+                VerticalAlignment = Enum.VerticalAlignment.Center,  
+            }),  
+            New("ImageLabel", {  
+                Size = UDim2.new(0, 32, 0, 32),  
+                BackgroundTransparency = 1,  
+                Image = string.format("https://www.roblox.com/headshot-thumbnail/image?userId=%s&width=420&height=420&format=png",  
+                    tostring(game.Players.LocalPlayer.UserId)),  
+            }, { New("UICorner", { CornerRadius = UDim.new(1, 0) }) }),  
+            New("Frame", {  
+                BackgroundTransparency = 1,  
+                Size = UDim2.new(0, 320, 0, 28),  
+            }, {  
+                New("UIListLayout", {  
+                    FillDirection = Enum.FillDirection.Horizontal,  
+                    SortOrder = Enum.SortOrder.LayoutOrder,  
+                    VerticalAlignment = Enum.VerticalAlignment.Center,  
+                    Padding = UDim.new(0, 8),  
+                }),  
+                New("TextLabel", {  
+                    Text = Config.Title,  
+                    RichText = true,  
+                    FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json",  
+                        Enum.FontWeight.SemiBold, Enum.FontStyle.Normal),  
+                    TextSize = 15,  
+                    BackgroundTransparency = 1,  
+                    TextColor3 = Color3.fromRGB(255, 255, 255),  
+                    TextXAlignment = Enum.TextXAlignment.Left,  
+                    TextYAlignment = Enum.TextYAlignment.Center,  
+                    AutomaticSize = Enum.AutomaticSize.X,  
+                }),  
+                hasSubtitle and New("TextLabel", {  
+                    Text = Config.SubTitle,  
+                    TextTransparency = 0.35,  
+                    RichText = true,  
+                    FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json",  
+                        Enum.FontWeight.Regular, Enum.FontStyle.Italic),  
+                    TextSize = 12,  
+                    BackgroundTransparency = 1,  
+                    TextColor3 = Color3.fromRGB(220, 220, 220),  
+                    TextXAlignment = Enum.TextXAlignment.Left,  
+                    TextYAlignment = Enum.TextYAlignment.Center,  
+                    AutomaticSize = Enum.AutomaticSize.X,  
+                }) or nil,  
+            }),  
+        }),  
+        New("Frame", {  
+            BackgroundTransparency = 0,  
+            Size = UDim2.new(1, 0, 0, 1),  
+            Position = UDim2.new(0, 0, 1, 0),  
+            ThemeTag = { BackgroundColor3 = "TitleBarLine" },  
+        }),  
+    })  
 
-		TitleBar.MaxButton = BarButton(Components.Assets.Max, UDim2.new(1, -38, 0, 10), TitleBar.Frame, function()
-			Config.Window.Maximize(not Config.Window.Maximized)
-		end)
+    TitleBar.CloseButton = BarButton(Components.Assets.Close, UDim2.new(1, -4, 0, 6), TitleBar.Frame, function()  
+        Library.Window:Dialog({  
+            Title = "Lucid",  
+            Content = "Are you sure you want to close?",  
+            Buttons = {  
+                { Title = "OK", Callback = function() Library:Destroy() end },  
+                { Title = "Cancel" },  
+            },  
+        })  
+    end)  
 
-		TitleBar.MinButton = BarButton(Components.Assets.Min, UDim2.new(1, -72, 0, 10), TitleBar.Frame, function()
-			Library.Window:Minimize()
-		end)
+    TitleBar.MaxButton = BarButton(Components.Assets.Max, UDim2.new(1, -44, 0, 6), TitleBar.Frame, function()  
+        Config.Window.Maximize(not Config.Window.Maximized)  
+    end)  
 
-		TitleBar.SearchButton = BarButton(Components.Assets.Search, UDim2.new(1, -106, 0, 10), TitleBar.Frame, function()
-			print("Search button clicked")
-		end)
+    TitleBar.MinButton = BarButton(Components.Assets.Min, UDim2.new(1, -84, 0, 6), TitleBar.Frame, function()  
+        Library.Window:Minimize()  
+    end)  
 
-		return TitleBar
-	end
+    -- Thêm nút Search
+    TitleBar.SearchButton = BarButton(Components.Assets.Search or "rbxassetid://0", UDim2.new(1, -124, 0, 6), TitleBar.Frame, function()
+        print("Search clicked") -- Thay bằng callback của bạn
+    end)
+
+    return TitleBar  
+end
+
 end)()
 Components.Window = (function()
 	local Spring = Flipper.Spring.new

@@ -2035,18 +2035,16 @@ Components.TitleBar = (function()
 
             local _, SetTransparency = Creator.SpringMotor(1, Button.Frame)
 
-            AddSignal(Button.Frame.MouseEnter)
-            AddSignal(Button.Frame.MouseLeave)
-            AddSignal(Button.Frame.MouseButton1Down)
-            AddSignal(Button.Frame.MouseButton1Up)
+            AddSignal(Button.Frame.MouseEnter, function() SetTransparency(0.92) end)
+            AddSignal(Button.Frame.MouseLeave, function() SetTransparency(1, true) end)
+            AddSignal(Button.Frame.MouseButton1Down, function() SetTransparency(0.95) end)
+            AddSignal(Button.Frame.MouseButton1Up, function() SetTransparency(0.92) end)
             AddSignal(Button.Frame.MouseButton1Click, Button.Callback)
-            
-            function Button:SetCallback(Func)
-                self.Callback = Func
-            end
-            
+
+            function Button:SetCallback(Func) self.Callback = Func end
+
             return Button
-            end
+        end
 
         local hasSubtitle = Config.SubTitle and #Config.SubTitle > 0
 

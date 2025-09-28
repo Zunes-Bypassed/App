@@ -1332,182 +1332,181 @@ Components.Element = (function()
 	end
 end)()
 Components.Tab = (function()
-local New = Creator.New
-local Spring = Flipper.Spring.new
-local Components = Components
+	local New = Creator.New
+	local Spring = Flipper.Spring.new
+	local Components = Components
 
-local TabModule = {  
-	Window = nil,  
-	Tabs = {},  
-	Containers = {},  
-	SelectedTab = 0,  
-	TabCount = 0,  
-}  
+	local TabModule = {
+		Window = nil,
+		Tabs = {},
+		Containers = {},
+		SelectedTab = 0,
+		TabCount = 0,
+	}
 
-function TabModule:Init(Window)  
-	TabModule.Window = Window  
-	return TabModule  
-end  
+	function TabModule:Init(Window)
+		TabModule.Window = Window
+		return TabModule
+	end
 
-function TabModule:GetCurrentTabPos()  
-	local TabHolderPos = TabModule.Window.TabHolder.AbsolutePosition.Y  
-	local TabPos = TabModule.Tabs[TabModule.SelectedTab].Frame.AbsolutePosition.Y  
-	return TabPos - TabHolderPos  
-end  
+	function TabModule:GetCurrentTabPos()
+		local TabHolderPos = TabModule.Window.TabHolder.AbsolutePosition.Y
+		local TabPos = TabModule.Tabs[TabModule.SelectedTab].Frame.AbsolutePosition.Y
+		return TabPos - TabHolderPos
+	end
 
-function TabModule:New(Title, Icon, Parent)  
-	local Window = TabModule.Window  
-	local Elements = Library.Elements  
-	TabModule.TabCount += 1  
-	local TabIndex = TabModule.TabCount  
-	local Tab = { Selected = false, Name = Title, Type = "Tab" }  
-	if Library:GetIcon(Icon) then Icon = Library:GetIcon(Icon) end  
-	if Icon == "" or nil then Icon = nil end  
+	function TabModule:New(Title, Icon, Parent)
+		local Window = TabModule.Window
+		local Elements = Library.Elements
+		TabModule.TabCount += 1
+		local TabIndex = TabModule.TabCount
+		local Tab = { Selected = false, Name = Title, Type = "Tab" }
+		if Library:GetIcon(Icon) then Icon = Library:GetIcon(Icon) end
+		if Icon == "" or nil then Icon = nil end
 
-	Tab.Frame = New("TextButton", {  
-		Size = UDim2.new(1, 0, 0, 36),  
-		BackgroundTransparency = 1,  
-		Parent = Parent,  
-		Text = "",  
-	}, {  
-		New("UICorner", { CornerRadius = UDim.new(0, 8) }),  
-		New("Frame", {  
-			Name = "AccentLine",  
-			Size = UDim2.new(0, 3, 1, -6),  
-			Position = UDim2.fromOffset(0, 3),  
-			BackgroundColor3 = Color3.fromRGB(0, 195, 255),  
-			BackgroundTransparency = 0.8,  
-			Visible = false,  
-			ThemeTag = { BackgroundColor3 = "Accent" },  
-		}),  
-		New("TextLabel", {  
-			AnchorPoint = Vector2.new(0, 0.5),  
-			Position = Icon and UDim2.new(0, 34, 0.5, 0) or UDim2.new(0, 14, 0.5, 0),  
-			Text = Title,  
-			RichText = true,  
-			FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Medium),  
-			TextSize = 14,  
-			TextXAlignment = "Left",  
-			TextYAlignment = "Center",  
-			Size = UDim2.new(1, -12, 1, 0),  
-			BackgroundTransparency = 1,  
-			ThemeTag = { TextColor3 = "Text" },  
-		}),  
-		New("ImageLabel", {  
-			AnchorPoint = Vector2.new(0, 0.5),  
-			Size = UDim2.fromOffset(18, 18),  
-			Position = UDim2.new(0, 10, 0.5, 0),  
-			BackgroundTransparency = 1,  
-			Image = Icon,  
-			ThemeTag = { ImageColor3 = "Text" },  
-		}),  
-	})  
+		Tab.Frame = New("TextButton", {
+			Size = UDim2.new(1, 0, 0, 36),
+			BackgroundTransparency = 1,
+			Parent = Parent,
+			Text = "",
+		}, {
+			New("UICorner", { CornerRadius = UDim.new(0, 8) }),
+			New("Frame", {
+				Name = "AccentLine",
+				Size = UDim2.new(0, 3, 1, -6),
+				Position = UDim2.fromOffset(0, 3),
+				BackgroundColor3 = Color3.fromRGB(0, 195, 255),
+				BackgroundTransparency = 0,
+				Visible = false,
+				ThemeTag = { BackgroundColor3 = "Accent" },
+			}),
+			New("TextLabel", {
+				AnchorPoint = Vector2.new(0, 0.5),
+				Position = Icon and UDim2.new(0, 34, 0.5, 0) or UDim2.new(0, 14, 0.5, 0),
+				Text = Title,
+				RichText = true,
+				FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Medium),
+				TextSize = 14,
+				TextXAlignment = "Left",
+				TextYAlignment = "Center",
+				Size = UDim2.new(1, -12, 1, 0),
+				BackgroundTransparency = 1,
+				ThemeTag = { TextColor3 = "Text" },
+			}),
+			New("ImageLabel", {
+				AnchorPoint = Vector2.new(0, 0.5),
+				Size = UDim2.fromOffset(18, 18),
+				Position = UDim2.new(0, 10, 0.5, 0),
+				BackgroundTransparency = 1,
+				Image = Icon,
+				ThemeTag = { ImageColor3 = "Text" },
+			}),
+		})
 
-	local ContainerLayout = New("UIListLayout", {  
-		Padding = UDim.new(0, 8),  
-		SortOrder = Enum.SortOrder.LayoutOrder,  
-	})  
+		local ContainerLayout = New("UIListLayout", {
+			Padding = UDim.new(0, 8),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		})
 
-	Tab.ContainerFrame = New("ScrollingFrame", {  
-		Size = UDim2.fromScale(1, 1),  
-		BackgroundTransparency = 1,  
-		Parent = Window.ContainerHolder,  
-		Visible = false,  
-		ScrollBarImageColor3 = Color3.fromRGB(255, 255, 255),  
-		ScrollBarImageTransparency = 0.9,  
-		ScrollBarThickness = 2,  
-		BorderSizePixel = 0,  
-		CanvasSize = UDim2.fromScale(0, 0),  
-		ScrollingDirection = Enum.ScrollingDirection.Y,  
-	}, {  
-		ContainerLayout,  
-		New("UIPadding", {  
-			PaddingLeft = UDim.new(0, 8),  
-			PaddingRight = UDim.new(0, 8),  
-			PaddingTop = UDim.new(0, 4),  
-			PaddingBottom = UDim.new(0, 4),  
-		}),  
-	})  
+		Tab.ContainerFrame = New("ScrollingFrame", {
+			Size = UDim2.fromScale(1, 1),
+			BackgroundTransparency = 1,
+			Parent = Window.ContainerHolder,
+			Visible = false,
+			ScrollBarImageColor3 = Color3.fromRGB(255, 255, 255),
+			ScrollBarImageTransparency = 0.9,
+			ScrollBarThickness = 2,
+			BorderSizePixel = 0,
+			CanvasSize = UDim2.fromScale(0, 0),
+			ScrollingDirection = Enum.ScrollingDirection.Y,
+		}, {
+			ContainerLayout,
+			New("UIPadding", {
+				PaddingLeft = UDim.new(0, 8),
+				PaddingRight = UDim.new(0, 8),
+				PaddingTop = UDim.new(0, 4),
+				PaddingBottom = UDim.new(0, 4),
+			}),
+		})
 
-	Creator.AddSignal(ContainerLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()  
-		Tab.ContainerFrame.CanvasSize = UDim2.new(0, 0, 0, ContainerLayout.AbsoluteContentSize.Y + 8)  
-	end)  
-
-	Tab.Motor, Tab.SetTransparency = Creator.SpringMotor(1, Tab.Frame, "BackgroundTransparency")  
-
-	Creator.AddSignal(Tab.Frame.MouseEnter, function()  
-		Tab.SetTransparency(Tab.Selected and 0.9 or 0.95)  
-	end)  
-	Creator.AddSignal(Tab.Frame.MouseLeave, function()  
-		Tab.SetTransparency(Tab.Selected and 0.85 or 1)  
-	end)  
-	Creator.AddSignal(Tab.Frame.MouseButton1Down, function()  
-		Tab.SetTransparency(0.92)  
-	end)  
-	Creator.AddSignal(Tab.Frame.MouseButton1Up, function()  
-		Tab.SetTransparency(Tab.Selected and 0.9 or 0.95)  
-	end)  
-	Creator.AddSignal(Tab.Frame.MouseButton1Click, function()  
-		TabModule:SelectTab(TabIndex)  
-	end)  
-
-	TabModule.Containers[TabIndex] = Tab.ContainerFrame  
-	TabModule.Tabs[TabIndex] = Tab  
-	Tab.Container = Tab.ContainerFrame  
-	Tab.ScrollFrame = Tab.Container  
-
-	function Tab:AddSection(SectionTitle)  
-		local Section = { Type = "Section" }  
-		local SectionFrame = Components.Section(SectionTitle, Tab.Container)  
-		Section.Container = SectionFrame.Container  
-		Section.ScrollFrame = Tab.Container  
-		setmetatable(Section, Elements)  
-		return Section  
-	end  
-
-	setmetatable(Tab, Elements)  
-
-	if TabIndex == 1 then
-		task.defer(function()
-			TabModule:SelectTab(1)
+		Creator.AddSignal(ContainerLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
+			Tab.ContainerFrame.CanvasSize = UDim2.new(0, 0, 0, ContainerLayout.AbsoluteContentSize.Y + 8)
 		end)
-	end  
 
-	return Tab  
-end  
+		Tab.Motor, Tab.SetTransparency = Creator.SpringMotor(1, Tab.Frame, "BackgroundTransparency")
 
-function TabModule:SelectTab(Tab)  
-	local Window = TabModule.Window  
-	TabModule.SelectedTab = Tab  
-	for _, t in next, TabModule.Tabs do  
-		t.SetTransparency(1)  
-		t.Selected = false  
-		t.Frame.AccentLine.Visible = false  
-	end  
-	local sel = TabModule.Tabs[Tab]  
-	sel.SetTransparency(0.9)  
-	sel.Selected = true  
-	sel.Frame.AccentLine.Visible = true  
-	Window.TabDisplay.Text = sel.Name  
-	Window.SelectorPosMotor:setGoal(Spring(TabModule:GetCurrentTabPos(), { frequency = 6 }))  
-	task.spawn(function()  
-		Window.ContainerHolder.Parent = Window.ContainerAnim  
-		Window.ContainerPosMotor:setGoal(Spring(15, { frequency = 10 }))  
-		Window.ContainerBackMotor:setGoal(Spring(1, { frequency = 10 }))  
-		if Window.ContainerFadeMotor then Window.ContainerFadeMotor:setGoal(Spring(1, { frequency = 10 })) end  
-		task.wait(0.12)  
-		for _, c in next, TabModule.Containers do c.Visible = false end  
-		TabModule.Containers[Tab].Visible = true  
-		Window.ContainerPosMotor:setGoal(Spring(0, { frequency = 5 }))  
-		Window.ContainerBackMotor:setGoal(Spring(0, { frequency = 8 }))  
-		if Window.ContainerFadeMotor then Window.ContainerFadeMotor:setGoal(Spring(0, { frequency = 6 })) end  
-		task.wait(0.12)  
-		Window.ContainerHolder.Parent = Window.ContainerCanvas  
-	end)  
-end  
+		Creator.AddSignal(Tab.Frame.MouseEnter, function()
+			Tab.SetTransparency(Tab.Selected and 0.9 or 0.95)
+		end)
+		Creator.AddSignal(Tab.Frame.MouseLeave, function()
+			Tab.SetTransparency(Tab.Selected and 0.85 or 1)
+		end)
+		Creator.AddSignal(Tab.Frame.MouseButton1Down, function()
+			Tab.SetTransparency(0.92)
+		end)
+		Creator.AddSignal(Tab.Frame.MouseButton1Up, function()
+			Tab.SetTransparency(Tab.Selected and 0.9 or 0.95)
+		end)
+		Creator.AddSignal(Tab.Frame.MouseButton1Click, function()
+			TabModule:SelectTab(TabIndex)
+		end)
 
-return TabModule
+		TabModule.Containers[TabIndex] = Tab.ContainerFrame
+		TabModule.Tabs[TabIndex] = Tab
+		Tab.Container = Tab.ContainerFrame
+		Tab.ScrollFrame = Tab.Container
 
+		function Tab:AddSection(SectionTitle)
+			local Section = { Type = "Section" }
+			local SectionFrame = Components.Section(SectionTitle, Tab.Container)
+			Section.Container = SectionFrame.Container
+			Section.ScrollFrame = Tab.Container
+			setmetatable(Section, Elements)
+			return Section
+		end
+
+		setmetatable(Tab, Elements)
+
+		if TabIndex == 1 then
+			task.defer(function()
+				TabModule:SelectTab(1)
+			end)
+		end
+
+		return Tab
+	end
+
+	function TabModule:SelectTab(Tab)
+		local Window = TabModule.Window
+		TabModule.SelectedTab = Tab
+		for _, t in next, TabModule.Tabs do
+			t.SetTransparency(1)
+			t.Selected = false
+			t.Frame.AccentLine.Visible = false
+		end
+		local sel = TabModule.Tabs[Tab]
+		sel.SetTransparency(0.9)
+		sel.Selected = true
+		sel.Frame.AccentLine.Visible = true
+		Window.TabDisplay.Text = sel.Name
+		Window.SelectorPosMotor:setGoal(Spring(TabModule:GetCurrentTabPos(), { frequency = 6 }))
+		task.spawn(function()
+			Window.ContainerHolder.Parent = Window.ContainerAnim
+			Window.ContainerPosMotor:setGoal(Spring(15, { frequency = 10 }))
+			Window.ContainerBackMotor:setGoal(Spring(1, { frequency = 10 }))
+			if Window.ContainerFadeMotor then Window.ContainerFadeMotor:setGoal(Spring(1, { frequency = 10 })) end
+			task.wait(0.12)
+			for _, c in next, TabModule.Containers do c.Visible = false end
+			TabModule.Containers[Tab].Visible = true
+			Window.ContainerPosMotor:setGoal(Spring(0, { frequency = 5 }))
+			Window.ContainerBackMotor:setGoal(Spring(0, { frequency = 8 }))
+			if Window.ContainerFadeMotor then Window.ContainerFadeMotor:setGoal(Spring(0, { frequency = 6 })) end
+			task.wait(0.12)
+			Window.ContainerHolder.Parent = Window.ContainerCanvas
+		end)
+	end
+
+	return TabModule
 end)()
 Components.Button = (function()
 	local New = Creator.New

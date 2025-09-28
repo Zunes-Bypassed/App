@@ -121,59 +121,111 @@ local ProtectGui = protectgui or (syn and syn.protect_gui) or function() end
 local RenderStepped = RunService.RenderStepped
 
 local Themes = {
-	Names = {
-		"Obsidian"
-	},
+    Names = {
+        "Dark",
+        "Light"
+    },
 
-	Obsidian = {
-        Name = "Obsidian",
-    
-        Accent = Color3.fromRGB(120, 160, 255),
-    
-        AcrylicMain = Color3.fromRGB(20, 20, 24),
-        AcrylicBorder = Color3.fromRGB(55, 55, 70),
+    Dark = {
+        Name = "Dark",
+
+        Accent = Color3.fromRGB(180, 180, 180),
+
+        AcrylicMain = Color3.fromRGB(15, 15, 15),
+        AcrylicBorder = Color3.fromRGB(40, 40, 40),
         AcrylicGradient = ColorSequence.new{
-            ColorSequenceKeypoint.new(0, Color3.fromRGB(18, 18, 22)),
-            ColorSequenceKeypoint.new(1, Color3.fromRGB(28, 28, 36)),
+            ColorSequenceKeypoint.new(0, Color3.fromRGB(12, 12, 12)),
+            ColorSequenceKeypoint.new(1, Color3.fromRGB(22, 22, 22)),
         },
-        AcrylicNoise = 1,
-    
-        TitleBarLine = Color3.fromRGB(60, 60, 75),
-        Tab = Color3.fromRGB(130, 140, 160),
-    
-        Element = Color3.fromRGB(32, 32, 38),
-        ElementBorder = Color3.fromRGB(55, 55, 70),
-        InElementBorder = Color3.fromRGB(45, 45, 58),
-        ElementTransparency = 0.55,
-    
-        ToggleSlider = Color3.fromRGB(150, 180, 255),
-        ToggleToggled = Color3.fromRGB(28, 28, 34),
-    
-        SliderRail = Color3.fromRGB(80, 85, 100),
-    
-        DropdownFrame = Color3.fromRGB(38, 38, 46),
-        DropdownHolder = Color3.fromRGB(26, 26, 32),
-        DropdownBorder = Color3.fromRGB(52, 52, 66),
-        DropdownOption = Color3.fromRGB(170, 180, 200),
-    
-        Keybind = Color3.fromRGB(170, 180, 200),
-    
-        Input = Color3.fromRGB(34, 34, 40),
-        InputFocused = Color3.fromRGB(20, 20, 28),
-        InputIndicator = Color3.fromRGB(120, 160, 255),
-    
-        Dialog = Color3.fromRGB(26, 26, 32),
-        DialogHolder = Color3.fromRGB(34, 34, 42),
-        DialogButton = Color3.fromRGB(40, 40, 48),
-        DialogButtonBorder = Color3.fromRGB(55, 55, 70),
-        DialogBorder = Color3.fromRGB(60, 60, 75),
-        DialogInput = Color3.fromRGB(30, 30, 36),
-        DialogInputLine = Color3.fromRGB(120, 160, 255),
-    
-        Text = Color3.fromRGB(235, 240, 250),
-        SubText = Color3.fromRGB(150, 160, 175),
-        Hover = Color3.fromRGB(140, 180, 255),
-        HoverChange = 0.07
+        AcrylicNoise = 0.6,
+
+        TitleBarLine = Color3.fromRGB(50, 50, 50),
+        Tab = Color3.fromRGB(160, 160, 160),
+
+        Element = Color3.fromRGB(25, 25, 25),
+        ElementBorder = Color3.fromRGB(45, 45, 45),
+        InElementBorder = Color3.fromRGB(35, 35, 35),
+        ElementTransparency = 0.6,
+
+        ToggleSlider = Color3.fromRGB(180, 180, 180),
+        ToggleToggled = Color3.fromRGB(20, 20, 20),
+
+        SliderRail = Color3.fromRGB(70, 70, 70),
+
+        DropdownFrame = Color3.fromRGB(30, 30, 30),
+        DropdownHolder = Color3.fromRGB(20, 20, 20),
+        DropdownBorder = Color3.fromRGB(40, 40, 40),
+        DropdownOption = Color3.fromRGB(200, 200, 200),
+
+        Keybind = Color3.fromRGB(200, 200, 200),
+
+        Input = Color3.fromRGB(26, 26, 26),
+        InputFocused = Color3.fromRGB(16, 16, 16),
+        InputIndicator = Color3.fromRGB(180, 180, 180),
+
+        Dialog = Color3.fromRGB(20, 20, 20),
+        DialogHolder = Color3.fromRGB(28, 28, 28),
+        DialogButton = Color3.fromRGB(34, 34, 34),
+        DialogButtonBorder = Color3.fromRGB(45, 45, 45),
+        DialogBorder = Color3.fromRGB(50, 50, 50),
+        DialogInput = Color3.fromRGB(24, 24, 24),
+        DialogInputLine = Color3.fromRGB(180, 180, 180),
+
+        Text = Color3.fromRGB(220, 220, 220),
+        SubText = Color3.fromRGB(150, 150, 150),
+        Hover = Color3.fromRGB(200, 200, 200),
+        HoverChange = 0.05
+    },
+
+    Light = {
+        Name = "Light",
+
+        Accent = Color3.fromRGB(60, 60, 60),
+
+        AcrylicMain = Color3.fromRGB(240, 240, 240),
+        AcrylicBorder = Color3.fromRGB(200, 200, 200),
+        AcrylicGradient = ColorSequence.new{
+            ColorSequenceKeypoint.new(0, Color3.fromRGB(250, 250, 250)),
+            ColorSequenceKeypoint.new(1, Color3.fromRGB(235, 235, 235)),
+        },
+        AcrylicNoise = 0.2,
+
+        TitleBarLine = Color3.fromRGB(210, 210, 210),
+        Tab = Color3.fromRGB(80, 80, 80),
+
+        Element = Color3.fromRGB(255, 255, 255),
+        ElementBorder = Color3.fromRGB(210, 210, 210),
+        InElementBorder = Color3.fromRGB(230, 230, 230),
+        ElementTransparency = 0,
+
+        ToggleSlider = Color3.fromRGB(100, 100, 100),
+        ToggleToggled = Color3.fromRGB(240, 240, 240),
+
+        SliderRail = Color3.fromRGB(180, 180, 180),
+
+        DropdownFrame = Color3.fromRGB(250, 250, 250),
+        DropdownHolder = Color3.fromRGB(235, 235, 235),
+        DropdownBorder = Color3.fromRGB(200, 200, 200),
+        DropdownOption = Color3.fromRGB(50, 50, 50),
+
+        Keybind = Color3.fromRGB(50, 50, 50),
+
+        Input = Color3.fromRGB(255, 255, 255),
+        InputFocused = Color3.fromRGB(240, 240, 240),
+        InputIndicator = Color3.fromRGB(100, 100, 100),
+
+        Dialog = Color3.fromRGB(250, 250, 250),
+        DialogHolder = Color3.fromRGB(240, 240, 240),
+        DialogButton = Color3.fromRGB(245, 245, 245),
+        DialogButtonBorder = Color3.fromRGB(200, 200, 200),
+        DialogBorder = Color3.fromRGB(180, 180, 180),
+        DialogInput = Color3.fromRGB(255, 255, 255),
+        DialogInputLine = Color3.fromRGB(100, 100, 100),
+
+        Text = Color3.fromRGB(30, 30, 30),
+        SubText = Color3.fromRGB(90, 90, 90),
+        Hover = Color3.fromRGB(60, 60, 60),
+        HoverChange = 0.03
     }
 }
 
@@ -752,7 +804,7 @@ function Creator.GetThemeProperty(Property)
 	if Themes[Library.Theme][Property] then
 		return Themes[Library.Theme][Property]
 	end
-	return Themes["Obsidian"][Property]
+	return Themes["Dark"][Property]
 end
 
 function Creator.New(Name, Properties, Children)
@@ -1188,7 +1240,8 @@ local Components = {
 		Min = "rbxassetid://10734896206",
 		Max = "rbxassetid://10734886496",
 		Restore = "rbxassetid://10734895530",
-		Search = "rbxassetid://10734943674"
+		Dark = "rbxassetid://10734897102",
+		Light = "rbxassetid://10734974297"
 	},
 }
 
@@ -1951,143 +2004,165 @@ Components.Textbox = (function()
 	end
 end)()
 Components.TitleBar = (function()
-local New = Creator.New
-local AddSignal = Creator.AddSignal
+    local New = Creator.New
+    local AddSignal = Creator.AddSignal
 
-return function(Config)  
-    local TitleBar = {}  
+    return function(Config)
+        local TitleBar = {}
 
-    local function BarButton(Icon, Pos, Parent, Callback)  
-        local Button = { Callback = Callback or function() end }  
+        local function BarButton(Icon, Pos, Parent, Callback)
+            local Button = { Callback = Callback or function() end }
 
-        Button.Frame = New("TextButton", {  
-            Size = UDim2.new(0, 36, 1, -6),  
-            AnchorPoint = Vector2.new(1, 0),  
-            BackgroundTransparency = 1,  
-            Parent = Parent,  
-            Position = Pos,  
-            Text = "",  
-        }, {  
-            New("UICorner", { CornerRadius = UDim.new(0, 8) }),  
-            New("ImageLabel", {  
-                Image = Icon,  
-                Size = UDim2.fromOffset(18, 18),  
-                Position = UDim2.fromScale(0.5, 0.5),  
-                AnchorPoint = Vector2.new(0.5, 0.5),  
-                BackgroundTransparency = 1,  
-                Name = "Icon",  
-                ThemeTag = { ImageColor3 = "Text" },  
-            }),  
-        })  
+            Button.Frame = New("TextButton", {
+                Size = UDim2.new(0, 36, 1, -6),
+                AnchorPoint = Vector2.new(1, 0),
+                BackgroundTransparency = 1,
+                Parent = Parent,
+                Position = Pos,
+                Text = "",
+            }, {
+                New("UICorner", { CornerRadius = UDim.new(0, 8) }),
+                New("ImageLabel", {
+                    Image = Icon,
+                    Size = UDim2.fromOffset(18, 18),
+                    Position = UDim2.fromScale(0.5, 0.5),
+                    AnchorPoint = Vector2.new(0.5, 0.5),
+                    BackgroundTransparency = 1,
+                    Name = "Icon",
+                    ThemeTag = { ImageColor3 = "Text" },
+                }),
+            })
 
-        local _, SetTransparency = Creator.SpringMotor(1, Button.Frame, "BackgroundTransparency")  
+            local _, SetTransparency = Creator.SpringMotor(1, Button.Frame, "BackgroundTransparency")
 
-        AddSignal(Button.Frame.MouseEnter, function() SetTransparency(0.92) end)  
-        AddSignal(Button.Frame.MouseLeave, function() SetTransparency(1, true) end)  
-        AddSignal(Button.Frame.MouseButton1Down, function() SetTransparency(0.95) end)  
-        AddSignal(Button.Frame.MouseButton1Up, function() SetTransparency(0.92) end)  
-        AddSignal(Button.Frame.MouseButton1Click, Button.Callback)  
+            AddSignal(Button.Frame.MouseEnter, function() SetTransparency(0.92) end)
+            AddSignal(Button.Frame.MouseLeave, function() SetTransparency(1, true) end)
+            AddSignal(Button.Frame.MouseButton1Down, function() SetTransparency(0.95) end)
+            AddSignal(Button.Frame.MouseButton1Up, function() SetTransparency(0.92) end)
+            AddSignal(Button.Frame.MouseButton1Click, Button.Callback)
 
-        function Button:SetCallback(Func) self.Callback = Func end  
+            function Button:SetCallback(Func) self.Callback = Func end
 
-        return Button  
-    end  
+            return Button
+        end
 
-    local hasSubtitle = Config.SubTitle and #Config.SubTitle > 0  
+        local hasSubtitle = Config.SubTitle and #Config.SubTitle > 0
 
-    TitleBar.Frame = New("Frame", {  
-        Size = UDim2.new(1, 0, 0, 48),  
-        BackgroundTransparency = 1,  
-        Parent = Config.Parent,  
-    }, {  
-        New("Frame", {  
-            Size = UDim2.new(1, -20, 1, 0),  
-            Position = UDim2.new(0, 16, 0, 0),  
-            BackgroundTransparency = 1,  
-        }, {  
-            New("UIListLayout", {  
-                Padding = UDim.new(0, 10),  
-                FillDirection = Enum.FillDirection.Horizontal,  
-                SortOrder = Enum.SortOrder.LayoutOrder,  
-                VerticalAlignment = Enum.VerticalAlignment.Center,  
-            }),  
-            New("ImageLabel", {  
-                Size = UDim2.new(0, 32, 0, 32),  
-                BackgroundTransparency = 1,  
-                Image = string.format("https://www.roblox.com/headshot-thumbnail/image?userId=%s&width=420&height=420&format=png",  
-                    tostring(game.Players.LocalPlayer.UserId)),  
-            }, { New("UICorner", { CornerRadius = UDim.new(1, 0) }) }),  
-            New("Frame", {  
-                BackgroundTransparency = 1,  
-                Size = UDim2.new(0, 320, 0, 28),  
-            }, {  
-                New("UIListLayout", {  
-                    FillDirection = Enum.FillDirection.Horizontal,  
-                    SortOrder = Enum.SortOrder.LayoutOrder,  
-                    VerticalAlignment = Enum.VerticalAlignment.Center,  
-                    Padding = UDim.new(0, 8),  
-                }),  
-                New("TextLabel", {  
-                    Text = Config.Title,  
-                    RichText = true,  
-                    FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json",  
-                        Enum.FontWeight.SemiBold, Enum.FontStyle.Normal),  
-                    TextSize = 15,  
-                    BackgroundTransparency = 1,  
-                    TextColor3 = Color3.fromRGB(255, 255, 255),  
-                    TextXAlignment = Enum.TextXAlignment.Left,  
-                    TextYAlignment = Enum.TextYAlignment.Center,  
-                    AutomaticSize = Enum.AutomaticSize.X,  
-                }),  
-                hasSubtitle and New("TextLabel", {  
-                    Text = Config.SubTitle,  
-                    TextTransparency = 0.35,  
-                    RichText = true,  
-                    FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json",  
-                        Enum.FontWeight.Regular, Enum.FontStyle.Italic),  
-                    TextSize = 12,  
-                    BackgroundTransparency = 1,  
-                    TextColor3 = Color3.fromRGB(220, 220, 220),  
-                    TextXAlignment = Enum.TextXAlignment.Left,  
-                    TextYAlignment = Enum.TextYAlignment.Center,  
-                    AutomaticSize = Enum.AutomaticSize.X,  
-                }) or nil,  
-            }),  
-        }),  
-        New("Frame", {  
-            BackgroundTransparency = 0,  
-            Size = UDim2.new(1, 0, 0, 1),  
-            Position = UDim2.new(0, 0, 1, 0),  
-            ThemeTag = { BackgroundColor3 = "TitleBarLine" },  
-        }),  
-    })  
+        TitleBar.Frame = New("Frame", {
+            Size = UDim2.new(1, 0, 0, 48),
+            BackgroundTransparency = 1,
+            Parent = Config.Parent,
+        }, {
+            New("Frame", {
+                Size = UDim2.new(1, -20, 1, 0),
+                Position = UDim2.new(0, 16, 0, 0),
+                BackgroundTransparency = 1,
+            }, {
+                New("UIListLayout", {
+                    Padding = UDim.new(0, 10),
+                    FillDirection = Enum.FillDirection.Horizontal,
+                    SortOrder = Enum.SortOrder.LayoutOrder,
+                    VerticalAlignment = Enum.VerticalAlignment.Center,
+                }),
+                New("ImageLabel", {
+                    Size = UDim2.new(0, 32, 0, 32),
+                    BackgroundTransparency = 1,
+                    Image = string.format(
+                        "https://www.roblox.com/headshot-thumbnail/image?userId=%s&width=420&height=420&format=png",
+                        tostring(game.Players.LocalPlayer.UserId)
+                    ),
+                }, { New("UICorner", { CornerRadius = UDim.new(1, 0) }) }),
+                New("Frame", {
+                    BackgroundTransparency = 1,
+                    Size = UDim2.new(0, 320, 0, 28),
+                }, {
+                    New("UIListLayout", {
+                        FillDirection = Enum.FillDirection.Horizontal,
+                        SortOrder = Enum.SortOrder.LayoutOrder,
+                        VerticalAlignment = Enum.VerticalAlignment.Center,
+                        Padding = UDim.new(0, 8),
+                    }),
+                    New("TextLabel", {
+                        Text = Config.Title,
+                        RichText = true,
+                        FontFace = Font.new(
+                            "rbxasset://fonts/families/GothamSSm.json",
+                            Enum.FontWeight.SemiBold,
+                            Enum.FontStyle.Normal
+                        ),
+                        TextSize = 15,
+                        BackgroundTransparency = 1,
+                        TextColor3 = Color3.fromRGB(255, 255, 255),
+                        TextXAlignment = Enum.TextXAlignment.Left,
+                        TextYAlignment = Enum.TextYAlignment.Center,
+                        AutomaticSize = Enum.AutomaticSize.X,
+                    }),
+                    hasSubtitle and New("TextLabel", {
+                        Text = Config.SubTitle,
+                        TextTransparency = 0.35,
+                        RichText = true,
+                        FontFace = Font.new(
+                            "rbxasset://fonts/families/GothamSSm.json",
+                            Enum.FontWeight.Regular,
+                            Enum.FontStyle.Italic
+                        ),
+                        TextSize = 12,
+                        BackgroundTransparency = 1,
+                        TextColor3 = Color3.fromRGB(220, 220, 220),
+                        TextXAlignment = Enum.TextXAlignment.Left,
+                        TextYAlignment = Enum.TextYAlignment.Center,
+                        AutomaticSize = Enum.AutomaticSize.X,
+                    }) or nil,
+                }),
+            }),
+            New("Frame", {
+                BackgroundTransparency = 0,
+                Size = UDim2.new(1, 0, 0, 1),
+                Position = UDim2.new(0, 0, 1, 0),
+                ThemeTag = { BackgroundColor3 = "TitleBarLine" },
+            }),
+        })
 
-    TitleBar.CloseButton = BarButton(Components.Assets.Close, UDim2.new(1, -4, 0, 6), TitleBar.Frame, function()  
-        Library.Window:Dialog({  
-            Title = "Lucid",  
-            Content = "Are you sure you want to close?",  
-            Buttons = {  
-                { Title = "OK", Callback = function() Library:Destroy() end },  
-                { Title = "Cancel" },  
-            },  
-        })  
-    end)  
+        TitleBar.CloseButton = BarButton(Components.Assets.Close, UDim2.new(1, -4, 0, 6), TitleBar.Frame, function()
+            Library.Window:Dialog({
+                Title = "Lucid",
+                Content = "Are you sure you want to close?",
+                Buttons = {
+                    { Title = "OK", Callback = function() Library:Destroy() end },
+                    { Title = "Cancel" },
+                },
+            })
+        end)
 
-    TitleBar.MaxButton = BarButton(Components.Assets.Max, UDim2.new(1, -44, 0, 6), TitleBar.Frame, function()  
-        Config.Window.Maximize(not Config.Window.Maximized)  
-    end)  
+        TitleBar.MaxButton = BarButton(Components.Assets.Max, UDim2.new(1, -44, 0, 6), TitleBar.Frame, function()
+            Config.Window.Maximize(not Config.Window.Maximized)
+        end)
 
-    TitleBar.MinButton = BarButton(Components.Assets.Min, UDim2.new(1, -84, 0, 6), TitleBar.Frame, function()  
-        Library.Window:Minimize()  
-    end)  
+        TitleBar.MinButton = BarButton(Components.Assets.Min, UDim2.new(1, -84, 0, 6), TitleBar.Frame, function()
+            Library.Window:Minimize()
+        end)
 
-    TitleBar.SearchButton = BarButton(Components.Assets.Search, UDim2.new(1, -124, 0, 6), TitleBar.Frame, function()
-        print("Search clicked")
-    end)
+        TitleBar.ThemeButton = BarButton(
+            Components.Assets.Dark,
+            UDim2.new(1, -124, 0, 6),
+            TitleBar.Frame,
+            function()
+                local currentTheme = Library.ThemeManager.CurrentTheme
+                local newTheme
+                if currentTheme == "Dark" then
+                    newTheme = "Light"
+                    TitleBar.ThemeButton.Frame.Icon.Image = Components.Assets.Dark
+                else
+                    newTheme = "Dark"
+                    TitleBar.ThemeButton.Frame.Icon.Image = Components.Assets.Light
+                end
+                Library.ThemeManager:ApplyTheme(newTheme)
+                Library.ThemeManager.CurrentTheme = newTheme
+            end
+        )
 
-    return TitleBar  
-end
-
+        return TitleBar
+    end
 end)()
 Components.Window = (function()
 	local Spring = Flipper.Spring.new
@@ -4734,49 +4809,3 @@ function Library:Notify(Config)
 	return NotificationModule:New(Config)
 end
 return Library
-
-
---[[
-    =========================
-    🔍 SEARCH FEATURE ADDED
-    =========================
-    Tự động lọc các thành phần UI (Toggle, Slider, Dropdown, Button) theo từ khoá.
-    Khi gõ text, sẽ ẩn những element không khớp và chỉ hiện những element có tên chứa từ khoá.
-]]
-
-local function CreateSearchBox(Window)
-    local searchBox = Instance.new("TextBox")
-    searchBox.PlaceholderText = "🔍 Search..."
-    searchBox.Size = UDim2.new(1, -10, 0, 30)
-    searchBox.Position = UDim2.new(0, 5, 0, 5)
-    searchBox.BackgroundTransparency = 0.2
-    searchBox.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    searchBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-    searchBox.TextSize = 14
-    searchBox.Parent = Window
-
-    local function filterUI()
-        local keyword = string.lower(searchBox.Text)
-        for _, obj in pairs(Window:GetDescendants()) do
-            if obj:IsA("TextButton") or obj:IsA("TextLabel") then
-                if keyword == "" or string.find(string.lower(obj.Text), keyword) then
-                    obj.Visible = true
-                else
-                    obj.Visible = false
-                end
-            end
-        end
-    end
-
-    searchBox:GetPropertyChangedSignal("Text"):Connect(filterUI)
-end
-
--- Thêm hook để tự động tạo search box khi window được tạo
-if getgenv and getgenv().Lucid_CreateWindow then
-    local oldCreateWindow = getgenv().Lucid_CreateWindow
-    getgenv().Lucid_CreateWindow = function(...)
-        local Window = oldCreateWindow(...)
-        pcall(function() CreateSearchBox(Window) end)
-        return Window
-    end
-end

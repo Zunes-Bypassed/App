@@ -772,7 +772,9 @@ function Creator.New(Name, Properties, Children)
 		Child.Parent = Object
 	end
 
-	ApplyCustomProps(Object, Properties)
+	if Properties then
+        ApplyCustomProps(Object, Properties)
+    end
 	return Object
 end
 
@@ -782,7 +784,7 @@ function Creator.SpringMotor(Initial, Instance, Prop, IgnoreDialogCheck, ResetOn
 
     local Motor = Flipper.SingleMotor.new(Initial)
     Motor:onStep(function(value)
-        if Instance and Prop and type(Prop) == "string" then
+        if Instance and Prop and type(Prop) == "string" and value ~= nil then
             Instance[Prop] = value
         end
     end)

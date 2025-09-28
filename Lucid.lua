@@ -1360,15 +1360,19 @@ Components.Tab = (function()
         local Elements = Library.Elements
         TabModule.TabCount += 1
         local TabIndex = TabModule.TabCount
+
         local Tab = { Selected = false, Name = Title, Type = "Tab" }
+
         if Library:GetIcon(Icon) then Icon = Library:GetIcon(Icon) end
-        if Icon == "" or nil then Icon = nil end
+        if Icon == "" or Icon == nil then Icon = nil end
 
         Tab.Frame = New("TextButton", {
             Size = UDim2.new(1, 0, 0, 36),
             BackgroundTransparency = 1,
+            BorderSizePixel = 0,
             Parent = Parent,
             Text = "",
+            AutoButtonColor = false,
         }, {
             New("UICorner", { CornerRadius = UDim.new(0, 8) }),
             New("TextLabel", {
@@ -1391,13 +1395,6 @@ Components.Tab = (function()
                 BackgroundTransparency = 1,
                 Image = Icon,
                 ThemeTag = { ImageColor3 = "Text" },
-            }),
-            New("UIGradient", {
-                Rotation = 90,
-                Color = ColorSequence.new{
-                    ColorSequenceKeypoint.new(0, Color3.fromRGB(20, 20, 20)),
-                    ColorSequenceKeypoint.new(1, Color3.fromRGB(40, 40, 40))
-                },
             }),
         })
 
@@ -1435,11 +1432,9 @@ Components.Tab = (function()
 
         Creator.AddSignal(Tab.Frame.MouseEnter, function()
             Tab.SetTransparency(Tab.Selected and 0.9 or 0.95)
-            Tab.Frame:TweenSize(UDim2.new(1, 0, 0, 40), "Out", "Quad", 0.2, true)
         end)
         Creator.AddSignal(Tab.Frame.MouseLeave, function()
             Tab.SetTransparency(Tab.Selected and 0.85 or 1)
-            Tab.Frame:TweenSize(UDim2.new(1, 0, 0, 36), "Out", "Quad", 0.2, true)
         end)
         Creator.AddSignal(Tab.Frame.MouseButton1Down, function()
             Tab.SetTransparency(0.92)
@@ -1495,17 +1490,7 @@ Components.Tab = (function()
             if Window.ContainerFadeMotor then Window.ContainerFadeMotor:setGoal(Spring(1, { frequency = 10 })) end
             task.wait(0.12)
             for _, c in next, TabModule.Containers do c.Visible = false end
-            local selContainer = TabModule.Containers[Tab]
-            selContainer.Visible = true
-            selContainer.AnchorPoint = Vector2.new(1,0)
-            selContainer.Position = UDim2.new(1, 0, 0, 0)
-            selContainer:TweenPosition(
-                UDim2.new(0, 0, 0, 0),
-                Enum.EasingDirection.Out,
-                Enum.EasingStyle.Quart,
-                0.35,
-                true
-            )
+            TabModule.Containers[Tab].Visible = true
             Window.ContainerPosMotor:setGoal(Spring(0, { frequency = 5 }))
             Window.ContainerBackMotor:setGoal(Spring(0, { frequency = 8 }))
             if Window.ContainerFadeMotor then Window.ContainerFadeMotor:setGoal(Spring(0, { frequency = 6 })) end

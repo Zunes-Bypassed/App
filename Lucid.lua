@@ -715,12 +715,18 @@ end
 function Creator.UpdateTheme()
 	for Instance, Object in next, Creator.Registry do
 		for Property, ColorIdx in next, Object.Properties do
-			Instance[Property] = Creator.GetThemeProperty(ColorIdx)
+			local value = Creator.GetThemeProperty(ColorIdx)
+			if value ~= nil then
+				Instance[Property] = value
+			end
 		end
 	end
 
 	for _, Motor in next, Creator.TransparencyMotors do
-		Motor:setGoal(Flipper.Instant.new(Creator.GetThemeProperty("ElementTransparency")))
+		local v = Creator.GetThemeProperty("ElementTransparency")
+		if v ~= nil then
+			Motor:setGoal(Flipper.Instant.new(v))
+		end
 	end
 end
 

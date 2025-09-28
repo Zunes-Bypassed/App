@@ -175,7 +175,7 @@ local Themes = {
         SubText = Color3.fromRGB(170, 175, 190),
         Hover = Color3.fromRGB(200, 210, 230),
         HoverChange = 0.07
-    }
+    },
 
     Light = {
         Name = "Light",
@@ -226,7 +226,7 @@ local Themes = {
         SubText = Color3.fromRGB(120, 100, 80),
         Hover = Color3.fromRGB(255, 210, 130),
         HoverChange = 0.05
-}
+    }
 }
 
 local Library = {

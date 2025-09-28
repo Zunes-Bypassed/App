@@ -4721,24 +4721,18 @@ function Library:SetTheme(Value)
 end
 
 function Library:Destroy()
-	if self.Window then
-		self.Unloaded = true
-		if self.UseAcrylic and self.Window.AcrylicPaint then
-			pcall(function()
-				self.Window.AcrylicPaint.Model:Destroy()
-			end)
+	if Library.Window then
+		Library.Unloaded = true
+		if Library.UseAcrylic then
+			Library.Window.AcrylicPaint.Model:Destroy()
 		end
 		Creator.Disconnect()
-		if self.GUI then
-			self.GUI:Destroy()
-		end
-		self.Window = nil
-		self.GUI = nil
+		Library.GUI:Destroy()
 	end
 end
 
 function Library:Notify(Config)
-	if self.Unloaded then return false end
+	if Library.Unloaded then return false end
 	return NotificationModule:New(Config)
 end
 

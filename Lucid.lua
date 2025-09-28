@@ -1733,16 +1733,13 @@ Components.Notification = (function()
             Visible = Config.SubContent ~= "",
         })
 
-        -- Dấu X góc phải
-        NewNotification.CloseButton = New("TextButton", {
-            Text = "✕",
+        NewNotification.CloseButton = New("ImageButton", {
+            Image = "rbxassetid://10747384394",
             Position = UDim2.new(1, -8, 0, 6),
-            Size = UDim2.fromOffset(18, 18),
+            Size = UDim2.fromOffset(16, 16),
             AnchorPoint = Vector2.new(1, 0),
             BackgroundTransparency = 1,
-            TextColor3 = Color3.fromRGB(220, 220, 220),
-            Font = Enum.Font.Gotham,
-            TextSize = 14,
+            ImageColor3 = Color3.fromRGB(220, 220, 220),
         })
 
         NewNotification.Root = New("Frame", {
@@ -1781,21 +1778,19 @@ Components.Notification = (function()
             )
         end)
 
-        -- hover đổi màu dấu X
         NewNotification.CloseButton.MouseEnter:Connect(function()
             game:GetService("TweenService"):Create(
                 NewNotification.CloseButton, TweenInfo.new(0.2),
-                { TextColor3 = Color3.fromRGB(255, 100, 100) }
+                { ImageColor3 = Color3.fromRGB(255, 100, 100) }
             ):Play()
         end)
         NewNotification.CloseButton.MouseLeave:Connect(function()
             game:GetService("TweenService"):Create(
                 NewNotification.CloseButton, TweenInfo.new(0.2),
-                { TextColor3 = Color3.fromRGB(220, 220, 220) }
+                { ImageColor3 = Color3.fromRGB(220, 220, 220) }
             ):Play()
         end)
 
-        -- bấm tắt thông báo
         NewNotification.CloseButton.MouseButton1Click:Connect(function()
             NewNotification:Close()
         end)

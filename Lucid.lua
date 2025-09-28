@@ -1428,20 +1428,6 @@ Components.Tab = (function()
             Tab.ContainerFrame.CanvasSize = UDim2.new(0, 0, 0, ContainerLayout.AbsoluteContentSize.Y + 8)
         end)
 
-        Tab.Motor, Tab.SetTransparency = Creator.SpringMotor(1, Tab.Frame)
-
-        Creator.AddSignal(Tab.Frame.MouseEnter, function()
-            Tab.SetTransparency(Tab.Selected and 0.9 or 0.95)
-        end)
-        Creator.AddSignal(Tab.Frame.MouseLeave, function()
-            Tab.SetTransparency(Tab.Selected and 0.85 or 1)
-        end)
-        Creator.AddSignal(Tab.Frame.MouseButton1Down, function()
-            Tab.SetTransparency(0.92)
-        end)
-        Creator.AddSignal(Tab.Frame.MouseButton1Up, function()
-            Tab.SetTransparency(Tab.Selected and 0.9 or 0.95)
-        end)
         Creator.AddSignal(Tab.Frame.MouseButton1Click, function()
             TabModule:SelectTab(TabIndex)
         end)
@@ -1475,11 +1461,9 @@ Components.Tab = (function()
         local Window = TabModule.Window
         TabModule.SelectedTab = Tab
         for _, t in next, TabModule.Tabs do
-            t.SetTransparency(1)
             t.Selected = false
         end
         local sel = TabModule.Tabs[Tab]
-        sel.SetTransparency(0.9)
         sel.Selected = true
         Window.TabDisplay.Text = sel.Name
         Window.SelectorPosMotor:setGoal(Spring(TabModule:GetCurrentTabPos(), { frequency = 6 }))

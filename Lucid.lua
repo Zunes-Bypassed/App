@@ -703,69 +703,13 @@ function Creator.AddSignal(Signal, Function)
 	return Connected
 end
 
-Creator = Creator or {}
-Creator.Signals = Creator.Signals or {}
-Creator.Unloaded = Creator.Unloaded or false
-Creator.ScreenGui = Creator.ScreenGui
-
-function Creator.Connect(event, callback)
-    if not event or type(event.Connect) ~= "function" then return end
-    local conn
-    conn = event:Connect(function(...)
-        if Creator.Unloaded then
-            pcall(function() if conn and conn.Disconnect then conn:Disconnect() end end)
-            return
-        end
-        local ok, err = pcall(callback, ...)
-        if not ok then
-            warn("Creator.Connect callback error:", err)
-        end
-    end)
-    table.insert(Creator.Signals, conn)
-    return conn
-end
-
 function Creator.Disconnect()
-    if Creator.Unloaded then return end
-    Creator.Unloaded = true
-    for i = #Creator.Signals, 1, -1 do
-        local c = table.remove(Creator.Signals, i)
-        if c then
-            pcall(function()
-                if type(c) == "userdata" or type(c) == "table" then
-                    if c.Disconnect then c:Disconnect() end
-                    if c.disconnect then c:disconnect() end
-                    if c.Destroy then pcall(function() c:Destroy() end) end
-                    if c.DestroyConnection then pcall(function() c:DestroyConnection() end) end
-                end
-            end)
-        end
-    end
-    Creator.Signals = {}
-    local guiCandidates = { Creator.ScreenGui, Creator.Window, Creator.RootGui }
-    for _, g in ipairs(guiCandidates) do
-        if g and type(g) == "userdata" and g.Destroy then
-            pcall(function() g:Destroy() end)
-        end
-    end
-    Creator.ScreenGui = nil
-    Creator.Window = nil
-    Creator.RootGui = nil
-    Creator.Elements = nil
-    Creator.Options = nil
-    Creator.Unloaded = true
-end
-
-function Creator.StartSafeLoop(fn)
-    task.spawn(function()
-        while not Creator.Unloaded do
-            local ok, err = pcall(fn)
-            if not ok then
-                warn("SafeLoop error:", err)
-            end
-            task.wait(0.03)
-        end
-    end)
+	for Idx = #Creator.Signals, 1, -1 do
+		local Connection = table.remove(Creator.Signals, Idx)
+		if Connection.Disconnect then
+			Connection:Disconnect()
+		end
+	end
 end
 
 function Creator.UpdateTheme()
@@ -4777,14 +4721,35 @@ function Library:SetTheme(Value)
 end
 
 function Library:Destroy()
-	if Library.Window then
-		Library.Unloaded = true
-		if Library.UseAcrylic then
-			Library.Window.AcrylicPaint.Model:Destroy()
+	if not Library.Window then return end
+	Library.Unloaded = true
+	if Library.Connections then
+		for _, conn in pairs(Library.Connections) do
+			if typeof(conn) == "RBXScriptConnection" then
+				conn:Disconnect()
+			end
 		end
+		table.clear(Library.Connections)
+	end
+	if Library.Options then
+		for _, opt in pairs(Library.Options) do
+			if typeof(opt) == "table" and opt.Destroy then
+				opt:Destroy()
+			end
+		end
+		table.clear(Library.Options)
+	end
+	if Library.Window.AcrylicPaint and Library.Window.AcrylicPaint.Model then
+		Library.Window.AcrylicPaint.Model:Destroy()
+	end
+	if Creator and Creator.Disconnect then
 		Creator.Disconnect()
+	end
+	if Library.GUI then
 		Library.GUI:Destroy()
 	end
+	Library.Window = nil
+	Library.GUI = nil
 end
 
 function Library:Notify(Config)

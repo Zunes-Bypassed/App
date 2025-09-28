@@ -704,12 +704,33 @@ function Creator.AddSignal(Signal, Function)
 end
 
 function Creator.Disconnect()
-	for Idx = #Creator.Signals, 1, -1 do
-		local Connection = table.remove(Creator.Signals, Idx)
-		if Connection.Disconnect then
-			Connection:Disconnect()
-		end
-	end
+    for Idx = #Creator.Signals, 1, -1 do
+        local Connection = table.remove(Creator.Signals, Idx)
+        if Connection and Connection.Disconnect then
+            pcall(function() Connection:Disconnect() end)
+        end
+    end
+
+    if Library and Library.Window then
+        pcall(function()
+            Library.Window:Destroy()
+        end)
+        Library.Window = nil
+        Library.WindowFrame = nil
+    end
+
+    if Library then
+        Library.OpenFrames = {}
+        Library.Options = {}
+    end
+
+    task.spawn(function()
+        for _, t in pairs(debug.getregistry()) do
+            if type(t) == "thread" and coroutine.status(t) == "suspended" then
+                pcall(coroutine.close, t)
+            end
+        end
+    end)
 end
 
 function Creator.UpdateTheme()

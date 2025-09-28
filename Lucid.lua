@@ -4491,7 +4491,7 @@ local Icons = {
 	["lucide-server-cog"] = "rbxassetid://10734944444",
 	["lucide-server-crash"] = "rbxassetid://10734944554",
 	["lucide-server-off"] = "rbxassetid://10734944668",
-	["lucide-settings"] = "rbxassetid://10734950309",
+	["lucide-settings"] = "rbxassetid://100107553259422",
 	["lucide-settings-2"] = "rbxassetid://10734950020",
 	["lucide-share"] = "rbxassetid://10734950813",
 	["lucide-share-2"] = "rbxassetid://10734950553",
@@ -4651,7 +4651,7 @@ local Icons = {
 	["lucide-cat"] = "rbxassetid://16935650691",
 	["lucide-message-circle-question"] = "rbxassetid://16970049192",
 	["lucide-webhook"] = "rbxassetid://17320556264",
-    ["lucide-dot"] = "rbxassetid://110258963522628",
+    ["lucide-dot"] = "rbxassetid://99154960539581",
 }
 function Library:GetIcon(Name)
 	if Name ~= nil and Icons["lucide-" .. Name] then

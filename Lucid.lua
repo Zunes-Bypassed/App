@@ -179,53 +179,53 @@ local Themes = {
 
     Light = {
         Name = "Light",
-
-        Accent = Color3.fromRGB(60, 60, 60),
-
-        AcrylicMain = Color3.fromRGB(240, 240, 240),
-        AcrylicBorder = Color3.fromRGB(200, 200, 200),
+    
+        Accent = Color3.fromRGB(180, 180, 180),
+    
+        AcrylicMain = Color3.fromRGB(255, 255, 255),
+        AcrylicBorder = Color3.fromRGB(235, 235, 235),
         AcrylicGradient = ColorSequence.new{
-            ColorSequenceKeypoint.new(0, Color3.fromRGB(250, 250, 250)),
-            ColorSequenceKeypoint.new(1, Color3.fromRGB(235, 235, 235)),
+            ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 255)),
+            ColorSequenceKeypoint.new(1, Color3.fromRGB(245, 245, 245)),
         },
-        AcrylicNoise = 0.2,
-
-        TitleBarLine = Color3.fromRGB(210, 210, 210),
-        Tab = Color3.fromRGB(80, 80, 80),
-
+        AcrylicNoise = 1,
+    
+        TitleBarLine = Color3.fromRGB(230, 230, 230),
+        Tab = Color3.fromRGB(60, 60, 60),
+    
         Element = Color3.fromRGB(255, 255, 255),
-        ElementBorder = Color3.fromRGB(210, 210, 210),
-        InElementBorder = Color3.fromRGB(230, 230, 230),
+        ElementBorder = Color3.fromRGB(235, 235, 235),
+        InElementBorder = Color3.fromRGB(240, 240, 240),
         ElementTransparency = 0,
-
-        ToggleSlider = Color3.fromRGB(100, 100, 100),
-        ToggleToggled = Color3.fromRGB(240, 240, 240),
-
-        SliderRail = Color3.fromRGB(180, 180, 180),
-
-        DropdownFrame = Color3.fromRGB(250, 250, 250),
-        DropdownHolder = Color3.fromRGB(235, 235, 235),
-        DropdownBorder = Color3.fromRGB(200, 200, 200),
-        DropdownOption = Color3.fromRGB(50, 50, 50),
-
+    
+        ToggleSlider = Color3.fromRGB(200, 200, 200),
+        ToggleToggled = Color3.fromRGB(245, 245, 245),
+    
+        SliderRail = Color3.fromRGB(220, 220, 220),
+    
+        DropdownFrame = Color3.fromRGB(255, 255, 255),
+        DropdownHolder = Color3.fromRGB(248, 248, 248),
+        DropdownBorder = Color3.fromRGB(230, 230, 230),
+        DropdownOption = Color3.fromRGB(40, 40, 40),
+    
         Keybind = Color3.fromRGB(50, 50, 50),
-
+    
         Input = Color3.fromRGB(255, 255, 255),
-        InputFocused = Color3.fromRGB(240, 240, 240),
-        InputIndicator = Color3.fromRGB(100, 100, 100),
-
-        Dialog = Color3.fromRGB(250, 250, 250),
-        DialogHolder = Color3.fromRGB(240, 240, 240),
-        DialogButton = Color3.fromRGB(245, 245, 245),
-        DialogButtonBorder = Color3.fromRGB(200, 200, 200),
-        DialogBorder = Color3.fromRGB(180, 180, 180),
+        InputFocused = Color3.fromRGB(250, 250, 250),
+        InputIndicator = Color3.fromRGB(180, 180, 180),
+    
+        Dialog = Color3.fromRGB(255, 255, 255),
+        DialogHolder = Color3.fromRGB(250, 250, 250),
+        DialogButton = Color3.fromRGB(252, 252, 252),
+        DialogButtonBorder = Color3.fromRGB(230, 230, 230),
+        DialogBorder = Color3.fromRGB(220, 220, 220),
         DialogInput = Color3.fromRGB(255, 255, 255),
-        DialogInputLine = Color3.fromRGB(100, 100, 100),
-
-        Text = Color3.fromRGB(30, 30, 30),
-        SubText = Color3.fromRGB(90, 90, 90),
-        Hover = Color3.fromRGB(60, 60, 60),
-        HoverChange = 0.03
+        DialogInputLine = Color3.fromRGB(180, 180, 180),
+    
+        Text = Color3.fromRGB(40, 40, 40),
+        SubText = Color3.fromRGB(120, 120, 120),
+        Hover = Color3.fromRGB(0, 0, 0),
+        HoverChange = 0.04
     }
 }
 
@@ -2147,7 +2147,7 @@ Components.TitleBar = (function()
             UDim2.new(1, -124, 0, 6),
             TitleBar.Frame,
             function()
-                local currentTheme = Config.Theme or "Dark"
+                local currentTheme = Config.Theme 
                 local newTheme
                 if currentTheme == "Dark" then
                     newTheme = "Light"

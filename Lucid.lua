@@ -4736,87 +4736,47 @@ end
 return Library
 
 
+--[[
+    =========================
+    🔍 SEARCH FEATURE ADDED
+    =========================
+    Tự động lọc các thành phần UI (Toggle, Slider, Dropdown, Button) theo từ khoá.
+    Khi gõ text, sẽ ẩn những element không khớp và chỉ hiện những element có tên chứa từ khoá.
+]]
 
--- ======================
--- Search UI Integration
--- ======================
+local function CreateSearchBox(Window)
+    local searchBox = Instance.new("TextBox")
+    searchBox.PlaceholderText = "🔍 Search..."
+    searchBox.Size = UDim2.new(1, -10, 0, 30)
+    searchBox.Position = UDim2.new(0, 5, 0, 5)
+    searchBox.BackgroundTransparency = 0.2
+    searchBox.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    searchBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+    searchBox.TextSize = 14
+    searchBox.Parent = Window
 
--- Giả sử bạn đã có Library.GUI
-local SearchButton = Instance.new("TextButton")
-SearchButton.Name = "SearchButton"
-SearchButton.Size = UDim2.new(0, 100, 0, 30)
-SearchButton.Text = "Search"
-SearchButton.Parent = Library.GUI
-
--- Search Box
-local SearchBoxFrame = Instance.new("Frame")
-SearchBoxFrame.Name = "SearchBox"
-SearchBoxFrame.Size = UDim2.new(0, 300, 0, 400)
-SearchBoxFrame.Position = UDim2.new(0.5, -150, 0.5, -200)
-SearchBoxFrame.Visible = false
-SearchBoxFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-SearchBoxFrame.Parent = Library.GUI
-
--- Top Bar chứa TextBox
-local TopBar = Instance.new("Frame")
-TopBar.Size = UDim2.new(1, 0, 0, 40)
-TopBar.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-TopBar.Parent = SearchBoxFrame
-
-local SearchTextBox = Instance.new("TextBox")
-SearchTextBox.PlaceholderText = "Nhập nội dung cần tìm..."
-SearchTextBox.Size = UDim2.new(1, -10, 1, -10)
-SearchTextBox.Position = UDim2.new(0, 5, 0, 5)
-SearchTextBox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-SearchTextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-SearchTextBox.Parent = TopBar
-
--- Khung hiển thị keyword
-local ResultsFrame = Instance.new("ScrollingFrame")
-ResultsFrame.Size = UDim2.new(1, 0, 1, -40)
-ResultsFrame.Position = UDim2.new(0, 0, 0, 40)
-ResultsFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
-ResultsFrame.ScrollBarThickness = 6
-ResultsFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-ResultsFrame.Parent = SearchBoxFrame
-
-local Layout = Instance.new("UIListLayout")
-Layout.Parent = ResultsFrame
-Layout.SortOrder = Enum.SortOrder.LayoutOrder
-
--- Fake Data Keywords (bạn có thể thay bằng API hoặc dữ liệu tab sẵn có)
-local Keywords = {"Executor", "Script Hub", "Settings", "Theme", "Anti-Cheat"}
-
-local function ShowResults(query)
-    for _, child in pairs(ResultsFrame:GetChildren()) do
-        if child:IsA("TextButton") then child:Destroy() end
-    end
-    for _, word in ipairs(Keywords) do
-        if string.find(string.lower(word), string.lower(query)) then
-            local ResultBtn = Instance.new("TextButton")
-            ResultBtn.Size = UDim2.new(1, -10, 0, 30)
-            ResultBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-            ResultBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-            ResultBtn.Text = word
-            ResultBtn.Parent = ResultsFrame
-
-            -- Khi bấm vào keyword thì chuyển tab
-            ResultBtn.MouseButton1Click:Connect(function()
-                print("Chuyển sang tab:", word)
-                -- TODO: Gọi hàm Library:SelectTab(word) nếu có
-            end)
+    local function filterUI()
+        local keyword = string.lower(searchBox.Text)
+        for _, obj in pairs(Window:GetDescendants()) do
+            if obj:IsA("TextButton") or obj:IsA("TextLabel") then
+                if keyword == "" or string.find(string.lower(obj.Text), keyword) then
+                    obj.Visible = true
+                else
+                    obj.Visible = false
+                end
+            end
         end
     end
+
+    searchBox:GetPropertyChangedSignal("Text"):Connect(filterUI)
 end
 
--- Sự kiện
-SearchButton.MouseButton1Click:Connect(function()
-    SearchBoxFrame.Visible = not SearchBoxFrame.Visible
-end)
-
-SearchTextBox:GetPropertyChangedSignal("Text"):Connect(function()
-    ShowResults(SearchTextBox.Text)
-end)
--- ======================
--- End Search UI Integration
--- ======================
+-- Thêm hook để tự động tạo search box khi window được tạo
+if getgenv and getgenv().Lucid_CreateWindow then
+    local oldCreateWindow = getgenv().Lucid_CreateWindow
+    getgenv().Lucid_CreateWindow = function(...)
+        local Window = oldCreateWindow(...)
+        pcall(function() CreateSearchBox(Window) end)
+        return Window
+    end
+end

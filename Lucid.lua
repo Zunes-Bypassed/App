@@ -1695,10 +1695,11 @@ Components.Notification = (function()
     end
 
     function Notification:New(Config)
-        Config.Title = Config.Title or "Title"
-        Config.Content = Config.Content or "Message"
-        Config.SubContent = Config.SubContent or ""
-        Config.Duration = Config.Duration or nil
+        if Library.Unloaded then return false end
+        Config.Title = Config.Title 
+        Config.Content = Config.Content 
+        Config.SubContent = Config.SubContent 
+        Config.Duration = Config.Duration 
 
         local NewNotification = { Closed = false }
         NewNotification.AcrylicPaint = Acrylic.AcrylicPaint()
@@ -4732,7 +4733,6 @@ function Library:Destroy()
 end
 
 function Library:Notify(Config)
-	if Library.Unloaded then return false end
 	return NotificationModule:New(Config)
 end
 

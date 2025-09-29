@@ -2864,9 +2864,6 @@ function Element:New(Idx, Config)
             }, { ButtonSelector, ButtonLabel, New("UICorner", { CornerRadius = UDim.new(0, 6) }) })  
 
             local Selected = Config.Multi and Dropdown.Value[Value] or Dropdown.Value == Value  
-            local BackMotor, SetBackTransparency = Creator.SpringMotor(1, Button)
-            local SelMotor, SetSelTransparency = Creator.SpringMotor(1, ButtonSelector)  
-            local SelectorSizeMotor = Flipper.SingleMotor.new(6)  
 
             function Table:UpdateButton()  
                 Selected = Config.Multi and Dropdown.Value[Value] or Dropdown.Value == Value  

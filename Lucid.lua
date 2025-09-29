@@ -2464,7 +2464,8 @@ Components.Window = (function()
         })
         
         ToggleButton.MouseButton1Click:Connect(function()
-                Window:Minimize()
+            if Library and Library.Window then
+                Library.Window:Minimize()
             end
         end)
 

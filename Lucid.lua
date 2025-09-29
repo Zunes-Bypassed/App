@@ -2866,7 +2866,10 @@ function Element:New(Idx, Config)
             })
     
             local Selected = Config.Multi and Dropdown.Value[Value] or Dropdown.Value == Value
-            local BackMotor, SetBackTransparency = Creator.SpringMotor(1, Button)
+            local BackMotor, SetBackTransparency = Creator.SpringMotor(Selected and 0.89 or 1, Button)
+            BackMotor:OnStep(function(v)
+                Button.BackgroundTransparency = v
+            end)
     
             function Table:UpdateButton()
                 Selected = Config.Multi and Dropdown.Value[Value] or Dropdown.Value == Value
@@ -2896,7 +2899,7 @@ function Element:New(Idx, Config)
         end
     
         local ListSizeX = 0
-        for Button, Table in next, Buttons do
+        for Button in next, Buttons do
             if Button.ButtonLabel then
                 ListSizeX = math.max(ListSizeX, Button.ButtonLabel.TextBounds.X)
             end

@@ -2168,7 +2168,6 @@ Components.Window = (function()
 	local Spring = Flipper.Spring.new
 	local Instant = Flipper.Instant.new
 	local New = Creator.New
-	local TweenService = game:GetService("TweenService")
 
 	return function(Config)
 		local Window = {
@@ -2315,11 +2314,8 @@ Components.Window = (function()
 			local SizeY = Value and Camera.ViewportSize.Y or OldSizeY
 			local PosX, PosY = Value and 0 or OldPosX, Value and 0 or OldPosY
 
-			local tweenInfo = TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-			TweenService:Create(Window.Root, tweenInfo, {
-				Size = UDim2.fromOffset(SizeX, SizeY),
-				Position = UDim2.fromOffset(PosX, PosY),
-			}):Play()
+			Window.Root.Size = UDim2.fromOffset(SizeX, SizeY)
+			Window.Root.Position = UDim2.fromOffset(PosX, PosY)
 		end
 
 		Creator.AddSignal(Window.TitleBar.Frame.InputBegan, function(Input)
@@ -2393,17 +2389,9 @@ Components.Window = (function()
 		function Window:Minimize()
 			Window.Minimized = not Window.Minimized
 			if Window.Minimized then
-				local tweenInfo = TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-				TweenService:Create(Window.Root, tweenInfo, { Size = UDim2.fromOffset(Window.Root.Size.X.Offset, 0) }):Play()
-				task.delay(0.15, function()
-					if Window.Minimized then
-						Window.Root.Visible = false
-					end
-				end)
+				Window.Root.Visible = false
 			else
 				Window.Root.Visible = true
-				local tweenInfo = TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-				TweenService:Create(Window.Root, tweenInfo, { Size = UDim2.fromOffset(Window.Size.X.Offset, Window.Size.Y.Offset) }):Play()
 			end
 			if not MinimizeNotif then
 				MinimizeNotif = true

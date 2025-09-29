@@ -2262,6 +2262,29 @@ Components.Window = (function()
 			ResizeStartFrame,
 		})
 
+		local stroke = Instance.new("UIStroke")
+		stroke.Thickness = 3
+		stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+		stroke.Parent = Window.Root
+
+		local gradient = Instance.new("UIGradient")
+		gradient.Color = ColorSequence.new{
+			ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)),
+			ColorSequenceKeypoint.new(0.2, Color3.fromRGB(255, 128, 0)),
+			ColorSequenceKeypoint.new(0.4, Color3.fromRGB(0, 255, 0)),
+			ColorSequenceKeypoint.new(0.6, Color3.fromRGB(0, 255, 255)),
+			ColorSequenceKeypoint.new(0.8, Color3.fromRGB(0, 128, 255)),
+			ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 255)),
+		}
+		gradient.Rotation = 0
+		gradient.Parent = stroke
+
+		task.spawn(function()
+			while task.wait(0.03) do
+				gradient.Rotation = (gradient.Rotation + 2) % 360
+			end
+		end)
+
 		Window.TitleBar = Components.TitleBar({
 			Title = Config.Title,
 			SubTitle = Config.SubTitle,
@@ -2306,14 +2329,11 @@ Components.Window = (function()
 				OldSizeX, OldSizeY = Window.Root.Size.X.Offset, Window.Root.Size.Y.Offset
 				OldPosX, OldPosY = Window.Root.Position.X.Offset, Window.Root.Position.Y.Offset
 			end
-
 			Window.Maximized = Value
 			Window.TitleBar.MaxButton.Frame.Icon.Image = Value and Components.Assets.Restore or Components.Assets.Max
-
 			local SizeX = Value and Camera.ViewportSize.X or OldSizeX
 			local SizeY = Value and Camera.ViewportSize.Y or OldSizeY
 			local PosX, PosY = Value and 0 or OldPosX, Value and 0 or OldPosY
-
 			Window.Root.Size = UDim2.fromOffset(SizeX, SizeY)
 			Window.Root.Position = UDim2.fromOffset(PosX, PosY)
 		end
@@ -2359,7 +2379,6 @@ Components.Window = (function()
 				local Delta = Input.Position - ResizePos
 				local StartSize = Window.Size
 				local TargetSize = Vector3.new(StartSize.X.Offset, StartSize.Y.Offset, 0) + Vector3.new(1, 1, 0) * Delta
-
 				SizeMotor:setGoal({
 					X = Flipper.Instant.new(TargetSize.X),
 					Y = Flipper.Instant.new(TargetSize.Y)

@@ -1420,8 +1420,8 @@ Components.Tab = (function()
 
     function TabModule:GetCurrentTabPos()
         local TabHolderPos = TabModule.Window.TabHolder.AbsolutePosition.Y
-        local TabPos = TabModule.Tabs[TabModule.SelectedTab].Frame.AbsolutePosition.Y
-        return TabPos - TabHolderPos
+        local TabFrame = TabModule.Tabs[TabModule.SelectedTab].Frame
+        return (TabFrame.AbsolutePosition.Y - TabHolderPos) + (TabFrame.AbsoluteSize.Y / 2)
     end
 
     function TabModule:New(Title, Icon, Parent)
@@ -1535,6 +1535,7 @@ Components.Tab = (function()
         local sel = TabModule.Tabs[Tab]
         sel.Selected = true
         Window.TabDisplay.Text = sel.Name
+        Window.SelectorPosMotor:setGoal(Spring(TabModule:GetCurrentTabPos(), { frequency = 6 }))
         task.spawn(function()
             Window.ContainerHolder.Parent = Window.ContainerAnim
             Window.ContainerPosMotor:setGoal(Spring(15, { frequency = 10 }))
@@ -1908,109 +1909,92 @@ Components.Notification = (function()
     return Notification
 end)()
 Components.Textbox = (function()
-	local New = Creator.New
+    local New = Creator.New
 
-	return function(Parent, Acrylic)
-		Acrylic = Acrylic or false
-		local Textbox = {}
+    return function(Parent, Acrylic)
+        Acrylic = Acrylic or false
+        local Textbox = {}
 
-		Textbox.Input = New("TextBox", {
-			FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json"),
-			TextColor3 = Color3.fromRGB(235, 235, 235),
-			TextSize = 15,
-			PlaceholderText = "Enter text...",
-			PlaceholderColor3 = Color3.fromRGB(160, 160, 160),
-			TextXAlignment = Enum.TextXAlignment.Left,
-			TextYAlignment = Enum.TextYAlignment.Center,
-			BackgroundTransparency = 1,
-			Size = UDim2.fromScale(1, 1),
-			Position = UDim2.fromOffset(10, 0),
-			ThemeTag = {
-				TextColor3 = "Text",
-				PlaceholderColor3 = "SubText",
-			},
-		})
+        Textbox.Input = New("TextBox", {
+            FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json"),
+            TextColor3 = Color3.fromRGB(235, 235, 235),
+            TextSize = 15,
+            PlaceholderText = "...",
+            PlaceholderColor3 = Color3.fromRGB(160, 160, 160),
+            TextXAlignment = Enum.TextXAlignment.Left,
+            TextYAlignment = Enum.TextYAlignment.Center,
+            BackgroundTransparency = 1,
+            Size = UDim2.fromScale(1, 1),
+            Position = UDim2.fromOffset(10, 0),
+            ThemeTag = {
+                TextColor3 = "Text",
+                PlaceholderColor3 = "SubText",
+            },
+        })
 
-		Textbox.Container = New("Frame", {
-			BackgroundTransparency = 1,
-			ClipsDescendants = true,
-			Position = UDim2.new(0, 8, 0, 0),
-			Size = UDim2.new(1, -16, 1, 0),
-		}, { Textbox.Input })
+        Textbox.Container = New("Frame", {
+            BackgroundTransparency = 1,
+            ClipsDescendants = true,
+            Position = UDim2.new(0, 8, 0, 0),
+            Size = UDim2.new(1, -16, 1, 0),
+        }, { Textbox.Input })
 
-		Textbox.Indicator = New("Frame", {
-			Size = UDim2.new(0, 0, 0, 2),
-			Position = UDim2.new(0.5, 0, 1, 0),
-			AnchorPoint = Vector2.new(0.5, 1),
-			BackgroundTransparency = 1,
-			ThemeTag = { BackgroundColor3 = "InputIndicator" },
-		}, {
-			New("UICorner", { CornerRadius = UDim.new(0, 2) }),
-		})
+        Textbox.Frame = New("Frame", {
+            Size = UDim2.new(0, 0, 0, 36),
+            BackgroundTransparency = Acrylic and 0.85 or 0,
+            Parent = Parent,
+            ThemeTag = { BackgroundColor3 = Acrylic and "Input" or "DialogInput" },
+        }, {
+            New("UICorner", { CornerRadius = UDim.new(0, 8) }),
+            New("UIStroke", {
+                ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+                Transparency = Acrylic and 0.35 or 0.5,
+                ThemeTag = { Color = Acrylic and "InElementBorder" or "DialogButtonBorder" },
+            }),
+            Textbox.Container,
+        })
 
-		Textbox.Frame = New("Frame", {
-			Size = UDim2.new(0, 0, 0, 36),
-			BackgroundTransparency = Acrylic and 0.85 or 0,
-			Parent = Parent,
-			ThemeTag = { BackgroundColor3 = Acrylic and "Input" or "DialogInput" },
-		}, {
-			New("UICorner", { CornerRadius = UDim.new(0, 8) }),
-			New("UIStroke", {
-				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-				Transparency = Acrylic and 0.35 or 0.5,
-				ThemeTag = { Color = Acrylic and "InElementBorder" or "DialogButtonBorder" },
-			}),
-			Textbox.Container,
-			Textbox.Indicator,
-		})
+        local function Update()
+            local PADDING = 6
+            local Reveal = Textbox.Container.AbsoluteSize.X
+            if not Textbox.Input:IsFocused() or Textbox.Input.TextBounds.X <= Reveal - 2 * PADDING then
+                Textbox.Input.Position = UDim2.new(0, PADDING, 0, 0)
+            else
+                local Cursor = Textbox.Input.CursorPosition
+                if Cursor ~= -1 then
+                    local subtext = string.sub(Textbox.Input.Text, 1, Cursor - 1)
+                    local width = TextService:GetTextSize(
+                        subtext,
+                        Textbox.Input.TextSize,
+                        Textbox.Input.Font,
+                        Vector2.new(math.huge, math.huge)
+                    ).X
+                    local CurrentCursorPos = Textbox.Input.Position.X.Offset + width
+                    if CurrentCursorPos < PADDING then
+                        Textbox.Input.Position = UDim2.fromOffset(PADDING - width, 0)
+                    elseif CurrentCursorPos > Reveal - PADDING - 1 then
+                        Textbox.Input.Position = UDim2.fromOffset(Reveal - width - PADDING - 1, 0)
+                    end
+                end
+            end
+        end
 
-		local function Update()
-			local PADDING = 6
-			local Reveal = Textbox.Container.AbsoluteSize.X
-			if not Textbox.Input:IsFocused() or Textbox.Input.TextBounds.X <= Reveal - 2 * PADDING then
-				Textbox.Input.Position = UDim2.new(0, PADDING, 0, 0)
-			else
-				local Cursor = Textbox.Input.CursorPosition
-				if Cursor ~= -1 then
-					local subtext = string.sub(Textbox.Input.Text, 1, Cursor - 1)
-					local width = TextService:GetTextSize(
-						subtext,
-						Textbox.Input.TextSize,
-						Textbox.Input.Font,
-						Vector2.new(math.huge, math.huge)
-					).X
-					local CurrentCursorPos = Textbox.Input.Position.X.Offset + width
-					if CurrentCursorPos < PADDING then
-						Textbox.Input.Position = UDim2.fromOffset(PADDING - width, 0)
-					elseif CurrentCursorPos > Reveal - PADDING - 1 then
-						Textbox.Input.Position = UDim2.fromOffset(Reveal - width - PADDING - 1, 0)
-					end
-				end
-			end
-		end
+        task.spawn(Update)
+        Creator.AddSignal(Textbox.Input:GetPropertyChangedSignal("Text"), Update)
+        Creator.AddSignal(Textbox.Input:GetPropertyChangedSignal("CursorPosition"), Update)
 
-		task.spawn(Update)
-		Creator.AddSignal(Textbox.Input:GetPropertyChangedSignal("Text"), Update)
-		Creator.AddSignal(Textbox.Input:GetPropertyChangedSignal("CursorPosition"), Update)
+        Creator.AddSignal(Textbox.Input.Focused, function()
+            Update()
+            Creator.OverrideTag(Textbox.Frame, { BackgroundColor3 = Acrylic and "InputFocused" or "DialogHolder" })
+        end)
 
-		Creator.AddSignal(Textbox.Input.Focused, function()
-			Update()
-			Creator.OverrideTag(Textbox.Frame, { BackgroundColor3 = Acrylic and "InputFocused" or "DialogHolder" })
-			Creator.OverrideTag(Textbox.Indicator, { BackgroundColor3 = "InputIndicatorFocus" })
-			Textbox.Indicator:TweenSize(UDim2.new(1, -4, 0, 2), "Out", "Quad", 0.25, true)
-			Textbox.Indicator.BackgroundTransparency = 0
-		end)
+        Creator.AddSignal(Textbox.Input.FocusLost, function()
+            Update()
+            Creator.OverrideTag(Textbox.Frame, { BackgroundColor3 = Acrylic and "Input" or "DialogInput" })
+        end)
 
-		Creator.AddSignal(Textbox.Input.FocusLost, function()
-			Update()
-			Creator.OverrideTag(Textbox.Frame, { BackgroundColor3 = Acrylic and "Input" or "DialogInput" })
-			Creator.OverrideTag(Textbox.Indicator, { BackgroundColor3 = Acrylic and "InputIndicator" or "DialogInputLine" })
-			Textbox.Indicator:TweenSize(UDim2.new(0, 0, 0, 2), "Out", "Quad", 0.25, true)
-			Textbox.Indicator.BackgroundTransparency = 1
-		end)
-
-		return Textbox
-	end
+        return Textbox
+    end
 end)()
 Components.TitleBar = (function()
     local New = Creator.New

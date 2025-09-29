@@ -2168,6 +2168,7 @@ Components.Window = (function()
 	local Spring = Flipper.Spring.new
 	local Instant = Flipper.Instant.new
 	local New = Creator.New
+	local TweenService = game:GetService("TweenService")
 
 	return function(Config)
 		local Window = {
@@ -2281,8 +2282,8 @@ Components.Window = (function()
 		Window.ContainerBackMotor = Flipper.SingleMotor.new(0)
 		Window.ContainerPosMotor = Flipper.SingleMotor.new(94)
 
-		SizeMotor:onStep(function(values) Window.Root.Size = UDim2.fromOffset(values.X, values.Y) end)
-		PosMotor:onStep(function(values) Window.Root.Position = UDim2.fromOffset(values.X, values.Y) end)
+		SizeMotor:onStep(function(values) Window.Root.Size = UDim2.new(0, values.X, 0, values.Y) end)
+		PosMotor:onStep(function(values) Window.Root.Position = UDim2.new(0, values.X, 0, values.Y) end)
 
 		local LastValue, LastTime = 0, 0
 		Window.SelectorPosMotor:onStep(function(Value)
@@ -2301,7 +2302,7 @@ Components.Window = (function()
 		Window.ContainerPosMotor:onStep(function(Value) Window.ContainerAnim.Position = UDim2.fromOffset(0, Value) end)
 
 		local OldSizeX, OldSizeY, OldPosX, OldPosY
-		Window.Maximize = function(Value, NoPos, instant)
+		Window.Maximize = function(Value, NoPos)
 			if Value and not Window.Maximized then
 				OldSizeX, OldSizeY = Window.Root.Size.X.Offset, Window.Root.Size.Y.Offset
 				OldPosX, OldPosY = Window.Root.Position.X.Offset, Window.Root.Position.Y.Offset
@@ -2314,20 +2315,11 @@ Components.Window = (function()
 			local SizeY = Value and Camera.ViewportSize.Y or OldSizeY
 			local PosX, PosY = Value and 0 or OldPosX, Value and 0 or OldPosY
 
-			local AnimType = instant and Instant or Spring
-			local SpringConfig = { frequency = 8, dampingRatio = 1 }
-
-			SizeMotor:setGoal({
-				X = AnimType(SizeX, SpringConfig),
-				Y = AnimType(SizeY, SpringConfig),
-			})
-
-			if not NoPos then
-				PosMotor:setGoal({
-					X = AnimType(PosX, SpringConfig),
-					Y = AnimType(PosY, SpringConfig),
-				})
-			end
+			local tweenInfo = TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+			TweenService:Create(Window.Root, tweenInfo, {
+				Size = UDim2.fromOffset(SizeX, SizeY),
+				Position = UDim2.fromOffset(PosX, PosY),
+			}):Play()
 		end
 
 		Creator.AddSignal(Window.TitleBar.Frame.InputBegan, function(Input)
@@ -2367,13 +2359,14 @@ Components.Window = (function()
 				})
 				if Window.Maximized then Window.Maximize(false, true, true) end
 			end
-			if (Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch) and Resizing then  
-				local Delta = Input.Position - ResizePos  
-				local StartSize = Window.Size  
-				local TargetSize = Vector3.new(StartSize.X.Offset, StartSize.Y.Offset, 0) + Vector3.new(1, 1, 0) * Delta  
+			if (Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch) and Resizing then
+				local Delta = Input.Position - ResizePos
+				local StartSize = Window.Size
+				local TargetSize = Vector3.new(StartSize.X.Offset, StartSize.Y.Offset, 0) + Vector3.new(1, 1, 0) * Delta
+
 				SizeMotor:setGoal({
-					X = Spring(TargetSize.X, { frequency = 8, dampingRatio = 1 }),
-					Y = Spring(TargetSize.Y, { frequency = 8, dampingRatio = 1 }),
+					X = Flipper.Instant.new(TargetSize.X),
+					Y = Flipper.Instant.new(TargetSize.Y)
 				})
 			end
 		end)
@@ -2399,14 +2392,18 @@ Components.Window = (function()
 
 		function Window:Minimize()
 			Window.Minimized = not Window.Minimized
-			local Target = Window.Minimized and 1 or 0
-			Window.ContainerBackMotor:setGoal(Spring(Target, { frequency = 7, dampingRatio = 1 }))
 			if Window.Minimized then
-				task.delay(0.25, function()
-					if Window.Minimized then Window.Root.Visible = false end
+				local tweenInfo = TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+				TweenService:Create(Window.Root, tweenInfo, { Size = UDim2.fromOffset(Window.Root.Size.X.Offset, 0) }):Play()
+				task.delay(0.15, function()
+					if Window.Minimized then
+						Window.Root.Visible = false
+					end
 				end)
 			else
 				Window.Root.Visible = true
+				local tweenInfo = TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+				TweenService:Create(Window.Root, tweenInfo, { Size = UDim2.fromOffset(Window.Size.X.Offset, Window.Size.Y.Offset) }):Play()
 			end
 			if not MinimizeNotif then
 				MinimizeNotif = true

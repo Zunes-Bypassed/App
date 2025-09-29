@@ -2302,21 +2302,25 @@ Components.Window = (function()
 
 		local OldSizeX, OldSizeY, OldPosX, OldPosY
 		Window.Maximize = function(Value, NoPos)
-			if Value and not Window.Maximized then
-				OldSizeX, OldSizeY = Window.Root.Size.X.Offset, Window.Root.Size.Y.Offset
-				OldPosX, OldPosY = Window.Root.Position.X.Offset, Window.Root.Position.Y.Offset
-			end
-
-			Window.Maximized = Value
-			Window.TitleBar.MaxButton.Frame.Icon.Image = Value and Components.Assets.Restore or Components.Assets.Max
-
-			local SizeX = Value and Camera.ViewportSize.X or OldSizeX
-			local SizeY = Value and Camera.ViewportSize.Y or OldSizeY
-			local PosX, PosY = Value and 0 or OldPosX, Value and 0 or OldPosY
-
-			Window.Root.Size = UDim2.fromOffset(SizeX, SizeY)
-			Window.Root.Position = UDim2.fromOffset(PosX, PosY)
-		end
+            if Value and not Window.Maximized then
+                OldSizeX, OldSizeY = Window.Root.Size.X.Offset, Window.Root.Size.Y.Offset
+                OldPosX, OldPosY = Window.Root.Position.X.Offset, Window.Root.Position.Y.Offset
+            end
+        
+            Window.Maximized = Value
+            Window.TitleBar.MaxButton.Frame.Icon.Image = Value and Components.Assets.Restore or Components.Assets.Max
+        
+            local SizeX = Value and Camera.ViewportSize.X or OldSizeX
+            local SizeY = Value and Camera.ViewportSize.Y or OldSizeY
+            local PosX, PosY = Value and 0 or OldPosX, Value and 0 or OldPosY
+        
+            Window.Root.Size = UDim2.fromOffset(SizeX, SizeY)
+            Window.Root.Position = UDim2.fromOffset(PosX, PosY)
+        
+            if Window.ToggleButton then
+                Window.ToggleButton.Visible = not Value
+            end
+        end
 
 		Creator.AddSignal(Window.TitleBar.Frame.InputBegan, function(Input)
 			if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
@@ -4777,7 +4781,7 @@ function Library:CreateWindow(Config)
 
 	Window.Icon = Config.Icon
 
-	local ToggleButton = Creator.New("ImageButton", {
+	Window.ToggleButton = Creator.New("ImageButton", {
 		Size = UDim2.fromOffset(40, 40),
 		Position = UDim2.new(0, 20, 0, 200),
 		BackgroundColor3 = Color3.fromRGB(40, 40, 40),
@@ -4788,12 +4792,20 @@ function Library:CreateWindow(Config)
 
 	Creator.New("UICorner", {
 		CornerRadius = UDim.new(1, 0),
-		Parent = ToggleButton
+		Parent = Window.ToggleButton
 	})
 
-	ToggleButton.MouseButton1Click:Connect(function()
+	Window.ToggleButton.MouseButton1Click:Connect(function()
 		Window:Minimize()
 	end)
+
+	local oldDestroy = Window.Destroy
+	Window.Destroy = function(self)
+		if oldDestroy then oldDestroy(self) end
+		if self.ToggleButton then
+			self.ToggleButton:Destroy()
+		end
+	end
 
 	Library.Window = Window
 	Library:SetTheme(Config.Theme)

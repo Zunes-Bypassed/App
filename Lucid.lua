@@ -2853,6 +2853,17 @@ function Element:New(Idx, Config)
                 ThemeTag = { TextColor3 = "Text" }
             })
     
+            local ButtonSelector = New("Frame", {
+                Size = UDim2.fromOffset(4, 20),
+                BackgroundColor3 = Color3.fromRGB(76, 194, 255),
+                Position = UDim2.fromOffset(-1, 16),
+                AnchorPoint = Vector2.new(0, 0.5),
+                Visible = false,
+                ThemeTag = { BackgroundColor3 = "Accent" }
+            }, {
+                New("UICorner", { CornerRadius = UDim.new(0, 2) })
+            })
+    
             local Button = New("TextButton", {
                 Size = UDim2.new(1, -5, 0, 32),
                 BackgroundTransparency = 1,
@@ -2860,20 +2871,13 @@ function Element:New(Idx, Config)
                 Text = "",
                 Parent = DropdownScrollFrame,
                 ThemeTag = { BackgroundColor3 = "DropdownOption" }
-            }, {
-                ButtonLabel,
-                New("UICorner", { CornerRadius = UDim.new(0, 6) })
-            })
+            }, { ButtonSelector, ButtonLabel })
     
             local Selected = Config.Multi and Dropdown.Value[Value] or Dropdown.Value == Value
-            local BackMotor, SetBackTransparency = Creator.SpringMotor(Selected and 0.89 or 1, Button)
-            BackMotor:OnStep(function(v)
-                Button.BackgroundTransparency = v
-            end)
     
             function Table:UpdateButton()
                 Selected = Config.Multi and Dropdown.Value[Value] or Dropdown.Value == Value
-                SetBackTransparency(Selected and 0.89 or 1)
+                ButtonSelector.Visible = Selected
             end
     
             Button.InputBegan:Connect(function(Input)
@@ -2899,7 +2903,7 @@ function Element:New(Idx, Config)
         end
     
         local ListSizeX = 0
-        for Button in next, Buttons do
+        for Button, Table in next, Buttons do
             if Button.ButtonLabel then
                 ListSizeX = math.max(ListSizeX, Button.ButtonLabel.TextBounds.X)
             end

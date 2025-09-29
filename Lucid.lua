@@ -2449,20 +2449,22 @@ Components.Window = (function()
 			Window.SelectorPosMotor:setGoal(Instant(TabModule:GetCurrentTabPos()))
 		end)
 
-		local ToggleButton = Instance.new("TextButton")
-		ToggleButton.Size = UDim2.fromOffset(40, 40)
-		ToggleButton.Position = UDim2.new(0, 20, 0, 200)
-		ToggleButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-		ToggleButton.Text = "☰"
-		ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-		ToggleButton.Font = Enum.Font.SourceSansBold
-		ToggleButton.TextSize = 20
-		ToggleButton.Parent = Config.Parent
-		Instance.new("UICorner", { CornerRadius = UDim.new(1, 0), Parent = ToggleButton })
-
-		ToggleButton.MouseButton1Click:Connect(function()
-			Window.Root.Visible = not Window.Root.Visible
-		end)
+		local ToggleButton = Creator.New("TextButton", {
+            Size = UDim2.fromOffset(40, 40),
+            Position = UDim2.new(0, 20, 0, 200),
+            BackgroundColor3 = Color3.fromRGB(40, 40, 40),
+            Text = "☰",
+            TextColor3 = Color3.fromRGB(255, 255, 255),
+            Font = Enum.Font.SourceSansBold,
+            TextSize = 20,
+            Parent = Config.Parent
+        }, {
+            Creator.New("UICorner", { CornerRadius = UDim.new(1, 0) })
+        })
+        
+        ToggleButton.MouseButton1Click:Connect(function()
+            Window.Root.Visible = not Window.Root.Visible
+        end)
 
 		return Window
 	end

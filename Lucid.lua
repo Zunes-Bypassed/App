@@ -2450,12 +2450,17 @@ Components.Window = (function()
 		end)
 		
 		local ToggleButton = Creator.New("ImageButton", {
-            Size = UDim2.fromOffset(35, 35),
+            Size = UDim2.fromOffset(40, 40),
             Position = UDim2.new(0, 20, 0, 200),
             BackgroundTransparency = 1,
             Image = "rbxassetid://85582575013902",
             ScaleType = Enum.ScaleType.Fit,
             Parent = Config.Parent
+        })
+        
+        Creator.New("UICorner", {
+            CornerRadius = UDim.new(1, 0),
+            Parent = ToggleButton
         })
         
         ToggleButton.MouseButton1Click:Connect(function()

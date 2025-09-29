@@ -364,10 +364,10 @@ function Instant:step()
 	}
 end
 
-local VELOCITY_THRESHOLD = 0.001
-local POSITION_THRESHOLD = 0.001
+local VELOCITY_THRESHOLD = 0
+local POSITION_THRESHOLD = 0
 
-local EPS = 0.0001
+local EPS = 0
 
 local Spring = {}
 Spring.__index = Spring
@@ -2281,8 +2281,8 @@ Components.Window = (function()
 		Window.ContainerBackMotor = Flipper.SingleMotor.new(0)
 		Window.ContainerPosMotor = Flipper.SingleMotor.new(94)
 
-		SizeMotor:onStep(function(values) Window.Root.Size = UDim2.new(0, values.X, 0, values.Y) end)
-		PosMotor:onStep(function(values) Window.Root.Position = UDim2.new(0, values.X, 0, values.Y) end)
+		SizeMotor:onStep(function(values) Window.Root.Size = UDim2.fromOffset(values.X, values.Y) end)
+		PosMotor:onStep(function(values) Window.Root.Position = UDim2.fromOffset(values.X, values.Y) end)
 
 		local LastValue, LastTime = 0, 0
 		Window.SelectorPosMotor:onStep(function(Value)
@@ -2314,18 +2314,19 @@ Components.Window = (function()
 			local SizeY = Value and Camera.ViewportSize.Y or OldSizeY
 			local PosX, PosY = Value and 0 or OldPosX, Value and 0 or OldPosY
 
+			local AnimType = instant and Instant or Spring
+			local SpringConfig = { frequency = 8, dampingRatio = 1 }
+
 			SizeMotor:setGoal({
-				X = Flipper[instant and "Instant" or "Spring"].new(SizeX, { frequency = 6 }),
-				Y = Flipper[instant and "Instant" or "Spring"].new(SizeY, { frequency = 6 }),
+				X = AnimType(SizeX, SpringConfig),
+				Y = AnimType(SizeY, SpringConfig),
 			})
-			Window.Root.Size = UDim2.fromOffset(SizeX, SizeY)
 
 			if not NoPos then
 				PosMotor:setGoal({
-					X = Spring(PosX, { frequency = 6 }),
-					Y = Spring(PosY, { frequency = 6 }),
+					X = AnimType(PosX, SpringConfig),
+					Y = AnimType(PosY, SpringConfig),
 				})
-				Window.Root.Position = UDim2.fromOffset(PosX, PosY)
 			end
 		end
 
@@ -2367,15 +2368,14 @@ Components.Window = (function()
 				if Window.Maximized then Window.Maximize(false, true, true) end
 			end
 			if (Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch) and Resizing then  
-                local Delta = Input.Position - ResizePos  
-                local StartSize = Window.Size  
-                local TargetSize = Vector3.new(StartSize.X.Offset, StartSize.Y.Offset, 0) + Vector3.new(1, 1, 0) * Delta  
-            
-                SizeMotor:setGoal({
-                    X = Flipper.Instant.new(TargetSize.X),
-                    Y = Flipper.Instant.new(TargetSize.Y)
-                })
-            end
+				local Delta = Input.Position - ResizePos  
+				local StartSize = Window.Size  
+				local TargetSize = Vector3.new(StartSize.X.Offset, StartSize.Y.Offset, 0) + Vector3.new(1, 1, 0) * Delta  
+				SizeMotor:setGoal({
+					X = Spring(TargetSize.X, { frequency = 8, dampingRatio = 1 }),
+					Y = Spring(TargetSize.Y, { frequency = 8, dampingRatio = 1 }),
+				})
+			end
 		end)
 
 		Creator.AddSignal(UserInputService.InputEnded, function(Input)
@@ -2399,7 +2399,15 @@ Components.Window = (function()
 
 		function Window:Minimize()
 			Window.Minimized = not Window.Minimized
-			Window.Root.Visible = not Window.Minimized
+			local Target = Window.Minimized and 1 or 0
+			Window.ContainerBackMotor:setGoal(Spring(Target, { frequency = 7, dampingRatio = 1 }))
+			if Window.Minimized then
+				task.delay(0.25, function()
+					if Window.Minimized then Window.Root.Visible = false end
+				end)
+			else
+				Window.Root.Visible = true
+			end
 			if not MinimizeNotif then
 				MinimizeNotif = true
 				local Key = Library.MinimizeKeybind and Library.MinimizeKeybind.Value or Library.MinimizeKey.Name

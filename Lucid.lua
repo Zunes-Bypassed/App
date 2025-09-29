@@ -2458,39 +2458,37 @@ Components.Window = (function()
             Parent = Config.Parent    
         })    
         
-        if ToggleButton then
-            Creator.New("UICorner", {    
-                CornerRadius = UDim.new(1, 0),    
-                Parent = ToggleButton    
-            })    
+        Creator.New("UICorner", {    
+            CornerRadius = UDim.new(1, 0),    
+            Parent = ToggleButton    
+        })    
         
-            ToggleButton.MouseButton1Click:Connect(function()    
-                Window:Minimize()    
-            end)    
+        ToggleButton.MouseButton1Click:Connect(function()    
+            Window:Minimize()    
+        end)    
         
-            Creator.AddSignal(ToggleButton.InputBegan, function(Input)    
-                if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then    
-                    Dragging, MousePos, StartPos = true, Input.Position, Window.Root.Position    
-                    if Window.Maximized then    
-                        StartPos = UDim2.fromOffset(    
-                            Mouse.X - (Mouse.X * ((OldSizeX - 100) / Window.Root.AbsoluteSize.X)),    
-                            Mouse.Y - (Mouse.Y * (OldSizeY / Window.Root.AbsoluteSize.Y))    
-                        )    
+        Creator.AddSignal(ToggleButton.InputBegan, function(Input)    
+            if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then    
+                Dragging, MousePos, StartPos = true, Input.Position, Window.Root.Position    
+                if Window.Maximized then    
+                    StartPos = UDim2.fromOffset(    
+                        Mouse.X - (Mouse.X * ((OldSizeX - 100) / Window.Root.AbsoluteSize.X)),    
+                        Mouse.Y - (Mouse.Y * (OldSizeY / Window.Root.AbsoluteSize.Y))    
+                    )    
+                end    
+                Input.Changed:Connect(function()    
+                    if Input.UserInputState == Enum.UserInputState.End then    
+                        Dragging = false    
                     end    
-                    Input.Changed:Connect(function()    
-                        if Input.UserInputState == Enum.UserInputState.End then Dragging = false end    
-                    end)    
-                end    
-            end)    
+                end)    
+            end    
+        end)    
         
-            Creator.AddSignal(ToggleButton.InputChanged, function(Input)    
-                if Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch then    
-                    DragInput = Input    
-                end    
-            end)
-        else
-            warn("ToggleButton không được tạo thành công")
-        end
+        Creator.AddSignal(ToggleButton.InputChanged, function(Input)    
+            if Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch then    
+                DragInput = Input    
+            end    
+        end)
 
 		return Window
 	end

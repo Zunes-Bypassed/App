@@ -2448,12 +2448,13 @@ Components.Window = (function()
 			LastValue, LastTime = TabModule:GetCurrentTabPos() + 16, 0
 			Window.SelectorPosMotor:setGoal(Instant(TabModule:GetCurrentTabPos()))
 		end)
-
-        local ToggleButton = Creator.New("Frame", {
+		
+		local ToggleButton = Creator.New("ImageButton", {
             Size = UDim2.fromOffset(40, 40),
             Position = UDim2.new(0, 20, 0, 200),
-            BackgroundTransparency = 1,
-            ClipsDescendants = true,
+            BackgroundColor3 = Color3.fromRGB(40, 40, 40),
+            Image = "rbxassetid://85582575013902",
+            ScaleType = Enum.ScaleType.Fit,
             Parent = Config.Parent
         })
         
@@ -2462,58 +2463,7 @@ Components.Window = (function()
             Parent = ToggleButton
         })
         
-        local Icon = Creator.New("ImageButton", {
-            Size = UDim2.fromScale(1, 1),
-            BackgroundTransparency = 1,
-            BorderSizePixel = 0,
-            Image = "rbxassetid://85582575013902",
-            ScaleType = Enum.ScaleType.Fit,
-            Parent = ToggleButton
-        })
-        
-        Creator.New("UIStroke", {
-            Thickness = 2,
-            Color = Color3.fromRGB(80, 80, 80),
-            Transparency = 0.2,
-            Parent = ToggleButton
-        })
-        
-        local hoverIn = TweenService:Create(Icon, TweenInfo.new(0.15), {
-            ImageTransparency = 0.1,
-            Size = UDim2.fromScale(1.05, 1.05),
-            Position = UDim2.new(-0.025, 0, -0.025, 0)
-        })
-        
-        local hoverOut = TweenService:Create(Icon, TweenInfo.new(0.15), {
-            ImageTransparency = 0,
-            Size = UDim2.fromScale(1, 1),
-            Position = UDim2.new(0, 0, 0, 0)
-        })
-        
-        local clickDown = TweenService:Create(Icon, TweenInfo.new(0.08), {
-            Size = UDim2.fromScale(0.95, 0.95),
-            Position = UDim2.new(0.025, 0, 0.025, 0)
-        })
-        
-        local clickUp = TweenService:Create(Icon, TweenInfo.new(0.08), {
-            Size = UDim2.fromScale(1, 1),
-            Position = UDim2.new(0, 0, 0, 0)
-        })
-        
-        Icon.MouseEnter:Connect(function()
-            hoverIn:Play()
-        end)
-        
-        Icon.MouseLeave:Connect(function()
-            hoverOut:Play()
-        end)
-        
-        Icon.MouseButton1Down:Connect(function()
-            clickDown:Play()
-        end)
-        
-        Icon.MouseButton1Up:Connect(function()
-            clickUp:Play()
+        ToggleButton.MouseButton1Click:Connect(function()
             if Library and Library.Window then
                 Library.Window:Minimize()
             end

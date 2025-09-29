@@ -1418,6 +1418,12 @@ function TabModule:Init(Window)
     return TabModule
 end
 
+function TabModule:GetCurrentTabPos()
+    local TabHolderPos = TabModule.Window.TabHolder.AbsolutePosition.Y
+    local TabPos = TabModule.Tabs[TabModule.SelectedTab].Frame.AbsolutePosition.Y
+    return TabPos - TabHolderPos
+end
+
 function TabModule:New(Title, Icon, Parent)
     local Window = TabModule.Window
     local Elements = Library.Elements

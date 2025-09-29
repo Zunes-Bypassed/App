@@ -244,66 +244,7 @@ local Library = {
 	MinimizeKeybind = nil,
 	MinimizeKey = Enum.KeyCode.LeftControl or Enum.KeyCode.End
 }
-local function CloseOpen()
-	local UIStroke = Instance.new("UIStroke")
-	local UICorner = Instance.new("UICorner")
 
-	local ScreenGui = Instance.new("ScreenGui")
-	local Close_ImageButton = Instance.new("ImageButton")
-
-	do
-		ProtectGui(ScreenGui)
-	end
-
-	ScreenGui.Name = "OpenClose"
-	ScreenGui.Parent = RunService:IsStudio() and LocalPlayer.PlayerGui or (gethui() or cloneref(game:GetService("CoreGui")) or game:GetService("CoreGui"))
-	ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
-	Close_ImageButton.Parent = ScreenGui
-	Close_ImageButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-	Close_ImageButton.BorderColor3 = Color3.fromRGB(255, 0, 0)
-	Close_ImageButton.Position = UDim2.new(0.1021, 0, 0.0743, 0)
-	Close_ImageButton.Size = UDim2.new(0, 59, 0, 49)
-	Close_ImageButton.Image = "rbxassetid://82140212012109"
-	Close_ImageButton.Visible = false
-
-	UICorner.Name = "MainCorner"
-	UICorner.CornerRadius = UDim.new(0, 9)
-	UICorner.Parent = Close_ImageButton
-
-	local dragging = false
-	local dragStart = nil
-	local startPos = nil
-
-	local function update(input)
-		local delta = input.Position - dragStart
-		Close_ImageButton.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-	end
-
-	Close_ImageButton.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
-			dragging = true
-			dragStart = input.Position
-			startPos = Close_ImageButton.Position
-
-			input.Changed:Connect(function()
-				if input.UserInputState == Enum.UserInputState.End then
-					dragging = false
-				end
-			end)
-		end
-	end)
-
-	Close_ImageButton.InputChanged:Connect(function(input)
-		if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-			update(input)
-		end
-	end)
-
-	return Close_ImageButton
-end
-
-local Close_ImageButton = CloseOpen()
 local function isMotor(value)
 	local motorType = tostring(value):match("^Motor%((.+)%)$")
 
@@ -2507,6 +2448,28 @@ Components.Window = (function()
 			LastValue, LastTime = TabModule:GetCurrentTabPos() + 16, 0
 			Window.SelectorPosMotor:setGoal(Instant(TabModule:GetCurrentTabPos()))
 		end)
+		
+		local ToggleButton = Creator.New("TextButton", {
+            Size = UDim2.fromOffset(40, 40),
+            Position = UDim2.new(0, 20, 0, 200),
+            BackgroundColor3 = Color3.fromRGB(40, 40, 40),
+            Text = "☰",
+            TextColor3 = Color3.fromRGB(255, 255, 255),
+            Font = Enum.Font.SourceSansBold,
+            TextSize = 20,
+            Parent = Config.Parent
+        })
+        
+        Creator.New("UICorner", {
+            CornerRadius = UDim.new(1, 0),
+            Parent = ToggleButton
+        })
+        
+        ToggleButton.MouseButton1Click:Connect(function()
+            if Library and Library.Window then
+                Library.Window:Minimize()
+            end
+        end)
 
 		return Window
 	end

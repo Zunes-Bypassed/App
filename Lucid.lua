@@ -2201,6 +2201,22 @@ Components.Window = (function()
 			BackgroundTransparency = 1,
 			Position = UDim2.new(1, -18, 1, -18),
 		})
+		
+		local ToggleButton = Creator.New("TextButton", {
+            Size = UDim2.fromOffset(40, 40),
+            Position = UDim2.new(0, 20, 0, 200),
+            BackgroundColor3 = Color3.fromRGB(40, 40, 40),
+            Text = "☰",
+            TextColor3 = Color3.fromRGB(255, 255, 255),
+            Font = Enum.Font.SourceSansBold,
+            TextSize = 20,
+            Parent = Config.Parent
+        })
+        
+        Creator.New("UICorner", {
+            CornerRadius = UDim.new(1, 0),
+            Parent = ToggleButton
+        })
 
 		Window.TabHolder = New("ScrollingFrame", {
 			Size = UDim2.fromScale(1, 1),
@@ -2448,23 +2464,6 @@ Components.Window = (function()
 			LastValue, LastTime = TabModule:GetCurrentTabPos() + 16, 0
 			Window.SelectorPosMotor:setGoal(Instant(TabModule:GetCurrentTabPos()))
 		end)
-
-		local ToggleButton = Creator.New("TextButton", {
-            Size = UDim2.fromOffset(40, 40),
-            Position = UDim2.new(0, 20, 0, 200),
-            BackgroundColor3 = Color3.fromRGB(40, 40, 40),
-            Text = "☰",
-            TextColor3 = Color3.fromRGB(255, 255, 255),
-            Font = Enum.Font.SourceSansBold,
-            TextSize = 20,
-            Parent = Config.Parent
-        }, {
-            Creator.New("UICorner", { CornerRadius = UDim.new(1, 0) })
-        })
-        
-        ToggleButton.MouseButton1Click:Connect(function()
-            Window.Root.Visible = not Window.Root.Visible
-        end)
 
 		return Window
 	end

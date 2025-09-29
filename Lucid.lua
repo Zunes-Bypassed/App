@@ -1419,9 +1419,12 @@ function TabModule:Init(Window)
 end
 
 function TabModule:GetCurrentTabPos()
+    local Tab = TabModule.Tabs[TabModule.SelectedTab]
     local TabHolderPos = TabModule.Window.TabHolder.AbsolutePosition.Y
-    local TabPos = TabModule.Tabs[TabModule.SelectedTab].Frame.AbsolutePosition.Y
-    return TabPos - TabHolderPos
+    local TabPos = Tab.Frame.AbsolutePosition.Y
+    local TabHeight = Tab.Frame.AbsoluteSize.Y
+    local SelectorHeight = TabModule.Window.Selector.Size.Y.Offset
+    return (TabPos - TabHolderPos) + (TabHeight / 2) - (SelectorHeight / 2)
 end
 
 function TabModule:New(Title, Icon, Parent)

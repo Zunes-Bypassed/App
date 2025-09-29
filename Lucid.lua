@@ -2845,10 +2845,11 @@ function Element:New(Idx, Config)
                 TextSize = 13,
                 TextXAlignment = Enum.TextXAlignment.Left,
                 BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-                AutomaticSize = Enum.AutomaticSize.Y,
                 BackgroundTransparency = 1,
-                Size = UDim2.fromScale(1, 1),
-                Position = UDim2.fromOffset(10, 0),
+                Size = UDim2.fromScale(1, 0),
+                AutomaticSize = Enum.AutomaticSize.Y,
+                AnchorPoint = Vector2.new(0, 0.5),
+                Position = UDim2.new(0, 10, 0.5, 0),
                 Name = "ButtonLabel",
                 ThemeTag = { TextColor3 = "Text" }
             })
@@ -2856,7 +2857,7 @@ function Element:New(Idx, Config)
             local ButtonSelector = New("Frame", {
                 Size = UDim2.fromOffset(4, 20),
                 BackgroundColor3 = Color3.fromRGB(76, 194, 255),
-                Position = UDim2.fromOffset(-1, 16),
+                Position = UDim2.new(0, -1, 0.5, 0),
                 AnchorPoint = Vector2.new(0, 0.5),
                 Visible = false,
                 ThemeTag = { BackgroundColor3 = "Accent" }

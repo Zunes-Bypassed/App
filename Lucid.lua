@@ -2368,23 +2368,46 @@ Components.Window = (function()
 		end)
 
 		Creator.AddSignal(UserInputService.InputEnded, function(Input)
-			if Resizing == true or Input.UserInputType == Enum.UserInputType.Touch then
-				Resizing = false
-				Window.Size = UDim2.fromOffset(SizeMotor:getValue().X, SizeMotor:getValue().Y)
-			end
-		end)
-
-		Creator.AddSignal(Window.TabHolder.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
-			Window.TabHolder.CanvasSize = UDim2.new(0, 0, 0, Window.TabHolder.UIListLayout.AbsoluteContentSize.Y)
-		end)
-
-		Creator.AddSignal(UserInputService.InputBegan, function(Input)
-			if type(Library.MinimizeKeybind) == "table" and Library.MinimizeKeybind.Type == "Keybind" and not UserInputService:GetFocusedTextBox() then
-				if Input.KeyCode.Name == Library.MinimizeKeybind.Value then Window:Minimize() end
-			elseif Input.KeyCode == Library.MinimizeKey and not UserInputService:GetFocusedTextBox() then
-				Window:Minimize()
-			end
-		end)
+        	if Resizing == true or Input.UserInputType == Enum.UserInputType.Touch then
+        		Resizing = false
+        		Window.Size = UDim2.fromOffset(SizeMotor:getValue().X, SizeMotor:getValue().Y)
+        	end
+        end)
+        
+        Creator.AddSignal(Window.TabHolder.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
+        	Window.TabHolder.CanvasSize = UDim2.new(0, 0, 0, Window.TabHolder.UIListLayout.AbsoluteContentSize.Y)
+        end)
+        
+        Creator.AddSignal(UserInputService.InputBegan, function(Input)
+        	if type(Library.MinimizeKeybind) == "table" and Library.MinimizeKeybind.Type == "Keybind" and not UserInputService:GetFocusedTextBox() then
+        		if Input.KeyCode.Name == Library.MinimizeKeybind.Value then Window:Minimize() end
+        	elseif Input.KeyCode == Library.MinimizeKey and not UserInputService:GetFocusedTextBox() then
+        		Window:Minimize()
+        	end
+        end)
+        
+        Creator.AddSignal(ToggleButton.InputBegan, function(Input)
+        	if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+        		Dragging, MousePos, StartPos = true, Input.Position, Window.Root.Position
+        		if Window.Maximized then
+        			StartPos = UDim2.fromOffset(
+        				Mouse.X - (Mouse.X * ((OldSizeX - 100) / Window.Root.AbsoluteSize.X)),
+        				Mouse.Y - (Mouse.Y * (OldSizeY / Window.Root.AbsoluteSize.Y))
+        			)
+        		end
+        		Input.Changed:Connect(function()
+        			if Input.UserInputState == Enum.UserInputState.End then
+        				Dragging = false
+        			end
+        		end)
+        	end
+        end)
+        
+        Creator.AddSignal(ToggleButton.InputChanged, function(Input)
+        	if Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch then
+        		DragInput = Input
+        	end
+        end)
 
 		function Window:Minimize()
 			Window.Minimized = not Window.Minimized
@@ -2448,45 +2471,8 @@ Components.Window = (function()
 			LastValue, LastTime = TabModule:GetCurrentTabPos() + 16, 0
 			Window.SelectorPosMotor:setGoal(Instant(TabModule:GetCurrentTabPos()))
 		end)
-
-    local function MakeDraggable(gui)
-        local dragging, dragInput, dragStart, startPos
-    
-        local function update(input)
-            local delta = input.Position - dragStart
-            gui.Position = UDim2.new(
-                startPos.X.Scale, startPos.X.Offset + delta.X,
-                startPos.Y.Scale, startPos.Y.Offset + delta.Y
-            )
-        end
-    
-        gui.InputBegan:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                dragging = true
-                dragStart = input.Position
-                startPos = gui.Position
-    
-                input.Changed:Connect(function()
-                    if input.UserInputState == Enum.UserInputState.End then
-                        dragging = false
-                    end
-                end)
-            end
-        end)
-    
-        gui.InputChanged:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-                dragInput = input
-            end
-        end)
-    
-        UserInputService.InputChanged:Connect(function(input)
-            if input == dragInput and dragging then
-                update(input)
-            end
-        end)
-        
-        local ToggleButton = Creator.New("ImageButton", {
+		
+		local ToggleButton = Creator.New("ImageButton", {
             Size = UDim2.fromOffset(40, 40),
             Position = UDim2.new(0, 20, 0, 200),
             BackgroundColor3 = Color3.fromRGB(40, 40, 40),
@@ -2496,15 +2482,13 @@ Components.Window = (function()
         })
         
         Creator.New("UICorner", {
-            CornerRadius = UDim.new(0, 10),
+            CornerRadius = UDim.new(1, 0),
             Parent = ToggleButton
         })
         
         ToggleButton.MouseButton1Click:Connect(function()
             Window:Minimize()
         end)
-        
-        MakeDraggable(ToggleButton)
 
 		return Window
 	end

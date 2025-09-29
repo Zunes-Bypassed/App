@@ -2791,7 +2791,13 @@ function Element:New(Idx, Config)
     end)  
 
     local ScrollFrame = self.ScrollFrame  
+
     function Dropdown:Open()  
+        if Library.CurrentOpenDropdown and Library.CurrentOpenDropdown ~= Dropdown then
+            Library.CurrentOpenDropdown:Close()
+        end
+
+        Library.CurrentOpenDropdown = Dropdown
         Dropdown.Opened = true  
         ScrollFrame.ScrollingEnabled = false  
         DropdownHolderCanvas.Visible = true  
@@ -2799,6 +2805,9 @@ function Element:New(Idx, Config)
     end  
 
     function Dropdown:Close()  
+        if Library.CurrentOpenDropdown == Dropdown then
+            Library.CurrentOpenDropdown = nil
+        end
         Dropdown.Opened = false  
         ScrollFrame.ScrollingEnabled = true  
         DropdownHolderCanvas.Visible = false  

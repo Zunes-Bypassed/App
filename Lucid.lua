@@ -4795,6 +4795,36 @@ function Library:CreateWindow(Config)
 		Parent = Window.ToggleButton
 	})
 
+	do
+		local dragging = false
+		local dragStart, startPos
+		local function update(input)
+			local delta = input.Position - dragStart
+			Window.ToggleButton.Position = UDim2.new(0, startPos.X.Offset + delta.X, 0, startPos.Y.Offset + delta.Y)
+		end
+		Window.ToggleButton.InputBegan:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 then
+				dragging = true
+				dragStart = input.Position
+				startPos = Window.ToggleButton.Position
+				input.Changed:Connect(function()
+					if input.UserInputState == Enum.UserInputState.End then
+						dragging = false
+					end
+				end)
+			end
+		end)
+		Window.ToggleButton.InputChanged:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseMovement then
+				RunService.RenderStepped:Connect(function()
+					if dragging then
+						update(input)
+					end
+				end)
+			end
+		end)
+	end
+
 	Window.ToggleButton.MouseButton1Click:Connect(function()
 		Window:Minimize()
 	end)

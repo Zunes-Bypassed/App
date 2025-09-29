@@ -2867,12 +2867,10 @@ function Element:New(Idx, Config)
             local BackMotor, SetBackTransparency = Creator.SpringMotor(1, Button)
             local SelMotor, SetSelTransparency = Creator.SpringMotor(1, ButtonSelector)  
             local SelectorSizeMotor = Flipper.SingleMotor.new(6)  
-            SelectorSizeMotor:onStep(function(value) ButtonSelector.Size = UDim2.new(0, 4, 0, value) end)  
 
             function Table:UpdateButton()  
                 Selected = Config.Multi and Dropdown.Value[Value] or Dropdown.Value == Value  
-                SetBackTransparency(Selected and 0.89 or 1)  
-                SelectorSizeMotor:setGoal(Flipper.Spring.new(Selected and 14 or 6, { frequency = 6 }))  
+                SetBackTransparency(Selected and 0.89 or 1)    
                 SetSelTransparency(Selected and 0 or 1)  
             end  
 

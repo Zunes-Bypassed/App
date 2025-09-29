@@ -2453,7 +2453,7 @@ Components.Window = (function()
             Size = UDim2.fromOffset(40, 40),
             Position = UDim2.new(0, 20, 0, 200),
             BackgroundColor3 = Color3.fromRGB(40, 40, 40),
-            Image = Config.Icon,
+            Image = (type(Config.Icon) == "string" and Config.Icon),
             ScaleType = Enum.ScaleType.Fit,
             Parent = Config.Parent
         })
@@ -2464,8 +2464,7 @@ Components.Window = (function()
         })
         
         ToggleButton.MouseButton1Click:Connect(function()
-            if Library and Library.Window then
-                Library.Window:Minimize()
+                Window:Minimize()
             end
         end)
 

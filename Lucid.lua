@@ -1431,13 +1431,17 @@ function TabModule:New(Title, Icon, Parent)
     local TabIndex = TabModule.TabCount
     local Tab = { Selected = false, Name = Title, Type = "Tab" }
 
-    local HasIcon = false
+    local IconObject = nil
     if Library:GetIcon(Icon) then
         Icon = Library:GetIcon(Icon)
-        HasIcon = true
-    end
-    if Icon == "" or Icon == nil then
-        Icon = nil
+        IconObject = New("ImageLabel", {
+            AnchorPoint = Vector2.new(0, 0.5),
+            Size = UDim2.fromOffset(18, 18),
+            Position = UDim2.new(0, 10, 0.5, 0),
+            BackgroundTransparency = 1,
+            Image = Icon,
+            ThemeTag = { ImageColor3 = "Text" },
+        })
     end
 
     Tab.Frame = New("TextButton", {
@@ -1449,27 +1453,20 @@ function TabModule:New(Title, Icon, Parent)
         AutoButtonColor = false,
     }, {
         New("UICorner", { CornerRadius = UDim.new(0, 8) }),
+        IconObject,
         New("TextLabel", {
             AnchorPoint = Vector2.new(0, 0.5),
-            Position = HasIcon and UDim2.new(0, 34, 0.5, 0) or UDim2.new(0, 10, 0.5, 0),
+            Position = IconObject and UDim2.new(0, 34, 0.5, 0) or UDim2.new(0, 10, 0.5, 0),
             Text = Title,
             RichText = true,
             FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Medium),
             TextSize = 14,
             TextXAlignment = "Left",
             TextYAlignment = "Center",
-            Size = HasIcon and UDim2.new(1, -46, 1, 0) or UDim2.new(1, -20, 1, 0),
+            Size = UDim2.new(1, IconObject and -46 or -20, 1, 0),
             BackgroundTransparency = 1,
             ThemeTag = { TextColor3 = "Text" },
         }),
-        HasIcon and New("ImageLabel", {
-            AnchorPoint = Vector2.new(0, 0.5),
-            Size = UDim2.fromOffset(18, 18),
-            Position = UDim2.new(0, 10, 0.5, 0),
-            BackgroundTransparency = 1,
-            Image = Icon,
-            ThemeTag = { ImageColor3 = "Text" },
-        }) or nil,
     })
 
     local ContainerLayout = New("UIListLayout", {

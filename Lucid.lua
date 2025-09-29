@@ -2396,7 +2396,6 @@ Components.Window = (function()
 			if not MinimizeNotif then
 				MinimizeNotif = true
 				local Key = Library.MinimizeKeybind and Library.MinimizeKeybind.Value or Library.MinimizeKey.Name
-				Library:Notify({ Title = "Lucid", Content = "Press " .. Key .. " to toggle the interface.", Duration = 6 })
 			end
 			pcall(SwapIco)
 		end
@@ -2448,6 +2447,21 @@ Components.Window = (function()
 		Creator.AddSignal(Window.TabHolder:GetPropertyChangedSignal("CanvasPosition"), function()
 			LastValue, LastTime = TabModule:GetCurrentTabPos() + 16, 0
 			Window.SelectorPosMotor:setGoal(Instant(TabModule:GetCurrentTabPos()))
+		end)
+
+		local ToggleButton = Instance.new("TextButton")
+		ToggleButton.Size = UDim2.fromOffset(40, 40)
+		ToggleButton.Position = UDim2.new(0, 20, 0, 200)
+		ToggleButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+		ToggleButton.Text = "☰"
+		ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+		ToggleButton.Font = Enum.Font.SourceSansBold
+		ToggleButton.TextSize = 20
+		ToggleButton.Parent = Config.Parent
+		Instance.new("UICorner", { CornerRadius = UDim.new(1, 0), Parent = ToggleButton })
+
+		ToggleButton.MouseButton1Click:Connect(function()
+			Window.Root.Visible = not Window.Root.Visible
 		end)
 
 		return Window

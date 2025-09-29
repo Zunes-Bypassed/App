@@ -2470,7 +2470,7 @@ Components.Window = (function()
         
         ToggleButton.MouseButton1Click:Connect(function()
             toggled = not toggled
-            MainUI.Visible = toggled
+            MainUI.Enabled = toggled
         end)
 
 		return Window

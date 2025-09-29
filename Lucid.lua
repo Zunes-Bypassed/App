@@ -2448,8 +2448,45 @@ Components.Window = (function()
 			LastValue, LastTime = TabModule:GetCurrentTabPos() + 16, 0
 			Window.SelectorPosMotor:setGoal(Instant(TabModule:GetCurrentTabPos()))
 		end)
-		
-		local ToggleButton = Creator.New("ImageButton", {
+
+    local function MakeDraggable(gui)
+        local dragging, dragInput, dragStart, startPos
+    
+        local function update(input)
+            local delta = input.Position - dragStart
+            gui.Position = UDim2.new(
+                startPos.X.Scale, startPos.X.Offset + delta.X,
+                startPos.Y.Scale, startPos.Y.Offset + delta.Y
+            )
+        end
+    
+        gui.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                dragging = true
+                dragStart = input.Position
+                startPos = gui.Position
+    
+                input.Changed:Connect(function()
+                    if input.UserInputState == Enum.UserInputState.End then
+                        dragging = false
+                    end
+                end)
+            end
+        end)
+    
+        gui.InputChanged:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+                dragInput = input
+            end
+        end)
+    
+        UserInputService.InputChanged:Connect(function(input)
+            if input == dragInput and dragging then
+                update(input)
+            end
+        end)
+        
+        local ToggleButton = Creator.New("ImageButton", {
             Size = UDim2.fromOffset(40, 40),
             Position = UDim2.new(0, 20, 0, 200),
             BackgroundColor3 = Color3.fromRGB(40, 40, 40),
@@ -2459,13 +2496,15 @@ Components.Window = (function()
         })
         
         Creator.New("UICorner", {
-            CornerRadius = UDim.new(1, 0),
+            CornerRadius = UDim.new(0, 10),
             Parent = ToggleButton
         })
         
         ToggleButton.MouseButton1Click:Connect(function()
             Window:Minimize()
         end)
+        
+        MakeDraggable(ToggleButton)
 
 		return Window
 	end

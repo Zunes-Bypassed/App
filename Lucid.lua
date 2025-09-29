@@ -2459,7 +2459,7 @@ Components.Window = (function()
         })
         
         Creator.New("UICorner", {
-            CornerRadius = UDim.new(1, 0),
+            CornerRadius = UDim.new(0, 10),
             Parent = ToggleButton
         })
         

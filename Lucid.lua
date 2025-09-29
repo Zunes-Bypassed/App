@@ -4796,6 +4796,8 @@ function Library:CreateWindow(Config)
 	})
 
 	do
+		local UserInputService = game:GetService("UserInputService")
+		local RunService = game:GetService("RunService")
 		local dragging = false
 		local dragStart, startPos
 		local function update(input)

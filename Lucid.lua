@@ -2453,13 +2453,13 @@ Components.Window = (function()
             Size = UDim2.fromOffset(40, 40),
             Position = UDim2.new(0, 20, 0, 200),
             BackgroundColor3 = Color3.fromRGB(40, 40, 40),
-            Image = "rbxassetid://85582575013902",
+            Image = Config.Icon,
             ScaleType = Enum.ScaleType.Fit,
             Parent = Config.Parent
         })
         
         Creator.New("UICorner", {
-            CornerRadius = UDim.new(0, 10),
+            CornerRadius = UDim.new(1, 0),
             Parent = ToggleButton
         })
         
@@ -4792,6 +4792,7 @@ function Library:CreateWindow(Config)
 		Title = Config.Title,
 		SubTitle = Config.SubTitle,
 		TabWidth = Config.TabWidth,
+		Icon = Config.Icon
 	})
 
 	Library.Window = Window

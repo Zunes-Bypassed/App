@@ -1420,8 +1420,8 @@ Components.Tab = (function()
 
     function TabModule:GetCurrentTabPos()
         local TabHolderPos = TabModule.Window.TabHolder.AbsolutePosition.Y
-        local TabFrame = TabModule.Tabs[TabModule.SelectedTab].Frame
-        return (TabFrame.AbsolutePosition.Y - TabHolderPos) + (TabFrame.AbsoluteSize.Y / 2)
+        local TabPos = TabModule.Tabs[TabModule.SelectedTab].Frame.AbsolutePosition.Y
+        return TabPos - TabHolderPos
     end
 
     function TabModule:New(Title, Icon, Parent)

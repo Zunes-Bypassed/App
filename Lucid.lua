@@ -1401,159 +1401,157 @@ Components.Element = (function()
 	end
 end)()
 Components.Tab = (function()
-local New = Creator.New
-local Spring = Flipper.Spring.new
-local Components = Components
+    local New = Creator.New
+    local Spring = Flipper.Spring.new
+    local Components = Components
 
-local TabModule = {
-    Window = nil,
-    Tabs = {},
-    Containers = {},
-    SelectedTab = 0,
-    TabCount = 0,
-}
+    local TabModule = {
+        Window = nil,
+        Tabs = {},
+        Containers = {},
+        SelectedTab = 0,
+        TabCount = 0,
+    }
 
-function TabModule:Init(Window)
-    TabModule.Window = Window
-    return TabModule
-end
+    function TabModule:Init(Window)
+        TabModule.Window = Window
+        return TabModule
+    end
 
-function TabModule:GetCurrentTabPos()
-    local TabHolderPos = TabModule.Window.TabHolder.AbsolutePosition.Y
-    local TabPos = TabModule.Tabs[TabModule.SelectedTab].Frame.AbsolutePosition.Y
-    return TabPos - TabHolderPos
-end
+    function TabModule:GetCurrentTabPos()
+        local TabHolderPos = TabModule.Window.TabHolder.AbsolutePosition.Y
+        local TabPos = TabModule.Tabs[TabModule.SelectedTab].Frame.AbsolutePosition.Y
+        return TabPos - TabHolderPos
+    end
 
-function TabModule:New(Title, Icon, Parent)
-    local Window = TabModule.Window
-    local Elements = Library.Elements
-    TabModule.TabCount += 1
-    local TabIndex = TabModule.TabCount
-    local Tab = { Selected = false, Name = Title, Type = "Tab" }
+    function TabModule:New(Title, Icon, Parent)
+        local Window = TabModule.Window
+        local Elements = Library.Elements
+        TabModule.TabCount += 1
+        local TabIndex = TabModule.TabCount
 
-    local IconObject = nil
-    if Library:GetIcon(Icon) then
-        Icon = Library:GetIcon(Icon)
-        IconObject = New("ImageLabel", {
-            AnchorPoint = Vector2.new(0, 0.5),
-            Size = UDim2.fromOffset(18, 18),
-            Position = UDim2.new(0, 10, 0.5, 0),
+        local Tab = { Selected = false, Name = Title, Type = "Tab" }
+
+        if Library:GetIcon(Icon) then Icon = Library:GetIcon(Icon) end
+        if Icon == "" or Icon == nil then Icon = nil end
+
+        Tab.Frame = New("TextButton", {
+            Size = UDim2.new(1, 0, 0, 36),
             BackgroundTransparency = 1,
-            Image = Icon,
-            ThemeTag = { ImageColor3 = "Text" },
+            BorderSizePixel = 0,
+            Parent = Parent,
+            Text = "",
+            AutoButtonColor = false,
+        }, {
+            New("UICorner", { CornerRadius = UDim.new(0, 8) }),
+            New("TextLabel", {
+                AnchorPoint = Vector2.new(0, 0.5),
+                Position = Icon and UDim2.new(0, 34, 0.5, 0) or UDim2.new(0, 14, 0.5, 0),
+                Text = Title,
+                RichText = true,
+                FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Medium),
+                TextSize = 14,
+                TextXAlignment = "Left",
+                TextYAlignment = "Center",
+                Size = UDim2.new(1, -12, 1, 0),
+                BackgroundTransparency = 1,
+                ThemeTag = { TextColor3 = "Text" },
+            }),
+            New("ImageLabel", {
+                AnchorPoint = Vector2.new(0, 0.5),
+                Size = UDim2.fromOffset(18, 18),
+                Position = UDim2.new(0, 10, 0.5, 0),
+                BackgroundTransparency = 1,
+                Image = Icon,
+                ThemeTag = { ImageColor3 = "Text" },
+            }),
         })
-    end
 
-    Tab.Frame = New("TextButton", {
-        Size = UDim2.new(1, 0, 0, 36),
-        BackgroundTransparency = 1,
-        BorderSizePixel = 0,
-        Parent = Parent,
-        Text = "",
-        AutoButtonColor = false,
-    }, {
-        New("UICorner", { CornerRadius = UDim.new(0, 8) }),
-        IconObject,
-        New("TextLabel", {
-            AnchorPoint = Vector2.new(0, 0.5),
-            Position = IconObject and UDim2.new(0, 34, 0.5, 0) or UDim2.new(0, 10, 0.5, 0),
-            Text = Title,
-            RichText = true,
-            FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Medium),
-            TextSize = 14,
-            TextXAlignment = "Left",
-            TextYAlignment = "Center",
-            Size = UDim2.new(1, IconObject and -46 or -20, 1, 0),
+        local ContainerLayout = New("UIListLayout", {
+            Padding = UDim.new(0, 8),
+            SortOrder = Enum.SortOrder.LayoutOrder,
+        })
+
+        Tab.ContainerFrame = New("ScrollingFrame", {
+            Size = UDim2.fromScale(1, 1),
             BackgroundTransparency = 1,
-            ThemeTag = { TextColor3 = "Text" },
-        }),
-    })
+            Parent = Window.ContainerHolder,
+            Visible = false,
+            ScrollBarImageColor3 = Color3.fromRGB(255, 255, 255),
+            ScrollBarImageTransparency = 0.9,
+            ScrollBarThickness = 2,
+            BorderSizePixel = 0,
+            CanvasSize = UDim2.fromScale(0, 0),
+            ScrollingDirection = Enum.ScrollingDirection.Y,
+        }, {
+            ContainerLayout,
+            New("UIPadding", {
+                PaddingLeft = UDim.new(0, 8),
+                PaddingRight = UDim.new(0, 8),
+                PaddingTop = UDim.new(0, 4),
+                PaddingBottom = UDim.new(0, 4),
+            }),
+        })
 
-    local ContainerLayout = New("UIListLayout", {
-        Padding = UDim.new(0, 8),
-        SortOrder = Enum.SortOrder.LayoutOrder,
-    })
+        Creator.AddSignal(ContainerLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
+            Tab.ContainerFrame.CanvasSize = UDim2.new(0, 0, 0, ContainerLayout.AbsoluteContentSize.Y + 8)
+        end)
 
-    Tab.ContainerFrame = New("ScrollingFrame", {
-        Size = UDim2.fromScale(1, 1),
-        BackgroundTransparency = 1,
-        Parent = Window.ContainerHolder,
-        Visible = false,
-        ScrollBarImageColor3 = Color3.fromRGB(255, 255, 255),
-        ScrollBarImageTransparency = 0.9,
-        ScrollBarThickness = 2,
-        BorderSizePixel = 0,
-        CanvasSize = UDim2.fromScale(0, 0),
-        ScrollingDirection = Enum.ScrollingDirection.Y,
-    }, {
-        ContainerLayout,
-        New("UIPadding", {
-            PaddingLeft = UDim.new(0, 8),
-            PaddingRight = UDim.new(0, 8),
-            PaddingTop = UDim.new(0, 4),
-            PaddingBottom = UDim.new(0, 4),
-        }),
-    })
+        Creator.AddSignal(Tab.Frame.MouseButton1Click, function()
+            TabModule:SelectTab(TabIndex)
+        end)
 
-    Creator.AddSignal(ContainerLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
-        Tab.ContainerFrame.CanvasSize = UDim2.new(0, 0, 0, ContainerLayout.AbsoluteContentSize.Y + 8)
-    end)
+        TabModule.Containers[TabIndex] = Tab.ContainerFrame
+        TabModule.Tabs[TabIndex] = Tab
+        Tab.Container = Tab.ContainerFrame
+        Tab.ScrollFrame = Tab.Container
 
-    Creator.AddSignal(Tab.Frame.MouseButton1Click, function()
-        TabModule:SelectTab(TabIndex)
-    end)
+        function Tab:AddSection(SectionTitle)
+            local Section = { Type = "Section" }
+            local SectionFrame = Components.Section(SectionTitle, Tab.Container)
+            Section.Container = SectionFrame.Container
+            Section.ScrollFrame = Tab.Container
+            setmetatable(Section, Elements)
+            return Section
+        end
 
-    TabModule.Containers[TabIndex] = Tab.ContainerFrame
-    TabModule.Tabs[TabIndex] = Tab
-    Tab.Container = Tab.ContainerFrame
-    Tab.ScrollFrame = Tab.Container
+        setmetatable(Tab, Elements)
 
-    function Tab:AddSection(SectionTitle)
-        local Section = { Type = "Section" }
-        local SectionFrame = Components.Section(SectionTitle, Tab.Container)
-        Section.Container = SectionFrame.Container
-        Section.ScrollFrame = Tab.Container
-        setmetatable(Section, Elements)
-        return Section
+        if TabIndex == 1 then
+            task.defer(function()
+                TabModule:SelectTab(1)
+            end)
+        end
+
+        return Tab
     end
 
-    setmetatable(Tab, Elements)
-
-    if TabIndex == 1 then
-        task.defer(function()
-            TabModule:SelectTab(1)
+    function TabModule:SelectTab(Tab)
+        local Window = TabModule.Window
+        TabModule.SelectedTab = Tab
+        for _, t in next, TabModule.Tabs do
+            t.Selected = false
+        end
+        local sel = TabModule.Tabs[Tab]
+        sel.Selected = true
+        Window.TabDisplay.Text = sel.Name
+        task.spawn(function()
+            Window.ContainerHolder.Parent = Window.ContainerAnim
+            Window.ContainerPosMotor:setGoal(Spring(15, { frequency = 10 }))
+            Window.ContainerBackMotor:setGoal(Spring(1, { frequency = 10 }))
+            if Window.ContainerFadeMotor then Window.ContainerFadeMotor:setGoal(Spring(1, { frequency = 10 })) end
+            task.wait(0.12)
+            for _, c in next, TabModule.Containers do c.Visible = false end
+            TabModule.Containers[Tab].Visible = true
+            Window.ContainerPosMotor:setGoal(Spring(0, { frequency = 5 }))
+            Window.ContainerBackMotor:setGoal(Spring(0, { frequency = 8 }))
+            if Window.ContainerFadeMotor then Window.ContainerFadeMotor:setGoal(Spring(0, { frequency = 6 })) end
+            task.wait(0.12)
+            Window.ContainerHolder.Parent = Window.ContainerCanvas
         end)
     end
 
-    return Tab
-end
-
-function TabModule:SelectTab(Tab)
-    local Window = TabModule.Window
-    TabModule.SelectedTab = Tab
-    for _, t in next, TabModule.Tabs do
-        t.Selected = false
-    end
-    local sel = TabModule.Tabs[Tab]
-    sel.Selected = true
-    Window.TabDisplay.Text = sel.Name
-    task.spawn(function()
-        Window.ContainerHolder.Parent = Window.ContainerAnim
-        Window.ContainerPosMotor:setGoal(Spring(15, { frequency = 10 }))
-        Window.ContainerBackMotor:setGoal(Spring(1, { frequency = 10 }))
-        if Window.ContainerFadeMotor then Window.ContainerFadeMotor:setGoal(Spring(1, { frequency = 10 })) end
-        task.wait(0.12)
-        for _, c in next, TabModule.Containers do c.Visible = false end
-        TabModule.Containers[Tab].Visible = true
-        Window.ContainerPosMotor:setGoal(Spring(0, { frequency = 5 }))
-        Window.ContainerBackMotor:setGoal(Spring(0, { frequency = 8 }))
-        if Window.ContainerFadeMotor then Window.ContainerFadeMotor:setGoal(Spring(0, { frequency = 6 })) end
-        task.wait(0.12)
-        Window.ContainerHolder.Parent = Window.ContainerCanvas
-    end)
-end
-
-return TabModule
+    return TabModule
 end)()
 Components.Button = (function()
 	local New = Creator.New
@@ -2614,335 +2612,337 @@ ElementsTable.Toggle = (function()
 	return Element
 end)()
 ElementsTable.Dropdown = (function()
-    local Element = {}
-    Element.__index = Element
-    Element.__type = "Dropdown"
+local Element = {}
+Element.__index = Element
+Element.__type = "Dropdown"
 
-    function Element:New(Idx, Config)
-        local Dropdown = {
-            Values = Config.Values,
-            Value = Config.Default,
-            Multi = Config.Multi,
-            Buttons = {},
-            Opened = false,
-            Type = "Dropdown",
-            Callback = Config.Callback or function() end,
-        }
+function Element:New(Idx, Config)  
+    local Dropdown = {  
+        Values = Config.Values,  
+        Value = Config.Default,  
+        Multi = Config.Multi,  
+        Buttons = {},  
+        Opened = false,  
+        Type = "Dropdown",  
+        Callback = Config.Callback or function() end,  
+    }  
 
-        if Dropdown.Multi and Config.AllowNull then
-            Dropdown.Value = {}
+    if Dropdown.Multi and Config.AllowNull then  
+        Dropdown.Value = {}  
+    end  
+
+    local DropdownFrame = Components.Element(Config.Title, Config.Description, self.Container, false, Config)  
+    DropdownFrame.DescLabel.Size = UDim2.new(1, -170, 0, 14)  
+
+    Dropdown.SetTitle = DropdownFrame.SetTitle  
+    Dropdown.SetDesc = DropdownFrame.SetDesc  
+    Dropdown.Visible = DropdownFrame.Visible  
+    Dropdown.Elements = DropdownFrame  
+
+    local DropdownDisplay = New("TextLabel", {  
+        FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal),  
+        Text = "Value",  
+        TextColor3 = Color3.fromRGB(240, 240, 240),  
+        TextSize = 13,  
+        TextXAlignment = Enum.TextXAlignment.Left,  
+        Size = UDim2.new(1, -30, 0, 14),  
+        Position = UDim2.new(0, 8, 0.5, 0),  
+        AnchorPoint = Vector2.new(0, 0.5),  
+        BackgroundColor3 = Color3.fromRGB(255, 255, 255),  
+        BackgroundTransparency = 1,  
+        TextTruncate = Enum.TextTruncate.AtEnd,  
+        ThemeTag = { TextColor3 = "Text" },  
+    })  
+
+    local DropdownIco = New("ImageLabel", {  
+        Image = "rbxassetid://10709790948",  
+        Size = UDim2.fromOffset(16, 16),  
+        AnchorPoint = Vector2.new(1, 0.5),  
+        Position = UDim2.new(1, -8, 0.5, 0),  
+        BackgroundTransparency = 1,  
+        ThemeTag = { ImageColor3 = "SubText" },  
+    })  
+
+    local DropdownInner = New("TextButton", {  
+        Size = UDim2.fromOffset(160, 30),  
+        Position = UDim2.new(1, -10, 0.5, 0),  
+        AnchorPoint = Vector2.new(1, 0.5),  
+        BackgroundTransparency = 0.9,  
+        Parent = DropdownFrame.Frame,  
+        ThemeTag = { BackgroundColor3 = "DropdownFrame" },  
+    }, {  
+        New("UICorner", { CornerRadius = UDim.new(0, 5) }),  
+        New("UIStroke", {  
+            Transparency = 0.5,  
+            ApplyStrokeMode = Enum.ApplyStrokeMode.Border,  
+            ThemeTag = { Color = "InElementBorder" },  
+        }),  
+        DropdownIco,  
+        DropdownDisplay,  
+    })  
+
+    local DropdownListLayout = New("UIListLayout", { Padding = UDim.new(0, 3) })  
+
+    local DropdownScrollFrame = New("ScrollingFrame", {  
+        Size = UDim2.new(1, -5, 1, -10),  
+        Position = UDim2.fromOffset(5, 5),  
+        BackgroundTransparency = 1,  
+        BottomImage = "rbxassetid://6889812791",  
+        MidImage = "rbxassetid://6889812721",  
+        TopImage = "rbxassetid://6276641225",  
+        ScrollBarImageColor3 = Color3.fromRGB(255, 255, 255),  
+        ScrollBarImageTransparency = 0.75,  
+        ScrollBarThickness = 5,  
+        BorderSizePixel = 0,  
+        CanvasSize = UDim2.fromScale(0, 0),  
+        ScrollingDirection = Enum.ScrollingDirection.Y,  
+    }, { DropdownListLayout })  
+
+    local DropdownHolderFrame = New("Frame", {  
+        Size = UDim2.fromScale(1, 0.6),  
+        ThemeTag = { BackgroundColor3 = "DropdownHolder" },  
+    }, {  
+        DropdownScrollFrame,  
+        New("UICorner", { CornerRadius = UDim.new(0, 7) }),  
+        New("UIStroke", { ApplyStrokeMode = Enum.ApplyStrokeMode.Border, ThemeTag = { Color = "DropdownBorder" } }),  
+        New("ImageLabel", {  
+            BackgroundTransparency = 1,  
+            Image = "http://www.roblox.com/asset/?id=5554236805",  
+            ScaleType = Enum.ScaleType.Slice,  
+            SliceCenter = Rect.new(23, 23, 277, 277),  
+            Size = UDim2.fromScale(1, 1) + UDim2.fromOffset(30, 30),  
+            Position = UDim2.fromOffset(-15, -15),  
+            ImageColor3 = Color3.fromRGB(0, 0, 0),  
+            ImageTransparency = 0.1,  
+        }),  
+    })  
+
+    local DropdownHolderCanvas = New("Frame", {  
+        BackgroundTransparency = 1,  
+        Size = UDim2.fromOffset(170, 300),  
+        Parent = Library.GUI,  
+        Visible = false,  
+        ZIndex = 999  
+    }, {  
+        DropdownHolderFrame,  
+        New("UISizeConstraint", { MinSize = Vector2.new(170, 0) }),  
+    })  
+
+    table.insert(Library.OpenFrames, DropdownHolderCanvas)  
+
+    local function RecalculateListPositionAndSize()
+        local viewportX, viewportY = Camera.ViewportSize.X, Camera.ViewportSize.Y
+        local absPos = DropdownInner.AbsolutePosition
+        local absSize = DropdownInner.AbsoluteSize
+        local contentHeight = DropdownListLayout.AbsoluteContentSize.Y + 10
+    
+        local guiFrame = Library.GUI
+        local frameTop, frameBottom
+        if guiFrame then
+            frameTop = guiFrame.AbsolutePosition.Y
+            frameBottom = guiFrame.AbsolutePosition.Y + guiFrame.AbsoluteSize.Y
+        else
+            frameTop = 0
+            frameBottom = viewportY
         end
-
-        local DropdownFrame = Components.Element(Config.Title, Config.Description, self.Container, false, Config)
-        DropdownFrame.DescLabel.Size = UDim2.new(1, -170, 0, 14)
-
-        Dropdown.SetTitle = DropdownFrame.SetTitle
-        Dropdown.SetDesc = DropdownFrame.SetDesc
-        Dropdown.Visible = DropdownFrame.Visible
-        Dropdown.Elements = DropdownFrame
-
-        local DropdownDisplay = New("TextLabel", {
-            FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal),
-            Text = "Value",
-            TextColor3 = Color3.fromRGB(240, 240, 240),
-            TextSize = 13,
-            TextXAlignment = Enum.TextXAlignment.Left,
-            Size = UDim2.new(1, -30, 0, 14),
-            Position = UDim2.new(0, 8, 0.5, 0),
-            AnchorPoint = Vector2.new(0, 0.5),
-            BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-            BackgroundTransparency = 1,
-            TextTruncate = Enum.TextTruncate.AtEnd,
-            ThemeTag = { TextColor3 = "Text" },
-        })
-
-        local DropdownIco = New("ImageLabel", {
-            Image = "rbxassetid://10709790948",
-            Size = UDim2.fromOffset(16, 16),
-            AnchorPoint = Vector2.new(1, 0.5),
-            Position = UDim2.new(1, -8, 0.5, 0),
-            BackgroundTransparency = 1,
-            ThemeTag = { ImageColor3 = "SubText" },
-        })
-
-        local DropdownInner = New("TextButton", {
-            Size = UDim2.fromOffset(160, 30),
-            Position = UDim2.new(1, -10, 0.5, 0),
-            AnchorPoint = Vector2.new(1, 0.5),
-            BackgroundTransparency = 0.9,
-            Parent = DropdownFrame.Frame,
-            ThemeTag = { BackgroundColor3 = "DropdownFrame" },
-        }, {
-            New("UICorner", { CornerRadius = UDim.new(0, 5) }),
-            New("UIStroke", {
-                Transparency = 0.5,
-                ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-                ThemeTag = { Color = "InElementBorder" },
-            }),
-            DropdownIco,
-            DropdownDisplay,
-        })
-
-        local DropdownListLayout = New("UIListLayout", { Padding = UDim.new(0, 3) })
-
-        local DropdownScrollFrame = New("ScrollingFrame", {
-            Size = UDim2.new(1, -5, 1, -10),
-            Position = UDim2.fromOffset(5, 5),
-            BackgroundTransparency = 1,
-            BottomImage = "rbxassetid://6889812791",
-            MidImage = "rbxassetid://6889812721",
-            TopImage = "rbxassetid://6276641225",
-            ScrollBarImageColor3 = Color3.fromRGB(255, 255, 255),
-            ScrollBarImageTransparency = 0.75,
-            ScrollBarThickness = 5,
-            BorderSizePixel = 0,
-            CanvasSize = UDim2.fromScale(0, 0),
-            ScrollingDirection = Enum.ScrollingDirection.Y,
-        }, { DropdownListLayout })
-
-        local DropdownHolderFrame = New("Frame", {
-            Size = UDim2.fromScale(1, 0.6),
-            ThemeTag = { BackgroundColor3 = "DropdownHolder" },
-        }, {
-            DropdownScrollFrame,
-            New("UICorner", { CornerRadius = UDim.new(0, 7) }),
-            New("UIStroke", { ApplyStrokeMode = Enum.ApplyStrokeMode.Border, ThemeTag = { Color = "DropdownBorder" } }),
-            New("ImageLabel", {
-                BackgroundTransparency = 1,
-                Image = "http://www.roblox.com/asset/?id=5554236805",
-                ScaleType = Enum.ScaleType.Slice,
-                SliceCenter = Rect.new(23, 23, 277, 277),
-                Size = UDim2.fromScale(1, 1) + UDim2.fromOffset(30, 30),
-                Position = UDim2.fromOffset(-15, -15),
-                ImageColor3 = Color3.fromRGB(0, 0, 0),
-                ImageTransparency = 0.1,
-            }),
-        })
-
-        local DropdownHolderCanvas = New("Frame", {
-            BackgroundTransparency = 1,
-            Size = UDim2.fromOffset(170, 300),
-            Parent = Library.GUI,
-            Visible = false,
-            ZIndex = 999
-        }, {
-            DropdownHolderFrame,
-            New("UISizeConstraint", { MinSize = Vector2.new(170, 0) }),
-        })
-
-        table.insert(Library.OpenFrames, DropdownHolderCanvas)
-
-        local function RecalculateListPositionAndSize()
-            local viewportX, viewportY = Camera.ViewportSize.X, Camera.ViewportSize.Y
-            local absPos = DropdownInner.AbsolutePosition
-            local absSize = DropdownInner.AbsoluteSize
-            local contentHeight = DropdownListLayout.AbsoluteContentSize.Y + 10
-
-            local guiFrame = Library.GUI
-            local frameTop, frameBottom
-            if guiFrame then
-                frameTop = guiFrame.AbsolutePosition.Y
-                frameBottom = guiFrame.AbsolutePosition.Y + guiFrame.AbsoluteSize.Y
-            else
-                frameTop = 0
-                frameBottom = viewportY
-            end
-
-            local spaceBelow = frameBottom - (absPos.Y + absSize.Y)
-            local finalHeight = math.min(contentHeight, spaceBelow)
-            local finalY = absPos.Y + absSize.Y
-
-            if finalY + finalHeight > frameBottom then
-                finalHeight = frameBottom - finalY
-            end
-
-            local finalX = math.clamp(absPos.X - 1, 0, viewportX - DropdownHolderFrame.AbsoluteSize.X)
-            DropdownHolderCanvas.Position = UDim2.fromOffset(finalX, finalY)
-            DropdownHolderFrame.Size = UDim2.new(1, 0, 0, finalHeight)
-            DropdownScrollFrame.Size = UDim2.new(1, 0, 1, -10)
-            DropdownScrollFrame.CanvasSize = UDim2.fromOffset(0, DropdownListLayout.AbsoluteContentSize.Y)
+    
+        local spaceBelow = frameBottom - (absPos.Y + absSize.Y)
+    
+        local finalHeight = math.min(contentHeight, spaceBelow)
+        local finalY = absPos.Y + absSize.Y
+    
+        if finalY + finalHeight > frameBottom then
+            finalHeight = frameBottom - finalY
         end
-
-        function Dropdown:GetActiveValues()
-            if self.Multi then
-                local count = 0
-                for _, v in pairs(self.Value) do
-                    if v then count = count + 1 end
-                end
-                return count
-            else
-                return self.Value and 1 or 0
-            end
-        end
-
-        Creator.AddSignal(DropdownInner:GetPropertyChangedSignal("AbsolutePosition"), RecalculateListPositionAndSize)
-
-        Creator.AddSignal(DropdownInner.MouseButton1Click, function()
-            Dropdown:Open()
-        end)
-
-        Creator.AddSignal(UserInputService.InputBegan, function(Input)
-            if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-                local AbsPos, AbsSize = DropdownHolderFrame.AbsolutePosition, DropdownHolderFrame.AbsoluteSize
-                if Mouse.X < AbsPos.X or Mouse.X > AbsPos.X + AbsSize.X or Mouse.Y < (AbsPos.Y - 20 - 1) or Mouse.Y > AbsPos.Y + AbsSize.Y then
-                    Dropdown:Close()
-                end
-            end
-        end)
-
-        local ScrollFrame = self.ScrollFrame
-        function Dropdown:Open()
-            Dropdown.Opened = true
-            ScrollFrame.ScrollingEnabled = false
-            DropdownHolderCanvas.Visible = true
-            task.defer(RecalculateListPositionAndSize)
-        end
-
-        function Dropdown:Close()
-            Dropdown.Opened = false
-            ScrollFrame.ScrollingEnabled = true
-            DropdownHolderCanvas.Visible = false
-        end
-
-        function Dropdown:Display()
-            local Values = Dropdown.Values
-            local Str = ""
-            if Config.Multi then
-                for _, Value in next, Values do
-                    if Dropdown.Value[Value] then Str = Str .. Value .. ", " end
-                end
-                Str = Str:sub(1, #Str - 2)
-            else
-                Str = Dropdown.Value or ""
-            end
-            DropdownDisplay.Text = (Str == "" and "---" or Str)
-        end
-
-        function Dropdown:BuildDropdownList()
-            local Values = Dropdown.Values
-            local Buttons = {}
-            for _, Element in next, DropdownScrollFrame:GetChildren() do
-                if not Element:IsA("UIListLayout") then Element:Destroy() end
-            end
-            for _, Value in next, Values do
-                local Table = {}
-                local ButtonSelector = New("Frame", {
-                    Size = UDim2.fromOffset(4, 14),
-                    BackgroundColor3 = Color3.fromRGB(76, 194, 255),
-                    Position = UDim2.fromOffset(-1, 16),
-                    AnchorPoint = Vector2.new(0, 0.5),
-                    ThemeTag = { BackgroundColor3 = "Accent" }
-                }, { New("UICorner", { CornerRadius = UDim.new(0, 2) }) })
-
-                local ButtonLabel = New("TextLabel", {
-                    FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json"),
-                    Text = Value,
-                    TextColor3 = Color3.fromRGB(200, 200, 200),
-                    TextSize = 13,
-                    TextXAlignment = Enum.TextXAlignment.Left,
-                    BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-                    AutomaticSize = Enum.AutomaticSize.Y,
-                    BackgroundTransparency = 1,
-                    Size = UDim2.fromScale(1, 1),
-                    Position = UDim2.fromOffset(10, 0),
-                    Name = "ButtonLabel",
-                    ThemeTag = { TextColor3 = "Text" }
-                })
-
-                local Button = New("TextButton", {
-                    Size = UDim2.new(1, -5, 0, 32),
-                    BackgroundTransparency = 1,
-                    ZIndex = 23,
-                    Text = "",
-                    Parent = DropdownScrollFrame,
-                    ThemeTag = { BackgroundColor3 = "DropdownOption" }
-                }, { ButtonSelector, ButtonLabel, New("UICorner", { CornerRadius = UDim.new(0, 6) }) })
-
-                local Selected = Config.Multi and Dropdown.Value[Value] or Dropdown.Value == Value
-                local BackMotor, SetBackTransparency = Creator.SpringMotor(1, Button)
-                local SelMotor, SetSelTransparency = Creator.SpringMotor(1, ButtonSelector)
-                local SelectorSizeMotor = Flipper.SingleMotor.new(6)
-                SelectorSizeMotor:onStep(function(value) ButtonSelector.Size = UDim2.new(0, 4, 0, value) end)
-
-                function Table:UpdateButton()
-                    Selected = Config.Multi and Dropdown.Value[Value] or Dropdown.Value == Value
-                    SetBackTransparency(Selected and 0.89 or 1)
-                    SelectorSizeMotor:setGoal(Flipper.Spring.new(Selected and 14 or 6, { frequency = 6 }))
-                    SetSelTransparency(Selected and 0 or 1)
-                end
-
-                Button.InputBegan:Connect(function(Input)
-                    if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-                        local Try = not Selected
-                        if Dropdown:GetActiveValues() == 1 and not Try and not Config.AllowNull then return end
-                        if Config.Multi then
-                            Dropdown.Value[Value] = Try and true or nil
-                        else
-                            Dropdown.Value = Try and Value or nil
-                            for _, OtherButton in next, Buttons do OtherButton:UpdateButton() end
-                        end
-                        Table:UpdateButton()
-                        Dropdown:Display()
-                        Library:SafeCallback(Dropdown.Callback, Dropdown.Value)
-                        Library:SafeCallback(Dropdown.Changed, Dropdown.Value)
-                    end
-                end)
-                Table:UpdateButton()
-                Dropdown:Display()
-                Buttons[Button] = Table
-            end
-
-            local ListSizeX = 0
-            for Button, Table in next, Buttons do
-                if Button.ButtonLabel then
-                    ListSizeX = math.max(ListSizeX, Button.ButtonLabel.TextBounds.X)
-                end
-            end
-            DropdownHolderCanvas.Size = UDim2.fromOffset(ListSizeX + 30, DropdownHolderCanvas.Size.Y.Offset)
-            task.defer(RecalculateListPositionAndSize)
-        end
-
-        function Dropdown:SetValues(NewValues)
-            if NewValues then Dropdown.Values = NewValues end
-            Dropdown:BuildDropdownList()
-        end
-
-        function Dropdown:OnChanged(Func)
-            Dropdown.Changed = Func
-            Func(Dropdown.Value)
-        end
-
-        function Dropdown:SetValue(Val)
-            if Dropdown.Multi then
-                local nTable = {}
-                for Value, Bool in next, Val do
-                    if table.find(Dropdown.Values, Value) then nTable[Value] = true end
-                end
-                Dropdown.Value = nTable
-            else
-                if not Val then
-                    Dropdown.Value = nil
-                elseif table.find(Dropdown.Values, Val) then
-                    Dropdown.Value = Val
-                end
-            end
-            Dropdown:BuildDropdownList()
-            Library:SafeCallback(Dropdown.Callback, Dropdown.Value)
-            Library:SafeCallback(Dropdown.Changed, Dropdown.Value)
-        end
-
-        function Dropdown:Destroy()
-            DropdownFrame:Destroy()
-            Library.Options[Idx] = nil
-        end
-
-        Dropdown:BuildDropdownList()
-        Dropdown:Display()
-        Library.Options[Idx] = Dropdown
-        return Dropdown
+    
+        local finalX = math.clamp(absPos.X - 1, 0, viewportX - DropdownHolderFrame.AbsoluteSize.X)
+    
+        DropdownHolderCanvas.Position = UDim2.fromOffset(finalX, finalY)
+        DropdownHolderFrame.Size = UDim2.new(1, 0, 0, finalHeight)
+        DropdownScrollFrame.Size = UDim2.new(1, 0, 1, -10)
+        DropdownScrollFrame.CanvasSize = UDim2.fromOffset(0, DropdownListLayout.AbsoluteContentSize.Y)
     end
 
-    return Element
+    function Dropdown:GetActiveValues()  
+        if self.Multi then  
+            local count = 0  
+            for _, v in pairs(self.Value) do  
+                if v then count = count + 1 end  
+            end  
+            return count  
+        else  
+            return self.Value and 1 or 0  
+        end  
+    end  
+
+    Creator.AddSignal(DropdownInner:GetPropertyChangedSignal("AbsolutePosition"), RecalculateListPositionAndSize)  
+
+    Creator.AddSignal(DropdownInner.MouseButton1Click, function()  
+        Dropdown:Open()  
+    end)  
+
+    Creator.AddSignal(UserInputService.InputBegan, function(Input)  
+        if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then  
+            local AbsPos, AbsSize = DropdownHolderFrame.AbsolutePosition, DropdownHolderFrame.AbsoluteSize  
+            if Mouse.X < AbsPos.X or Mouse.X > AbsPos.X + AbsSize.X or Mouse.Y < (AbsPos.Y - 20 - 1) or Mouse.Y > AbsPos.Y + AbsSize.Y then  
+                Dropdown:Close()  
+            end  
+        end  
+    end)  
+
+    local ScrollFrame = self.ScrollFrame  
+    function Dropdown:Open()  
+        Dropdown.Opened = true  
+        ScrollFrame.ScrollingEnabled = false  
+        DropdownHolderCanvas.Visible = true  
+        task.defer(RecalculateListPositionAndSize)  
+    end  
+
+    function Dropdown:Close()  
+        Dropdown.Opened = false  
+        ScrollFrame.ScrollingEnabled = true  
+        DropdownHolderCanvas.Visible = false  
+    end  
+
+    function Dropdown:Display()  
+        local Values = Dropdown.Values  
+        local Str = ""  
+        if Config.Multi then  
+            for _, Value in next, Values do  
+                if Dropdown.Value[Value] then Str = Str .. Value .. ", " end  
+            end  
+            Str = Str:sub(1, #Str - 2)  
+        else  
+            Str = Dropdown.Value or ""  
+        end  
+        DropdownDisplay.Text = (Str == "" and "---" or Str)  
+    end  
+
+    function Dropdown:BuildDropdownList()  
+        local Values = Dropdown.Values  
+        local Buttons = {}  
+        for _, Element in next, DropdownScrollFrame:GetChildren() do  
+            if not Element:IsA("UIListLayout") then Element:Destroy() end  
+        end  
+        for _, Value in next, Values do  
+            local Table = {}  
+            local ButtonSelector = New("Frame", {   
+                Size = UDim2.fromOffset(4, 14),   
+                BackgroundColor3 = Color3.fromRGB(76, 194, 255),   
+                Position = UDim2.fromOffset(-1, 16),   
+                AnchorPoint = Vector2.new(0, 0.5),   
+                ThemeTag = { BackgroundColor3 = "Accent" }   
+            }, { New("UICorner", { CornerRadius = UDim.new(0, 2) }) })  
+              
+            local ButtonLabel = New("TextLabel", {   
+                FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json"),   
+                Text = Value,   
+                TextColor3 = Color3.fromRGB(200, 200, 200),   
+                TextSize = 13,   
+                TextXAlignment = Enum.TextXAlignment.Left,   
+                BackgroundColor3 = Color3.fromRGB(255, 255, 255),   
+                AutomaticSize = Enum.AutomaticSize.Y,   
+                BackgroundTransparency = 1,   
+                Size = UDim2.fromScale(1, 1),   
+                Position = UDim2.fromOffset(10, 0),   
+                Name = "ButtonLabel",   
+                ThemeTag = { TextColor3 = "Text" }   
+            })  
+
+            local Button = New("TextButton", {   
+                Size = UDim2.new(1, -5, 0, 32),   
+                BackgroundTransparency = 1,   
+                ZIndex = 23,   
+                Text = "",   
+                Parent = DropdownScrollFrame,   
+                ThemeTag = { BackgroundColor3 = "DropdownOption" }   
+            }, { ButtonSelector, ButtonLabel, New("UICorner", { CornerRadius = UDim.new(0, 6) }) })  
+
+            local Selected = Config.Multi and Dropdown.Value[Value] or Dropdown.Value == Value  
+            local BackMotor, SetBackTransparency = Creator.SpringMotor(1, Button)
+            local SelMotor, SetSelTransparency = Creator.SpringMotor(1, ButtonSelector)  
+            local SelectorSizeMotor = Flipper.SingleMotor.new(6)  
+            SelectorSizeMotor:onStep(function(value) ButtonSelector.Size = UDim2.new(0, 4, 0, value) end)  
+
+            function Table:UpdateButton()  
+                Selected = Config.Multi and Dropdown.Value[Value] or Dropdown.Value == Value  
+                SetBackTransparency(Selected and 0.89 or 1)  
+                SelectorSizeMotor:setGoal(Flipper.Spring.new(Selected and 14 or 6, { frequency = 6 }))  
+                SetSelTransparency(Selected and 0 or 1)  
+            end  
+
+            Button.InputBegan:Connect(function(Input)  
+                if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then  
+                    local Try = not Selected  
+                    if Dropdown:GetActiveValues() == 1 and not Try and not Config.AllowNull then return end  
+                    if Config.Multi then  
+                        Dropdown.Value[Value] = Try and true or nil  
+                    else  
+                        Dropdown.Value = Try and Value or nil  
+                        for _, OtherButton in next, Buttons do OtherButton:UpdateButton() end  
+                    end  
+                    Table:UpdateButton()  
+                    Dropdown:Display()  
+                    Library:SafeCallback(Dropdown.Callback, Dropdown.Value)  
+                    Library:SafeCallback(Dropdown.Changed, Dropdown.Value)  
+                end  
+            end)  
+            Table:UpdateButton()  
+            Dropdown:Display()  
+            Buttons[Button] = Table  
+        end  
+
+        local ListSizeX = 0  
+        for Button, Table in next, Buttons do  
+            if Button.ButtonLabel then  
+                ListSizeX = math.max(ListSizeX, Button.ButtonLabel.TextBounds.X)  
+            end  
+        end  
+        DropdownHolderCanvas.Size = UDim2.fromOffset(ListSizeX + 30, DropdownHolderCanvas.Size.Y.Offset)  
+        task.defer(RecalculateListPositionAndSize)  
+    end  
+
+    function Dropdown:SetValues(NewValues)  
+        if NewValues then Dropdown.Values = NewValues end  
+        Dropdown:BuildDropdownList()  
+    end  
+
+    function Dropdown:OnChanged(Func)  
+        Dropdown.Changed = Func  
+        Func(Dropdown.Value)  
+    end  
+
+    function Dropdown:SetValue(Val)  
+        if Dropdown.Multi then  
+            local nTable = {}  
+            for Value, Bool in next, Val do  
+                if table.find(Dropdown.Values, Value) then nTable[Value] = true end  
+            end  
+            Dropdown.Value = nTable  
+        else  
+            if not Val then  
+                Dropdown.Value = nil  
+            elseif table.find(Dropdown.Values, Val) then  
+                Dropdown.Value = Val  
+            end  
+        end  
+        Dropdown:BuildDropdownList()  
+        Library:SafeCallback(Dropdown.Callback, Dropdown.Value)  
+        Library:SafeCallback(Dropdown.Changed, Dropdown.Value)  
+    end  
+
+    function Dropdown:Destroy()  
+        DropdownFrame:Destroy()  
+        Library.Options[Idx] = nil  
+    end  
+
+    Dropdown:BuildDropdownList()  
+    Dropdown:Display()  
+    Library.Options[Idx] = Dropdown  
+    return Dropdown  
+end  
+
+return Element
 end)()
 ElementsTable.Paragraph = (function()
 	local Paragraph = {}

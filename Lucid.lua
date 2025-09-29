@@ -2457,7 +2457,7 @@ Components.Window = (function()
             TextColor3 = Color3.fromRGB(255, 255, 255),
             Font = Enum.Font.SourceSansBold,
             TextSize = 20,
-            Parent = Config.Parent
+            Parent = Library.GUI
         })
         
         Creator.New("UICorner", {
@@ -2466,8 +2466,9 @@ Components.Window = (function()
         })
         
         ToggleButton.MouseButton1Click:Connect(function()
-            if Config.Parent then
-                Config.Parent.Visible = not Config.Parent.Visible
+            local mainFrame = Library.GUI:FindFirstChild("Root") or Library.GUI:FindFirstChild("Main") or Library.GUI:FindFirstChild("Container")
+            if mainFrame then
+                mainFrame.Visible = not mainFrame.Visible
             end
         end)
 

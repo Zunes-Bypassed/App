@@ -4763,8 +4763,8 @@ function Library:CreateWindow(Config)
 	end
 
 	Library.MinimizeKey = Config.MinimizeKey
-	Library.UseAcrylic = Config.Acrylic 
-	Library.Acrylic = Config.Acrylic 
+	Library.UseAcrylic = Config.Acrylic
+	Library.Acrylic = Config.Acrylic
 	Library.Theme = Config.Theme
 	if Config.Acrylic then
 		Acrylic.init()
@@ -4797,30 +4797,33 @@ function Library:CreateWindow(Config)
 
 	do
 		local UserInputService = game:GetService("UserInputService")
-		local RunService = game:GetService("RunService")
 		local dragging = false
 		local dragStart, startPos
-		local function update(input)
-			local delta = input.Position - dragStart
-			Window.ToggleButton.Position = UDim2.new(0, startPos.X.Offset + delta.X, 0, startPos.Y.Offset + delta.Y)
-		end
+		local moveConn, releaseConn
+
 		Window.ToggleButton.InputBegan:Connect(function(input)
 			if input.UserInputType == Enum.UserInputType.MouseButton1 then
 				dragging = true
 				dragStart = input.Position
 				startPos = Window.ToggleButton.Position
-				input.Changed:Connect(function()
-					if input.UserInputState == Enum.UserInputState.End then
-						dragging = false
+
+				moveConn = UserInputService.InputChanged:Connect(function(moveInput)
+					if moveInput.UserInputType == Enum.UserInputType.MouseMovement and dragging then
+						local delta = moveInput.Position - dragStart
+						Window.ToggleButton.Position = UDim2.new(
+							0,
+							startPos.X.Offset + delta.X,
+							0,
+							startPos.Y.Offset + delta.Y
+						)
 					end
 				end)
-			end
-		end)
-		Window.ToggleButton.InputChanged:Connect(function(input)
-			if input.UserInputType == Enum.UserInputType.MouseMovement then
-				RunService.RenderStepped:Connect(function()
-					if dragging then
-						update(input)
+
+				releaseConn = input.Changed:Connect(function()
+					if input.UserInputState == Enum.UserInputState.End then
+						dragging = false
+						if moveConn then moveConn:Disconnect() end
+						if releaseConn then releaseConn:Disconnect() end
 					end
 				end)
 			end

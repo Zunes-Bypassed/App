@@ -19,13 +19,19 @@ function __LUCID_OPT__.SafeColor3(c, fallback)
 end
 
 function __LUCID_OPT__.Tween(instance, props, time, style, direction, callback)
-    time = time or 0.2
-    style = style or Enum.EasingStyle.Quad
+    time = time or 0.25
+    style = style or Enum.EasingStyle.Sine 
     direction = direction or Enum.EasingDirection.Out
+    
+    if instance:FindFirstChild("__ActiveTween") then
+        pcall(function() instance.__ActiveTween:Cancel() end)
+    end
+
     local info = TweenInfo.new(time, style, direction)
     local suc, tween = pcall(function()
         return TweenService:Create(instance, info, props)
     end)
+
     if not suc then
         for k,v in pairs(props) do
             pcall(function() instance[k] = v end)
@@ -33,10 +39,14 @@ function __LUCID_OPT__.Tween(instance, props, time, style, direction, callback)
         if callback then callback() end
         return nil
     end
+
+    instance.__ActiveTween = tween
     tween:Play()
-    if callback then
-        tween.Completed:Connect(function() callback() end)
-    end
+    tween.Completed:Once(function()
+        if callback then callback() end
+        instance.__ActiveTween = nil
+    end)
+
     return tween
 end
 

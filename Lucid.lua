@@ -2692,9 +2692,6 @@ function Element:New(Idx, Config)
         Size = UDim2.new(1, -5, 1, -10),  
         Position = UDim2.fromOffset(5, 5),  
         BackgroundTransparency = 1,  
-        BottomImage = "rbxassetid://6889812791",  
-        MidImage = "rbxassetid://6889812721",  
-        TopImage = "rbxassetid://6276641225",  
         ScrollBarImageColor3 = Color3.fromRGB(255, 255, 255),  
         ScrollBarImageTransparency = 0.75,  
         ScrollBarThickness = 5,  
@@ -2710,16 +2707,6 @@ function Element:New(Idx, Config)
         DropdownScrollFrame,  
         New("UICorner", { CornerRadius = UDim.new(0, 7) }),  
         New("UIStroke", { ApplyStrokeMode = Enum.ApplyStrokeMode.Border, ThemeTag = { Color = "DropdownBorder" } }),  
-        New("ImageLabel", {  
-            BackgroundTransparency = 1,  
-            Image = "http://www.roblox.com/asset/?id=5554236805",  
-            ScaleType = Enum.ScaleType.Slice,  
-            SliceCenter = Rect.new(23, 23, 277, 277),  
-            Size = UDim2.fromScale(1, 1) + UDim2.fromOffset(30, 30),  
-            Position = UDim2.fromOffset(-15, -15),  
-            ImageColor3 = Color3.fromRGB(0, 0, 0),  
-            ImageTransparency = 0.1,  
-        }),  
     })  
 
     local DropdownHolderCanvas = New("Frame", {  
@@ -2831,14 +2818,7 @@ function Element:New(Idx, Config)
         end  
         for _, Value in next, Values do  
             local Table = {}  
-            local ButtonSelector = New("Frame", {   
-                Size = UDim2.fromOffset(4, 14),   
-                BackgroundColor3 = Color3.fromRGB(76, 194, 255),   
-                Position = UDim2.fromOffset(-1, 16),   
-                AnchorPoint = Vector2.new(0, 0.5),   
-                ThemeTag = { BackgroundColor3 = "Accent" }   
-            }, { New("UICorner", { CornerRadius = UDim.new(0, 2) }) })  
-              
+
             local ButtonLabel = New("TextLabel", {   
                 FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json"),   
                 Text = Value,   
@@ -2861,14 +2841,14 @@ function Element:New(Idx, Config)
                 Text = "",   
                 Parent = DropdownScrollFrame,   
                 ThemeTag = { BackgroundColor3 = "DropdownOption" }   
-            }, { ButtonSelector, ButtonLabel, New("UICorner", { CornerRadius = UDim.new(0, 6) }) })  
+            }, { ButtonLabel, New("UICorner", { CornerRadius = UDim.new(0, 6) }) })  
 
             local Selected = Config.Multi and Dropdown.Value[Value] or Dropdown.Value == Value  
+            local BackMotor, SetBackTransparency = Creator.SpringMotor(1, Button)
 
             function Table:UpdateButton()  
                 Selected = Config.Multi and Dropdown.Value[Value] or Dropdown.Value == Value  
-                SetBackTransparency(Selected and 0.89 or 1)    
-                SetSelTransparency(Selected and 0 or 1)  
+                SetBackTransparency(Selected and 0.89 or 1)  
             end  
 
             Button.InputBegan:Connect(function(Input)  
@@ -2887,6 +2867,7 @@ function Element:New(Idx, Config)
                     Library:SafeCallback(Dropdown.Changed, Dropdown.Value)  
                 end  
             end)  
+
             Table:UpdateButton()  
             Dropdown:Display()  
             Buttons[Button] = Table  

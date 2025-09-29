@@ -2449,12 +2449,11 @@ Components.Window = (function()
 			Window.SelectorPosMotor:setGoal(Instant(TabModule:GetCurrentTabPos()))
 		end)
 		
-		local ToggleButton = Creator.New("ImageButton", {
+		local ToggleButton = Creator.New("Frame", {
             Size = UDim2.fromOffset(40, 40),
             Position = UDim2.new(0, 20, 0, 200),
             BackgroundTransparency = 1,
-            Image = "rbxassetid://85582575013902",
-            ScaleType = Enum.ScaleType.Fit,
+            ClipsDescendants = true,
             Parent = Config.Parent
         })
         
@@ -2463,7 +2462,15 @@ Components.Window = (function()
             Parent = ToggleButton
         })
         
-        ToggleButton.MouseButton1Click:Connect(function()
+        local Icon = Creator.New("ImageButton", {
+            Size = UDim2.fromScale(1, 1),
+            BackgroundTransparency = 1,
+            Image = "rbxassetid://85582575013902",
+            ScaleType = Enum.ScaleType.Fit,
+            Parent = ToggleButton
+        })
+        
+        Icon.MouseButton1Click:Connect(function()
             if Library and Library.Window then
                 Library.Window:Minimize()
             end

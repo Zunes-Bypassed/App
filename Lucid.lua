@@ -1543,6 +1543,7 @@ function TabModule:SelectTab(Tab)
     local sel = TabModule.Tabs[Tab]
     sel.Selected = true
     Window.TabDisplay.Text = sel.Name
+    Window.SelectorPosMotor:setGoal(Spring(TabModule:GetCurrentTabPos(), { frequency = 6 }))
     task.spawn(function()
         Window.ContainerHolder.Parent = Window.ContainerAnim
         Window.ContainerPosMotor:setGoal(Spring(15, { frequency = 10 }))

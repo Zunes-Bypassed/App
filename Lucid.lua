@@ -1420,10 +1420,14 @@ end
 
 function TabModule:GetCurrentTabPos()
     local Tab = TabModule.Tabs[TabModule.SelectedTab]
+    if not Tab then return 0 end
     local TabHolderPos = TabModule.Window.TabHolder.AbsolutePosition.Y
     local TabPos = Tab.Frame.AbsolutePosition.Y
     local TabHeight = Tab.Frame.AbsoluteSize.Y
-    local SelectorHeight = TabModule.Window.Selector.AbsoluteSize.Y
+    local SelectorHeight = 4
+    if TabModule.Window.Selector and TabModule.Window.Selector.AbsoluteSize then
+        SelectorHeight = TabModule.Window.Selector.AbsoluteSize.Y
+    end
     return (TabPos - TabHolderPos) + (TabHeight / 2) - (SelectorHeight / 2)
 end
 

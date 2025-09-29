@@ -2351,14 +2351,22 @@ Components.Window = (function()
 
 		Creator.AddSignal(UserInputService.InputChanged, function(Input)
 			if Input == DragInput and Dragging then
-				local Delta = Input.Position - MousePos
-				Window.Position = UDim2.fromOffset(StartPos.X.Offset + Delta.X, StartPos.Y.Offset + Delta.Y)
-				PosMotor:setGoal({
-					X = Instant(Window.Position.X.Offset),
-					Y = Instant(Window.Position.Y.Offset),
-				})
-				if Window.Maximized then Window.Maximize(false, true, true) end
-			end
+                local Delta = Input.Position - MousePos
+                local NewX = StartPos.X.Offset + Delta.X
+                local NewY = StartPos.Y.Offset + Delta.Y
+                local Viewport = Camera.ViewportSize
+                local WindowSize = Window.Root.Size
+                NewX = math.clamp(NewX, 0, Viewport.X - WindowSize.X.Offset)
+                NewY = math.clamp(NewY, 0, Viewport.Y - WindowSize.Y.Offset)
+                Window.Position = UDim2.fromOffset(NewX, NewY)
+                PosMotor:setGoal({
+                    X = Instant(NewX),
+                    Y = Instant(NewY),
+                })
+                if Window.Maximized then
+                    Window.Maximize(false, true, true)
+                end
+            end
 			if (Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch) and Resizing then
 				local Delta = Input.Position - ResizePos
 				local StartSize = Window.Size
@@ -4763,8 +4771,8 @@ function Library:CreateWindow(Config)
 	end
 
 	Library.MinimizeKey = Config.MinimizeKey
-	Library.UseAcrylic = Config.Acrylic
-	Library.Acrylic = Config.Acrylic
+	Library.UseAcrylic = Config.Acrylic 
+	Library.Acrylic = Config.Acrylic 
 	Library.Theme = Config.Theme
 	if Config.Acrylic then
 		Acrylic.init()
@@ -4794,41 +4802,6 @@ function Library:CreateWindow(Config)
 		CornerRadius = UDim.new(1, 0),
 		Parent = Window.ToggleButton
 	})
-
-	do
-		local UserInputService = game:GetService("UserInputService")
-		local dragging = false
-		local dragStart, startPos
-		local moveConn, releaseConn
-
-		Window.ToggleButton.InputBegan:Connect(function(input)
-			if input.UserInputType == Enum.UserInputType.MouseButton1 then
-				dragging = true
-				dragStart = input.Position
-				startPos = Window.ToggleButton.Position
-
-				moveConn = UserInputService.InputChanged:Connect(function(moveInput)
-					if moveInput.UserInputType == Enum.UserInputType.MouseMovement and dragging then
-						local delta = moveInput.Position - dragStart
-						Window.ToggleButton.Position = UDim2.new(
-							0,
-							startPos.X.Offset + delta.X,
-							0,
-							startPos.Y.Offset + delta.Y
-						)
-					end
-				end)
-
-				releaseConn = input.Changed:Connect(function()
-					if input.UserInputState == Enum.UserInputState.End then
-						dragging = false
-						if moveConn then moveConn:Disconnect() end
-						if releaseConn then releaseConn:Disconnect() end
-					end
-				end)
-			end
-		end)
-	end
 
 	Window.ToggleButton.MouseButton1Click:Connect(function()
 		Window:Minimize()

@@ -807,27 +807,27 @@ function Creator.GetThemeProperty(Property)
 	return Themes["Dark"][Property]
 end
 
-function Creator.New(className, Properties, Children)
-    local Object = Instance.new(className)
+function Creator.New(Name, Properties, Children)
+	local Object = Instance.new(Name)
 
-    for propName, defaultValue in next, Creator.DefaultProperties[className] or {} do
-        Object[propName] = defaultValue
-    end
+	for Name, Value in next, Creator.DefaultProperties[Name] or {} do
+		Object[Name] = Value
+	end
 
-    for propName, value in next, Properties or {} do
-        if propName ~= "ThemeTag" then
-            Object[propName] = value
-        end
-    end
+	for Name, Value in next, Properties or {} do
+		if Name ~= "ThemeTag" then
+			Object[Name] = Value
+		end
+	end
 
-    for _, Child in next, Children or {} do
-        Child.Parent = Object
-    end
+	for _, Child in next, Children or {} do
+		Child.Parent = Object
+	end
 
-    if Properties then
+	if Properties then
         ApplyCustomProps(Object, Properties)
     end
-    return Object
+	return Object
 end
 
 function Creator.SpringMotor(Initial, Instance, Prop, IgnoreDialogCheck, ResetOnThemeChange)
@@ -2448,25 +2448,6 @@ Components.Window = (function()
 			LastValue, LastTime = TabModule:GetCurrentTabPos() + 16, 0
 			Window.SelectorPosMotor:setGoal(Instant(TabModule:GetCurrentTabPos()))
 		end)
-		
-		local ToggleButton = Creator.New("ImageButton", {
-            Size = UDim2.fromOffset(40, 40),
-            Position = UDim2.new(0, 20, 0, 200),
-            BackgroundColor3 = Color3.fromRGB(40, 40, 40),
-            Image = Config.Icon,
-            ScaleType = Enum.ScaleType.Fit,
-            Parent = Config.Parent
-        })
-        
-        Creator.New("UICorner", {
-            CornerRadius = UDim.new(1, 0),
-            Parent = ToggleButton
-        })
-        
-        ToggleButton.MouseButton1Click:Connect(function()
-                Window:Minimize()
-            end
-        end)
 
 		return Window
 	end
@@ -4772,7 +4753,7 @@ Library.Elements = Elements
 
 function Library:CreateWindow(Config)
 	assert(Config.Title)
-
+	
 	if Library.Window then
 		return
 	end
@@ -4793,6 +4774,26 @@ function Library:CreateWindow(Config)
 		TabWidth = Config.TabWidth,
 		Icon = Config.Icon
 	})
+
+	Window.Icon = Config.Icon
+
+	local ToggleButton = Creator.New("ImageButton", {
+		Size = UDim2.fromOffset(40, 40),
+		Position = UDim2.new(0, 20, 0, 200),
+		BackgroundColor3 = Color3.fromRGB(40, 40, 40),
+		Image = Window.Icon or "",
+		ScaleType = Enum.ScaleType.Fit,
+		Parent = GUI
+	})
+
+	Creator.New("UICorner", {
+		CornerRadius = UDim.new(1, 0),
+		Parent = ToggleButton
+	})
+
+	ToggleButton.MouseButton1Click:Connect(function()
+		Window:Minimize()
+	end)
 
 	Library.Window = Window
 	Library:SetTheme(Config.Theme)

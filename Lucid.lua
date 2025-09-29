@@ -1420,11 +1420,8 @@ end
 
 function TabModule:GetCurrentTabPos()
     local TabHolderPos = TabModule.Window.TabHolder.AbsolutePosition.Y
-    local Tab = TabModule.Tabs[TabModule.SelectedTab]
-    local TabPos = Tab.Frame.AbsolutePosition.Y
-    local TabHeight = Tab.Frame.AbsoluteSize.Y
-    local SelectorHeight = TabModule.SelectorHeight or 4 
-    return (TabPos - TabHolderPos) + (TabHeight / 2) - (SelectorHeight / 2)
+    local TabPos = TabModule.Tabs[TabModule.SelectedTab].Frame.AbsolutePosition.Y
+    return TabPos - TabHolderPos
 end
 
 function TabModule:New(Title, Icon, Parent)
@@ -1543,7 +1540,6 @@ function TabModule:SelectTab(Tab)
     local sel = TabModule.Tabs[Tab]
     sel.Selected = true
     Window.TabDisplay.Text = sel.Name
-    Window.SelectorPosMotor:setGoal(Spring(TabModule:GetCurrentTabPos(), { frequency = 6 }))
     task.spawn(function()
         Window.ContainerHolder.Parent = Window.ContainerAnim
         Window.ContainerPosMotor:setGoal(Spring(15, { frequency = 10 }))

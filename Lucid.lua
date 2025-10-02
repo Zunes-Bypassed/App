@@ -2387,14 +2387,21 @@ Components.Window = (function()
 		end)
 
 		function Window:Minimize()
-			Window.Minimized = not Window.Minimized
-			Window.Root.Visible = not Window.Minimized
-			if not MinimizeNotif then
-				MinimizeNotif = true
-				local Key = Library.MinimizeKeybind and Library.MinimizeKeybind.Value or Library.MinimizeKey.Name
-			end
-			pcall(SwapIco)
-		end
+            Window.Minimized = not Window.Minimized
+            Window.Root.Visible = not Window.Minimized
+            if Window.ToggleButton then
+                if Window.Minimized then
+                    Window.ToggleButton.Visible = true
+                else
+                    Window.ToggleButton.Visible = not Window.Maximized
+                end
+            end
+            if not MinimizeNotif then
+                MinimizeNotif = true
+                local Key = Library.MinimizeKeybind and Library.MinimizeKeybind.Value or Library.MinimizeKey.Name
+            end
+            pcall(SwapIco)
+        end
 
 		function Window:Destroy()
 			if Library.UseAcrylic then Window.AcrylicPaint.Model:Destroy() end

@@ -2453,21 +2453,17 @@ Components.Window = (function()
 		end)
 
 		local function UpdateElementVisibility(query)
-        	query = string.lower(query or "")
-        	for _, element in pairs(Window.ContainerCanvas:GetChildren()) do
-        		if element:IsA("TextButton") or element:IsA("Frame") then
-        			local name = string.lower(element.Name)
-        			local textLabel = element:FindFirstChildWhichIsA("TextLabel")
-        			if textLabel then
-        				name = name .. " " .. string.lower(textLabel.Text)
-        			end
-        			if string.find(name, query) then
-        				element.Visible = true
-        			else
-        				element.Visible = false
-        			end
-        		end
-        	end
+            query = string.lower(query or "")
+            for _, element in pairs(Window.Root:GetChildren()) do
+                if element:IsA("TextButton") or element:IsA("Frame") then
+                    local name = string.lower(element.Name)
+                    local textLabel = element:FindFirstChildWhichIsA("TextLabel")
+                    if textLabel then
+                        name = name .. " " .. string.lower(textLabel.Text)
+                    end
+                    element.Visible = string.find(name, query) and true or false
+                end
+            end
         end
         
         local SearchTextbox = Components.Textbox(Window.Root, true)

@@ -2514,8 +2514,8 @@ Components.Window = (function()
         	SearchTextbox.Frame.Size = UDim2.new(0, Window.ContainerCanvas.AbsoluteSize.X, 0, 35)
         end)
         
-        SearchBox:GetPropertyChangedSignal("Text"):Connect(function()
-            UpdateElementVisibility(SearchBox.Text)
+        Creator.AddSignal(SearchTextbox.Input:GetPropertyChangedSignal("Text"), function()
+        	UpdateElementVisibility(SearchTextbox.Input.Text)
         end)
         
         Creator.AddSignal(UserInputService.InputBegan, function(input, gameProcessed)

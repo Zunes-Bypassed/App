@@ -2460,7 +2460,18 @@ Components.Window = (function()
                     for _, child in ipairs(container:GetChildren()) do
                         if child:IsA("Frame") then
                             local name = string.lower(child.Name or "")
-                            child.Visible = (query == "" or string.find(name, query, 1, true)) and true or false
+                            local text = ""
+        
+                            local titleLabel = child:FindFirstChildWhichIsA("TextLabel", true)
+                            if titleLabel then
+                                text = string.lower(titleLabel.Text or "")
+                            end
+        
+                            child.Visible = (
+                                query == "" 
+                                or string.find(name, query, 1, true) 
+                                or string.find(text, query, 1, true)
+                            )
                         end
                     end
                 end

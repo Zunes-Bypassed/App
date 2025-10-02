@@ -2459,19 +2459,22 @@ Components.Window = (function()
                 if container and typeof(container) == "Instance" and container:IsA("ScrollingFrame") then
                     for _, child in ipairs(container:GetChildren()) do
                         if child:IsA("Frame") then
+                            local found = false
                             local name = string.lower(child.Name or "")
-                            local text = ""
-        
-                            local titleLabel = child:FindFirstChildWhichIsA("TextLabel", true)
-                            if titleLabel then
-                                text = string.lower(titleLabel.Text or "")
+                            if query == "" or string.find(name, query, 1, true) then
+                                found = true
+                            else
+                                for _, lbl in ipairs(child:GetDescendants()) do
+                                    if lbl:IsA("TextLabel") or lbl:IsA("TextButton") then
+                                        local text = string.lower(lbl.Text or "")
+                                        if string.find(text, query, 1, true) then
+                                            found = true
+                                            break
+                                        end
+                                    end
+                                end
                             end
-        
-                            child.Visible = (
-                                query == "" 
-                                or string.find(name, query, 1, true) 
-                                or string.find(text, query, 1, true)
-                            )
+                            child.Visible = found
                         end
                     end
                 end

@@ -2720,7 +2720,8 @@ function Element:New(Idx, Config)
         Buttons = {},  
         Opened = false,  
         Type = "Dropdown",  
-        Callback = Config.Callback or function() end,  
+        Callback = Config.Callback or function() end, 
+        Searchable = Config.Searchable or false
     }  
 
     if Dropdown.Multi and Config.AllowNull then  
@@ -2888,17 +2889,23 @@ function Element:New(Idx, Config)
 
     local ScrollFrame = self.ScrollFrame  
 
-    function Dropdown:Open()  
-        if Library.CurrentOpenDropdown and Library.CurrentOpenDropdown ~= Dropdown then
-            Library.CurrentOpenDropdown:Close()
-        end
-
-        Library.CurrentOpenDropdown = Dropdown
-        Dropdown.Opened = true  
-        ScrollFrame.ScrollingEnabled = false  
-        DropdownHolderCanvas.Visible = true  
-        task.defer(RecalculateListPositionAndSize)  
-    end  
+    function Dropdown:Open()
+    	if Library.CurrentOpenDropdown and Library.CurrentOpenDropdown ~= Dropdown then
+    		Library.CurrentOpenDropdown:Close()
+    	end
+    
+    	Library.CurrentOpenDropdown = Dropdown
+    	Dropdown.Opened = true
+    	ScrollFrame.ScrollingEnabled = false
+    	DropdownDisplay.Interactable = Dropdown.Searchable and true or false
+    	DropdownHolderCanvas.Visible = true
+    
+    	if Dropdown.Searchable then
+    		DropdownDisplay:CaptureFocus()
+    	end
+    
+    	task.defer(RecalculateListPositionAndSize)
+    end
 
     function Dropdown:Close()  
         if Library.CurrentOpenDropdown == Dropdown then

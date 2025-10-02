@@ -2213,27 +2213,6 @@ Components.Window = (function()
 			ClipsDescendants = true,
 		}, { Window.TabHolder, Selector })
 
-		Window.Root = New("Frame", {
-			Size = Window.Size,
-			Position = Window.Position,
-			BackgroundTransparency = 1,
-			Parent = Config.Parent,
-		})
-
-		Window.TabDisplay = New("TextLabel", {
-			Text = "Tab",
-			RichText = true,
-			FontFace = Font.new("rbxassetid://12187365364", Enum.FontWeight.SemiBold, Enum.FontStyle.Normal),
-			TextSize = 26,
-			TextXAlignment = "Left",
-			TextYAlignment = "Center",
-			Size = UDim2.new(1, -16, 0, 26),
-			Position = UDim2.fromOffset(Window.TabWidth + 28, 16),
-			BackgroundTransparency = 1,
-			ThemeTag = { TextColor3 = "Text" },
-			Parent = Window.Root
-		})
-
 		Window.ContainerHolder = New("Frame", {
 			Size = UDim2.fromScale(1, 1),
 			BackgroundTransparency = 1,
@@ -2250,7 +2229,17 @@ Components.Window = (function()
 			BackgroundTransparency = 1,
 		}, { Window.ContainerAnim, Window.ContainerHolder })
 
-		Window.AcrylicPaint:AddParent(Window.Root)
+		Window.Root = New("Frame", {
+			Size = Window.Size,
+			Position = Window.Position,
+			BackgroundTransparency = 1,
+			Parent = Config.Parent,
+		}, {
+			Window.AcrylicPaint.Frame,
+			Window.ContainerCanvas,
+			TabFrame,
+			ResizeStartFrame,
+		})
 
 		Window.TitleBar = Components.TitleBar({
 			Title = Config.Title,
@@ -2259,10 +2248,14 @@ Components.Window = (function()
 			Window = Window,
 		})
 
-		Window.AllElements = {}
+		local SearchElements = {}
+		local AllElements = {}
+		Window.SearchElements = SearchElements
+		Window.AllElements = AllElements
+
 		local function UpdateElementVisibility(searchTerm)
 			searchTerm = string.lower(searchTerm or "")
-			for element, data in pairs(Window.AllElements) do
+			for element, data in pairs(AllElements) do
 				if element and element.Parent then
 					local shouldShow = searchTerm == "" or
 						string.find(string.lower(data.title), searchTerm, 1, true) or
@@ -2270,22 +2263,24 @@ Components.Window = (function()
 					element.Visible = shouldShow
 				end
 			end
+
 			task.defer(function()
-				for _, child in pairs(Window.TabHolder:GetChildren()) do
-					if child:IsA("ScrollingFrame") then
-						local layout = child:FindFirstChild("UIListLayout")
-						if layout then
-							child.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 2)
+				if Window and Window.TabHolder then
+					for _, child in pairs(Window.TabHolder:GetChildren()) do
+						if child:IsA("ScrollingFrame") then
+							local layout = child:FindFirstChild("UIListLayout")
+							if layout then
+								child.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 2)
+							end
 						end
 					end
 				end
 			end)
 		end
-		Window.UpdateElementVisibility = UpdateElementVisibility
 
 		local function RegisterElement(elementFrame, title, elementType, description)
 			if elementFrame and title then
-				Window.AllElements[elementFrame] = {
+				AllElements[elementFrame] = {
 					title = title,
 					type = elementType or "Element",
 					description = description or ""
@@ -2293,6 +2288,7 @@ Components.Window = (function()
 			end
 		end
 		Window.RegisterElement = RegisterElement
+		Window.UpdateElementVisibility = UpdateElementVisibility
 
 		local SearchFrame = New("Frame", {
 			Size = UDim2.new(1, -Window.TabWidth - 32, 0, 35),
@@ -2303,7 +2299,12 @@ Components.Window = (function()
 			Parent = Window.Root
 		}, {
 			New("UICorner", { CornerRadius = UDim.new(0, 6) }),
-			New("UIStroke", { ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Transparency = 0.8, Thickness = 1, ThemeTag = { Color = "ElementBorder" } })
+			New("UIStroke", {
+				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+				Transparency = 0.8,
+				Thickness = 1,
+				ThemeTag = { Color = "ElementBorder" },
+			}),
 		})
 		Window.SearchFrame = SearchFrame
 
@@ -2315,7 +2316,7 @@ Components.Window = (function()
 		SearchTextbox.Frame.Parent = SearchFrame
 		Window.SearchTextbox = SearchTextbox
 
-		New("ImageLabel", {
+		local SearchIcon = New("ImageLabel", {
 			Size = UDim2.fromOffset(18, 18),
 			Position = UDim2.new(1, -25, 0.5, 0),
 			AnchorPoint = Vector2.new(0.5, 0.5),
@@ -2328,6 +2329,7 @@ Components.Window = (function()
 		Creator.AddSignal(SearchTextbox.Input:GetPropertyChangedSignal("Text"), function()
 			UpdateElementVisibility(SearchTextbox.Input.Text)
 		end)
+
 		Creator.AddSignal(UserInputService.InputBegan, function(input, gameProcessed)
 			if gameProcessed then return end
 			if input.KeyCode == Enum.KeyCode.Escape and SearchTextbox.Input:IsFocused() then
@@ -2338,45 +2340,21 @@ Components.Window = (function()
 
 		local TabModule = Components.Tab:Init(Window)
 		function Window:AddTab(TabConfig) return TabModule:New(TabConfig.Title, TabConfig.Icon, Window.TabHolder) end
-		function Window:SelectTab(Tab)
-			if not TabModule.Tabs[Tab] then return end
-			TabModule.SelectedTab = Tab
-			for _, TabObject in next, TabModule.Tabs do
-				TabObject.SetTransparency(1)
-				TabObject.Selected = false
-			end
-			TabModule.Tabs[Tab].SetTransparency(0.89)
-			TabModule.Tabs[Tab].Selected = true
+		function Window:SelectTab(Tab) TabModule:SelectTab(Tab) end
 
-			Window.TabDisplay.Text = TabModule.Tabs[Tab].Name
-			if Window.SelectorPosMotor then
-				Window.SelectorPosMotor:setGoal(Spring(TabModule:GetCurrentTabPos(), { frequency = 6 }))
-			end
-
-			task.spawn(function()
-				Window.ContainerHolder.Parent = Window.ContainerAnim
-				if Window.ContainerPosMotor and Window.ContainerBackMotor then
-					Window.ContainerPosMotor:setGoal(Spring(15, { frequency = 10 }))
-					Window.ContainerBackMotor:setGoal(Spring(1, { frequency = 10 }))
-				end
-				task.wait(0.12)
-				for _, Container in next, TabModule.Containers do
-					Container.Visible = false
-				end
-				TabModule.Containers[Tab].Visible = true
-				if Window.ContainerPosMotor and Window.ContainerBackMotor then
-					Window.ContainerPosMotor:setGoal(Spring(0, { frequency = 5 }))
-					Window.ContainerBackMotor:setGoal(Spring(0, { frequency = 8 }))
-				end
-				task.wait(0.12)
-				Window.ContainerHolder.Parent = Window.ContainerCanvas
-			end)
-		end
-
-		Window.SelectorPosMotor = Flipper.SingleMotor.new(17)
-		Window.SelectorSizeMotor = Flipper.SingleMotor.new(0)
-		Window.ContainerBackMotor = Flipper.SingleMotor.new(0)
-		Window.ContainerPosMotor = Flipper.SingleMotor.new(94)
+		Window.TabDisplay = New("TextLabel", {
+			Text = "Tab",
+			RichText = true,
+			FontFace = Font.new("rbxassetid://12187365364", Enum.FontWeight.SemiBold, Enum.FontStyle.Normal),
+			TextSize = 26,
+			TextXAlignment = "Left",
+			TextYAlignment = "Center",
+			Size = UDim2.new(1, -16, 0, 26),
+			Position = UDim2.fromOffset(Window.TabWidth + 28, 52 + 35 + 8),
+			BackgroundTransparency = 1,
+			ThemeTag = { TextColor3 = "Text" },
+			Parent = Window.Root,
+		})
 
 		return Window
 	end

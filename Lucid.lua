@@ -2213,29 +2213,100 @@ Components.Window = (function()
 			ClipsDescendants = true,
 		}, { Window.TabHolder, Selector })
 
+		local SearchFrame = New("Frame", {
+			Size = UDim2.new(1, -Window.TabWidth - 32, 0, 35),
+			Position = UDim2.fromOffset(Window.TabWidth + 28, 52),
+			BackgroundTransparency = 0.9,
+			ZIndex = 10,
+			ThemeTag = { BackgroundColor3 = "Element" },
+		}, {
+			New("UICorner", { CornerRadius = UDim.new(0, 6) }),
+			New("UIStroke", {
+				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+				Transparency = 0.8,
+				Thickness = 1,
+				ThemeTag = { Color = "ElementBorder" },
+			}),
+		})
+		Window.SearchFrame = SearchFrame
+
+		local SearchTextbox = Components.Textbox(SearchFrame, true)
+		SearchTextbox.Frame.Size = UDim2.new(1, -50, 1, -8)
+		SearchTextbox.Frame.Position = UDim2.new(0, 8, 0, 4)
+		SearchTextbox.Input.PlaceholderText = "Search..."
+		SearchTextbox.Input.Text = ""
+		SearchTextbox.Frame.Parent = SearchFrame
+		Window.SearchTextbox = SearchTextbox
+
+		New("ImageLabel", {
+			Size = UDim2.fromOffset(18, 18),
+			Position = UDim2.new(1, -25, 0.5, 0),
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			BackgroundTransparency = 1,
+			Image = "rbxassetid://10734943674",
+			Parent = SearchFrame,
+			ThemeTag = { ImageColor3 = "SubText" },
+		})
+
+		local AllElements = {}
+		Window.AllElements = AllElements
+		Window.RegisterElement = function(elementFrame, title, elementType, description)
+			if elementFrame and title then
+				AllElements[elementFrame] = { title = title, type = elementType or "Element", description = description or "" }
+			end
+		end
+
+		local function UpdateElementVisibility(searchTerm)
+			searchTerm = string.lower(searchTerm or "")
+			for element, data in pairs(AllElements) do
+				if element and element.Parent then
+					local shouldShow = searchTerm == "" or
+						string.find(string.lower(data.title), searchTerm, 1, true) or
+						(data.description and string.find(string.lower(data.description), searchTerm, 1, true))
+					element.Visible = shouldShow
+				end
+			end
+			task.defer(function()
+				if Window.TabHolder then
+					for _, child in pairs(Window.TabHolder:GetChildren()) do
+						if child:IsA("ScrollingFrame") then
+							local layout = child:FindFirstChild("UIListLayout")
+							if layout then
+								child.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 2)
+							end
+						end
+					end
+				end
+			end)
+		end
+		Window.UpdateElementVisibility = UpdateElementVisibility
+
+		Creator.AddSignal(SearchTextbox.Input:GetPropertyChangedSignal("Text"), function()
+			UpdateElementVisibility(SearchTextbox.Input.Text)
+		end)
+		Creator.AddSignal(UserInputService.InputBegan, function(input, gameProcessed)
+			if gameProcessed then return end
+			if input.KeyCode == Enum.KeyCode.Escape and SearchTextbox.Input:IsFocused() then
+				SearchTextbox.Input.Text = ""
+				SearchTextbox.Input:ReleaseFocus()
+			end
+		end)
+
 		Window.TabDisplay = New("TextLabel", {
-            Text = "Tab",
-            RichText = true,
-            FontFace = Font.new("rbxassetid://12187365364", Enum.FontWeight.SemiBold, Enum.FontStyle.Normal),
-            TextSize = 26,
-            TextXAlignment = "Left",
-            TextYAlignment = "Center",
-            Size = UDim2.new(1, -16, 0, 26),
-            Position = UDim2.fromOffset(Window.TabWidth + 28, 52),
-            BackgroundTransparency = 1,
-            ThemeTag = { TextColor3 = "Text" },
-        })
-
-		Window.ContainerHolder = New("Frame", {
-			Size = UDim2.fromScale(1, 1),
+			Text = "Tab",
+			RichText = true,
+			FontFace = Font.new("rbxassetid://12187365364", Enum.FontWeight.SemiBold, Enum.FontStyle.Normal),
+			TextSize = 26,
+			TextXAlignment = "Left",
+			TextYAlignment = "Center",
+			Size = UDim2.new(1, -16, 0, 26),
+			Position = UDim2.fromOffset(Window.TabWidth + 28, 52 + 35 + 5),
 			BackgroundTransparency = 1,
+			ThemeTag = { TextColor3 = "Text" },
 		})
 
-		Window.ContainerAnim = New("CanvasGroup", {
-			Size = UDim2.fromScale(1, 1),
-			BackgroundTransparency = 1,
-		})
-
+		Window.ContainerHolder = New("Frame", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1 })
+		Window.ContainerAnim = New("CanvasGroup", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1 })
 		Window.ContainerCanvas = New("Frame", {
 			Size = UDim2.new(1, -Window.TabWidth - 32, 1, -100),
 			Position = UDim2.fromOffset(Window.TabWidth + 28, 88),
@@ -2261,96 +2332,6 @@ Components.Window = (function()
 			Parent = Window.Root,
 			Window = Window,
 		})
-
-		local SearchElements = {}
-		local AllElements = {}
-		Window.SearchElements = SearchElements
-		Window.AllElements = AllElements
-
-		local function UpdateElementVisibility(searchTerm)
-			searchTerm = string.lower(searchTerm or "")
-			for element, data in pairs(AllElements) do
-				if element and element.Parent then
-					local shouldShow = searchTerm == "" or
-						string.find(string.lower(data.title), searchTerm, 1, true) or
-						(data.description and string.find(string.lower(data.description), searchTerm, 1, true))
-					element.Visible = shouldShow
-				end
-			end
-
-			task.defer(function()
-				if Window and Window.TabHolder then
-					for _, child in pairs(Window.TabHolder:GetChildren()) do
-						if child:IsA("ScrollingFrame") then
-							local layout = child:FindFirstChild("UIListLayout")
-							if layout then
-								child.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 2)
-							end
-						end
-					end
-				end
-			end)
-		end
-
-		local function RegisterElement(elementFrame, title, elementType, description)
-			if elementFrame and title then
-				AllElements[elementFrame] = {
-					title = title,
-					type = elementType or "Element",
-					description = description or ""
-				}
-			end
-		end
-		Window.RegisterElement = RegisterElement
-		Window.UpdateElementVisibility = UpdateElementVisibility
-
-		local SearchFrame = New("Frame", {
-			Size = UDim2.new(1, -Window.TabWidth - 32, 0, 35),
-			Position = UDim2.fromOffset(Window.TabWidth + 28, 52),
-			BackgroundTransparency = 0.9,
-			ZIndex = 10,
-			ThemeTag = { BackgroundColor3 = "Element" },
-			Parent = Window.Root
-		}, {
-			New("UICorner", { CornerRadius = UDim.new(0, 6) }),
-			New("UIStroke", {
-				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-				Transparency = 0.8,
-				Thickness = 1,
-				ThemeTag = { Color = "ElementBorder" },
-			}),
-		})
-		Window.SearchFrame = SearchFrame
-
-		local SearchTextbox = Components.Textbox(SearchFrame, true)
-		SearchTextbox.Frame.Size = UDim2.new(1, -50, 1, -8)
-		SearchTextbox.Frame.Position = UDim2.new(0, 8, 0, 4)
-		SearchTextbox.Input.PlaceholderText = "Search..."
-		SearchTextbox.Input.Text = ""
-		SearchTextbox.Frame.Parent = SearchFrame
-		Window.SearchTextbox = SearchTextbox
-
-		local SearchIcon = New("ImageLabel", {
-			Size = UDim2.fromOffset(18, 18),
-			Position = UDim2.new(1, -25, 0.5, 0),
-			AnchorPoint = Vector2.new(0.5, 0.5),
-			BackgroundTransparency = 1,
-			Image = "rbxassetid://10734943674",
-			Parent = SearchFrame,
-			ThemeTag = { ImageColor3 = "SubText" },
-		})
-
-		Creator.AddSignal(SearchTextbox.Input:GetPropertyChangedSignal("Text"), function()
-			UpdateElementVisibility(SearchTextbox.Input.Text)
-		end)
-
-		Creator.AddSignal(UserInputService.InputBegan, function(input, gameProcessed)
-			if gameProcessed then return end
-			if input.KeyCode == Enum.KeyCode.Escape and SearchTextbox.Input:IsFocused() then
-				SearchTextbox.Input.Text = ""
-				SearchTextbox.Input:ReleaseFocus()
-			end
-		end)
 
 		local TabModule = Components.Tab:Init(Window)
 		function Window:AddTab(TabConfig) return TabModule:New(TabConfig.Title, TabConfig.Icon, Window.TabHolder) end

@@ -2452,79 +2452,85 @@ Components.Window = (function()
 			Window.SelectorPosMotor:setGoal(Instant(TabModule:GetCurrentTabPos()))
 		end)
 
-		local SearchTextbox = Components.Textbox(Window.Root, true)
+		local Elements = {}
+        
+        local OldButton = Components.Button
+        Components.Button = function(...)
+            local btn = OldButton(...)
+            local title = btn.Title or btn.Name or "button"
+            table.insert(Elements, {Object = btn, Keyword = string.lower(title)})
+            return btn
+        end
+        
+        local OldParagraph = Components.Paragraph
+        Components.Paragraph = function(...)
+            local p = OldParagraph(...)
+            local text = p.Text or p.Name or "paragraph"
+            table.insert(Elements, {Object = p, Keyword = string.lower(text)})
+            return p
+        end
+        
+        local OldToggle = Components.Toggle
+        Components.Toggle = function(...)
+            local t = OldToggle(...)
+            local title = t.Title or t.Name or "toggle"
+            table.insert(Elements, {Object = t, Keyword = string.lower(title)})
+            return t
+        end
+        
+        function UpdateElementVisibility(keyword)
+            keyword = string.lower(keyword or "")
+            for _, v in ipairs(Elements) do
+                if keyword == "" or string.find(v.Keyword, keyword, 1, true) then
+                    v.Object.Frame.Visible = true
+                else
+                    v.Object.Frame.Visible = false
+                end
+            end
+        end
+        
+        local SearchTextbox = Components.Textbox(Window.Root, true)
         SearchTextbox.Frame.Size = UDim2.new(0, Window.ContainerCanvas.AbsoluteSize.X, 0, 35)
         SearchTextbox.Frame.Position = UDim2.fromOffset(Window.TabWidth + 28, 88)
-		SearchTextbox.Input.PlaceholderText = "Search..."
-		SearchTextbox.Input.Text = ""
-
-		local UICorner = New("UICorner", { CornerRadius = UDim.new(0, 6) })
-		UICorner.Parent = SearchTextbox.Frame
-		local UIStroke = New("UIStroke", {
-			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-			Transparency = 0.8,
-			Thickness = 1,
-			ThemeTag = { Color = "ElementBorder" },
-		})
-		UIStroke.Parent = SearchTextbox.Frame
-
-		local SearchIcon = New("ImageLabel", {
-			Size = UDim2.fromOffset(18, 18),
-			Position = UDim2.new(1, -25, 0.5, 0),
-			AnchorPoint = Vector2.new(0.5, 0.5),
-			BackgroundTransparency = 1,
-			Image = "rbxassetid://10734943674",
-			Parent = SearchTextbox.Frame,
-			ThemeTag = { ImageColor3 = "SubText" },
-		})
-
-		Window.SearchTextbox = SearchTextbox
-		Window.ContainerCanvas:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+        SearchTextbox.Input.PlaceholderText = "Search..."
+        SearchTextbox.Input.Text = ""
+        
+        local UICorner = New("UICorner", { CornerRadius = UDim.new(0, 6) })
+        UICorner.Parent = SearchTextbox.Frame
+        local UIStroke = New("UIStroke", {
+            ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+            Transparency = 0.8,
+            Thickness = 1,
+            ThemeTag = { Color = "ElementBorder" },
+        })
+        UIStroke.Parent = SearchTextbox.Frame
+        
+        local SearchIcon = New("ImageLabel", {
+            Size = UDim2.fromOffset(18, 18),
+            Position = UDim2.new(1, -25, 0.5, 0),
+            AnchorPoint = Vector2.new(0.5, 0.5),
+            BackgroundTransparency = 1,
+            Image = "rbxassetid://10734943674",
+            Parent = SearchTextbox.Frame,
+            ThemeTag = { ImageColor3 = "SubText" },
+        })
+        
+        Window.SearchTextbox = SearchTextbox
+        Window.ContainerCanvas:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
             SearchTextbox.Frame.Size = UDim2.new(0, Window.ContainerCanvas.AbsoluteSize.X, 0, 35)
         end)
-
-		function UpdateElementVisibility(searchTerm)
-        	searchTerm = string.lower(searchTerm or "")
-        	for element, data in pairs(Window.AllElements or {}) do
-        		if element and element.Parent then
-        			local title = string.lower(data.title or "")
-        			local desc = string.lower(data.description or "")
-        			local etype = string.lower(data.Type or data.__type or "")
         
-        			local shouldShow = searchTerm == ""
-        				or string.find(title, searchTerm, 1, true)
-        				or string.find(desc, searchTerm, 1, true)
-        				or string.find(etype, searchTerm, 1, true)
+        Creator.AddSignal(SearchTextbox.Input:GetPropertyChangedSignal("Text"), function()
+            UpdateElementVisibility(SearchTextbox.Input.Text)
+        end)
         
-        			element.Visible = shouldShow
-        		end
-        	end
-        
-        	task.defer(function()
-        		if Window and Window.TabHolder then
-        			for _, child in pairs(Window.TabHolder:GetChildren()) do
-        				if child:IsA("ScrollingFrame") then
-        					local layout = child:FindFirstChild("UIListLayout")
-        					if layout then
-        						child.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 2)
-        					end
-        				end
-        			end
-        		end
-        	end)
-        end
-
-		Creator.AddSignal(SearchTextbox.Input:GetPropertyChangedSignal("Text"), function()
-			UpdateElementVisibility(SearchTextbox.Input.Text)
-		end)
-
-		Creator.AddSignal(UserInputService.InputBegan, function(input, gameProcessed)
-			if gameProcessed then return end
-			if input.KeyCode == Enum.KeyCode.Escape and SearchTextbox.Input:IsFocused() then
-				SearchTextbox.Input.Text = ""
-				SearchTextbox.Input:ReleaseFocus()
-			end
-		end)
+        Creator.AddSignal(UserInputService.InputBegan, function(input, gameProcessed)
+            if gameProcessed then return end
+            if input.KeyCode == Enum.KeyCode.Escape and SearchTextbox.Input:IsFocused() then
+                SearchTextbox.Input.Text = ""
+                SearchTextbox.Input:ReleaseFocus()
+            end
+        end)
 
 		return Window
 	end

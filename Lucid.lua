@@ -2202,7 +2202,9 @@ Components.Window = (function()
 			BorderSizePixel = 0,
 			CanvasSize = UDim2.fromScale(0, 0),
 			ScrollingDirection = Enum.ScrollingDirection.Y,
-		}, { New("UIListLayout", { Padding = UDim.new(0, 6) }) })
+		}, {
+			New("UIListLayout", { Padding = UDim.new(0, 6) }),
+		})
 
 		local TabFrame = New("Frame", {
 			Size = UDim2.new(0, Window.TabWidth, 1, -64),
@@ -2245,7 +2247,13 @@ Components.Window = (function()
 			Position = Window.Position,
 			BackgroundTransparency = 1,
 			Parent = Config.Parent,
-		}, { Window.AcrylicPaint.Frame, Window.TabDisplay, Window.ContainerCanvas, TabFrame, ResizeStartFrame })
+		}, {
+			Window.AcrylicPaint.Frame,
+			Window.TabDisplay,
+			Window.ContainerCanvas,
+			TabFrame,
+			ResizeStartFrame,
+		})
 
 		Window.TitleBar = Components.TitleBar({
 			Title = Config.Title,
@@ -2340,14 +2348,22 @@ Components.Window = (function()
 				NewX = math.clamp(NewX, 0, Viewport.X - WindowSize.X.Offset)
 				NewY = math.clamp(NewY, 0, Viewport.Y - WindowSize.Y.Offset)
 				Window.Position = UDim2.fromOffset(NewX, NewY)
-				PosMotor:setGoal({ X = Instant(NewX), Y = Instant(NewY) })
-				if Window.Maximized then Window.Maximize(false, true, true) end
+				PosMotor:setGoal({
+					X = Instant(NewX),
+					Y = Instant(NewY),
+				})
+				if Window.Maximized then
+					Window.Maximize(false, true, true)
+				end
 			end
 			if (Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch) and Resizing then
 				local Delta = Input.Position - ResizePos
 				local StartSize = Window.Size
 				local TargetSize = Vector3.new(StartSize.X.Offset, StartSize.Y.Offset, 0) + Vector3.new(1, 1, 0) * Delta
-				SizeMotor:setGoal({ X = Flipper.Instant.new(TargetSize.X), Y = Flipper.Instant.new(TargetSize.Y) })
+				SizeMotor:setGoal({
+					X = Flipper.Instant.new(TargetSize.X),
+					Y = Flipper.Instant.new(TargetSize.Y)
+				})
 			end
 		end)
 
@@ -2373,7 +2389,11 @@ Components.Window = (function()
 		function Window:Minimize()
 			Window.Minimized = not Window.Minimized
 			Window.Root.Visible = not Window.Minimized
-			if not MinimizeNotif then MinimizeNotif = true end
+			if not MinimizeNotif then
+				MinimizeNotif = true
+				local Key = Library.MinimizeKeybind and Library.MinimizeKeybind.Value or Library.MinimizeKey.Name
+			end
+			pcall(SwapIco)
 		end
 
 		function Window:Destroy()
@@ -2399,14 +2419,20 @@ Components.Window = (function()
 				ClipsDescendants = false,
 				ThemeTag = { TextColor3 = "Text" },
 			})
-			New("UISizeConstraint", { MinSize = Vector2.new(300, 165), MaxSize = Vector2.new(620, math.huge), Parent = Dialog.Root })
+			New("UISizeConstraint", {
+				MinSize = Vector2.new(300, 165),
+				MaxSize = Vector2.new(620, math.huge),
+				Parent = Dialog.Root,
+			})
 			Dialog.Root.Size = UDim2.fromOffset(Content.TextBounds.X + 40, 165)
 			if Content.TextBounds.X + 40 > Window.Size.X.Offset - 120 then
 				Dialog.Root.Size = UDim2.fromOffset(Window.Size.X.Offset - 120, 165)
 				Content.TextWrapped = true
 				Dialog.Root.Size = UDim2.fromOffset(Window.Size.X.Offset - 120, Content.TextBounds.Y + 150)
 			end
-			for _, Button in next, Config.Buttons do Dialog:Button(Button.Title, Button.Callback) end
+			for _, Button in next, Config.Buttons do
+				Dialog:Button(Button.Title, Button.Callback)
+			end
 			Dialog:Open()
 		end
 
@@ -2420,6 +2446,21 @@ Components.Window = (function()
 		end)
 
 		local SearchTextbox = Components.Textbox(Window.Root, true)
+		SearchTextbox.Frame.Size = UDim2.new(0.95, -Window.TabWidth - 32, 0, 35)
+		SearchTextbox.Frame.Position = UDim2.fromOffset(Window.TabWidth + 28, 88)
+		SearchTextbox.Input.PlaceholderText = "Search..."
+		SearchTextbox.Input.Text = ""
+
+		local UICorner = New("UICorner", { CornerRadius = UDim.new(0, 6) })
+		UICorner.Parent = SearchTextbox.Frame
+		local UIStroke = New("UIStroke", {
+			ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+			Transparency = 0.8,
+			Thickness = 1,
+			ThemeTag = { Color = "ElementBorder" },
+		})
+		UIStroke.Parent = SearchTextbox.Frame
+
 		local SearchIcon = New("ImageLabel", {
 			Size = UDim2.fromOffset(18, 18),
 			Position = UDim2.new(1, -25, 0.5, 0),
@@ -2430,13 +2471,43 @@ Components.Window = (function()
 			ThemeTag = { ImageColor3 = "SubText" },
 		})
 
-		local function UpdateSearchSize()
-			local Width = Window.ContainerCanvas.AbsoluteSize.X
-			SearchTextbox.Frame.Size = UDim2.fromOffset(Width, 35)
-			SearchTextbox.Frame.Position = UDim2.fromOffset(Window.TabWidth + 28, 88)
+		Window.SearchTextbox = SearchTextbox
+
+		local function UpdateElementVisibility(searchTerm)
+			searchTerm = string.lower(searchTerm or "")
+			for element, data in pairs(Window.AllElements or {}) do
+				if element and element.Parent then
+					local shouldShow = searchTerm == "" or
+						string.find(string.lower(data.title), searchTerm, 1, true) or
+						(data.description and string.find(string.lower(data.description), searchTerm, 1, true))
+					element.Visible = shouldShow
+				end
+			end
+			task.defer(function()
+				if Window and Window.TabHolder then
+					for _, child in pairs(Window.TabHolder:GetChildren()) do
+						if child:IsA("ScrollingFrame") then
+							local layout = child:FindFirstChild("UIListLayout")
+							if layout then
+								child.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 2)
+							end
+						end
+					end
+				end
+			end)
 		end
-		UpdateSearchSize()
-		Window.Root:GetPropertyChangedSignal("AbsoluteSize"):Connect(UpdateSearchSize)
+
+		Creator.AddSignal(SearchTextbox.Input:GetPropertyChangedSignal("Text"), function()
+			UpdateElementVisibility(SearchTextbox.Input.Text)
+		end)
+
+		Creator.AddSignal(UserInputService.InputBegan, function(input, gameProcessed)
+			if gameProcessed then return end
+			if input.KeyCode == Enum.KeyCode.Escape and SearchTextbox.Input:IsFocused() then
+				SearchTextbox.Input.Text = ""
+				SearchTextbox.Input:ReleaseFocus()
+			end
+		end)
 
 		return Window
 	end

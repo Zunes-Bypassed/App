@@ -2173,6 +2173,7 @@ Components.Window = (function()
 				Camera.ViewportSize.X / 2 - Config.Size.X.Offset / 2,
 				Camera.ViewportSize.Y / 2 - Config.Size.Y.Offset / 2
 			),
+			AllElements = {},
 		}
 
 		local Dragging, DragInput, MousePos, StartPos = false
@@ -2202,9 +2203,7 @@ Components.Window = (function()
 			BorderSizePixel = 0,
 			CanvasSize = UDim2.fromScale(0, 0),
 			ScrollingDirection = Enum.ScrollingDirection.Y,
-		}, {
-			New("UIListLayout", { Padding = UDim.new(0, 6) }),
-		})
+		}, { New("UIListLayout", { Padding = UDim.new(0, 6) }) })
 
 		local TabFrame = New("Frame", {
 			Size = UDim2.new(0, Window.TabWidth, 1, -64),
@@ -2226,16 +2225,8 @@ Components.Window = (function()
 			ThemeTag = { TextColor3 = "Text" },
 		})
 
-		Window.ContainerHolder = New("Frame", {
-			Size = UDim2.fromScale(1, 1),
-			BackgroundTransparency = 1,
-		})
-
-		Window.ContainerAnim = New("CanvasGroup", {
-			Size = UDim2.fromScale(1, 1),
-			BackgroundTransparency = 1,
-		})
-
+		Window.ContainerHolder = New("Frame", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1 })
+		Window.ContainerAnim = New("CanvasGroup", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1 })
 		Window.ContainerCanvas = New("Frame", {
 			Size = UDim2.new(1, -Window.TabWidth - 32, 1, -143),
 			Position = UDim2.fromOffset(Window.TabWidth + 28, 123),
@@ -2437,54 +2428,44 @@ Components.Window = (function()
 		end
 
 		local TabModule = Components.Tab:Init(Window)
-		function Window:AddTab(TabConfig) return TabModule:New(TabConfig.Title, TabConfig.Icon, Window.TabHolder) end
-		function Window:SelectTab(Tab) TabModule:SelectTab(Tab) end
+		function Window:AddTab(TabConfig)
+			local NewTab = TabModule:New(TabConfig.Title, TabConfig.Icon, Window.TabHolder)
+			if not Window.AllElements[NewTab] then
+				Window.AllElements[NewTab] = { title = TabConfig.Title, description = TabConfig.Description or "" }
+			end
+			return NewTab
+		end
+
+		function Window:SelectTab(Tab)
+			TabModule:SelectTab(Tab)
+		end
 
 		Creator.AddSignal(Window.TabHolder:GetPropertyChangedSignal("CanvasPosition"), function()
 			LastValue, LastTime = TabModule:GetCurrentTabPos() + 16, 0
 			Window.SelectorPosMotor:setGoal(Instant(TabModule:GetCurrentTabPos()))
 		end)
 
-		local SearchFrame = New("Frame", {
-			Size = UDim2.new(1, -Window.TabWidth - 32, 0, 35),
-			Position = UDim2.fromOffset(Window.TabWidth + 28, 88),
-			BackgroundTransparency = 0.9,
-			ZIndex = 10,
-			ThemeTag = { BackgroundColor3 = "Element" },
-			Parent = Window.Root
-		}, {
-			New("UICorner", { CornerRadius = UDim.new(0, 6) }),
-			New("UIStroke", {
-				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-				Transparency = 0.8,
-				Thickness = 1,
-				ThemeTag = { Color = "ElementBorder" },
-			}),
-		})
-
-		local SearchTextbox = Components.Textbox(SearchFrame, true)
-		SearchTextbox.Frame.Size = UDim2.new(1, -50, 1, -8)
-		SearchTextbox.Frame.Position = UDim2.new(0, 8, 0, 4)
+		local SearchTextbox = Components.Textbox(Window.ContainerCanvas, true)
+		SearchTextbox.Frame.Size = UDim2.new(1, -32, 0, 28)
+		SearchTextbox.Frame.Position = UDim2.fromOffset(Window.TabWidth + 28, 88)
 		SearchTextbox.Input.PlaceholderText = "Search..."
 		SearchTextbox.Input.Text = ""
-		SearchTextbox.Frame.Parent = SearchFrame
 
 		local SearchIcon = New("ImageLabel", {
 			Size = UDim2.fromOffset(18, 18),
-			Position = UDim2.new(1, -25, 0.5, 0),
+			Position = UDim2.new(1, -10, 0.5, 0),
 			AnchorPoint = Vector2.new(0.5, 0.5),
 			BackgroundTransparency = 1,
 			Image = "rbxassetid://10734943674",
-			Parent = SearchFrame,
+			Parent = SearchTextbox.Frame,
 			ThemeTag = { ImageColor3 = "SubText" },
 		})
 
-		Window.SearchFrame = SearchFrame
 		Window.SearchTextbox = SearchTextbox
 
 		local function UpdateElementVisibility(searchTerm)
 			searchTerm = string.lower(searchTerm or "")
-			for element, data in pairs(Window.AllElements or {}) do
+			for element, data in pairs(Window.AllElements) do
 				if element and element.Parent then
 					local shouldShow = searchTerm == "" or
 						string.find(string.lower(data.title), searchTerm, 1, true) or

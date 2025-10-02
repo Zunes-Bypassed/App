@@ -2158,291 +2158,279 @@ Components.TitleBar = (function()
     end
 end)()
 Components.Window = (function()
-local Spring = Flipper.Spring.new
-local Instant = Flipper.Instant.new
-local New = Creator.New
+    local Spring = Flipper.Spring.new
+    local Instant = Flipper.Instant.new
+    local New = Creator.New
 
-return function(Config)
-local Window = {
-Minimized = false,
-Maximized = false,
-Size = Config.Size,
-CurrentPos = 0,
-TabWidth = Config.TabWidth or 220,
-Position = UDim2.fromOffset(
-Camera.ViewportSize.X / 2 - Config.Size.X.Offset / 2,
-Camera.ViewportSize.Y / 2 - Config.Size.Y.Offset / 2
-),
-}
+    return function(Config)
+        local Window = {
+            Minimized = false,
+            Maximized = false,
+            Size = Config.Size,
+            CurrentPos = 0,
+            TabWidth = Config.TabWidth or 220,
+            Position = UDim2.fromOffset(
+                Camera.ViewportSize.X / 2 - Config.Size.X.Offset / 2,
+                Camera.ViewportSize.Y / 2 - Config.Size.Y.Offset / 2
+            ),
+        }
 
-local Dragging, DragInput, MousePos, StartPos = false
-local Resizing, ResizePos = false
-local MinimizeNotif = false
+        local Dragging, DragInput, MousePos, StartPos = false
+        local Resizing, ResizePos = false
+        local MinimizeNotif = false
 
-Window.AcrylicPaint = Acrylic.AcrylicPaint()
+        Window.AcrylicPaint = Acrylic.AcrylicPaint()
 
-local Selector = New("Frame", {
-Size = UDim2.fromOffset(4, 0),
-BackgroundColor3 = Color3.fromRGB(76, 194, 255),
-Position = UDim2.fromOffset(0, 17),
-AnchorPoint = Vector2.new(0, 0.5),
-ThemeTag = { BackgroundColor3 = "Accent" },
-}, { New("UICorner", { CornerRadius = UDim.new(0, 3) }) })
+        local Selector = New("Frame", {
+            Size = UDim2.fromOffset(4, 0),
+            BackgroundColor3 = Color3.fromRGB(76, 194, 255),
+            Position = UDim2.fromOffset(0, 17),
+            AnchorPoint = Vector2.new(0, 0.5),
+            ThemeTag = { BackgroundColor3 = "Accent" },
+        }, { New("UICorner", { CornerRadius = UDim.new(0, 3) }) })
 
-local ResizeStartFrame = New("Frame", {
-Size = UDim2.fromOffset(18, 18),
-BackgroundTransparency = 1,
-Position = UDim2.new(1, -18, 1, -18),
-})
+        local ResizeStartFrame = New("Frame", {
+            Size = UDim2.fromOffset(18, 18),
+            BackgroundTransparency = 1,
+            Position = UDim2.new(1, -18, 1, -18),
+        })
 
-Window.TabHolder = New("ScrollingFrame", {
-Size = UDim2.fromScale(1, 1),
-BackgroundTransparency = 1,
-ScrollBarThickness = 0,
-BorderSizePixel = 0,
-CanvasSize = UDim2.fromScale(0, 0),
-ScrollingDirection = Enum.ScrollingDirection.Y,
-}, {
-New("UIListLayout", { Padding = UDim.new(0, 6) }),
-})
+        Window.TabHolder = New("ScrollingFrame", {
+            Size = UDim2.fromScale(1, 1),
+            BackgroundTransparency = 1,
+            ScrollBarThickness = 0,
+            BorderSizePixel = 0,
+            CanvasSize = UDim2.fromScale(0, 0),
+            ScrollingDirection = Enum.ScrollingDirection.Y,
+        }, {
+            New("UIListLayout", { Padding = UDim.new(0, 6) }),
+        })
 
-local TabFrame = New("Frame", {
-Size = UDim2.new(0, Window.TabWidth, 1, -64),
-Position = UDim2.new(0, 12, 0, 52),
-BackgroundTransparency = 1,
-ClipsDescendants = true,
-}, { Window.TabHolder, Selector })
+        local TabFrame = New("Frame", {
+            Size = UDim2.new(0, Window.TabWidth, 1, -64),
+            Position = UDim2.new(0, 12, 0, 52),
+            BackgroundTransparency = 1,
+            ClipsDescendants = true,
+        }, { Window.TabHolder, Selector })
 
-Window.TabDisplay = New("TextLabel", {
-Text = "Tab",
-RichText = true,
-FontFace = Font.new("rbxassetid://12187365364", Enum.FontWeight.SemiBold, Enum.FontStyle.Normal),
-TextSize = 26,
-TextXAlignment = "Left",
-TextYAlignment = "Center",
-Size = UDim2.new(1, -16, 0, 26),
-Position = UDim2.fromOffset(Window.TabWidth + 28, 56),
-BackgroundTransparency = 1,
-ThemeTag = { TextColor3 = "Text" },
-})
+        Window.TabDisplay = New("TextLabel", {
+            Text = "Tab",
+            RichText = true,
+            FontFace = Font.new("rbxassetid://12187365364", Enum.FontWeight.SemiBold, Enum.FontStyle.Normal),
+            TextSize = 26,
+            TextXAlignment = "Left",
+            TextYAlignment = "Center",
+            Size = UDim2.new(1, -16, 0, 26),
+            Position = UDim2.fromOffset(Window.TabWidth + 28, 56),
+            BackgroundTransparency = 1,
+            ThemeTag = { TextColor3 = "Text" },
+        })
 
-local SearchTextbox = Components.Textbox(Window.Root, true)
-SearchTextbox.Frame.Size = UDim2.new(1, -50, 0, 28)
-SearchTextbox.Frame.Position = UDim2.fromOffset(Window.TabWidth + 28, 88)
-SearchTextbox.Input.PlaceholderText = "Search..."
-SearchTextbox.Input.Text = ""
-local SearchIcon = New("ImageLabel", {
-Size = UDim2.fromOffset(18, 18),
-Position = UDim2.new(1, -10, 0.5, 0),
-AnchorPoint = Vector2.new(0.5, 0.5),
-BackgroundTransparency = 1,
-Image = "rbxassetid://10734943674",
-Parent = SearchTextbox.Frame,
-ThemeTag = { ImageColor3 = "SubText" },
-})
-Window.SearchTextbox = SearchTextbox
+        local SearchTextbox = Components.Textbox(Window.Root, true)
+        SearchTextbox.Frame.Size = UDim2.new(1, -50, 0, 28)
+        SearchTextbox.Frame.Position = UDim2.fromOffset(Window.TabWidth + 28, 88)
+        SearchTextbox.Input.PlaceholderText = "Search..."
+        SearchTextbox.Input.Text = ""
+        local SearchIcon = New("ImageLabel", {
+            Size = UDim2.fromOffset(18, 18),
+            Position = UDim2.new(1, -10, 0.5, 0),
+            AnchorPoint = Vector2.new(0.5, 0.5),
+            BackgroundTransparency = 1,
+            Image = "rbxassetid://10734943674",
+            Parent = SearchTextbox.Frame,
+            ThemeTag = { ImageColor3 = "SubText" },
+        })
+        Window.SearchTextbox = SearchTextbox
 
-Window.ContainerHolder = New("Frame", {
-Size = UDim2.fromScale(1, 1),
-BackgroundTransparency = 1,
-})
+        Window.ContainerHolder = New("Frame", {
+            Size = UDim2.fromScale(1, 1),
+            BackgroundTransparency = 1,
+        })
 
-Window.ContainerAnim = New("CanvasGroup", {
-Size = UDim2.fromScale(1, 1),
-BackgroundTransparency = 1,
-})
+        Window.ContainerAnim = New("CanvasGroup", {
+            Size = UDim2.fromScale(1, 1),
+            BackgroundTransparency = 1,
+        })
 
-Window.ContainerCanvas = New("Frame", {
-Size = UDim2.new(1, -Window.TabWidth - 32, 1, -131),
-Position = UDim2.fromOffset(Window.TabWidth + 28, 123),
-BackgroundTransparency = 1,
-}, { Window.ContainerAnim, Window.ContainerHolder })
+        Window.ContainerCanvas = New("Frame", {
+            Size = UDim2.new(1, -Window.TabWidth - 32, 1, -131),
+            Position = UDim2.fromOffset(Window.TabWidth + 28, 123),
+            BackgroundTransparency = 1,
+        }, { Window.ContainerAnim, Window.ContainerHolder })
 
-Window.Root = New("Frame", {
-Size = Window.Size,
-Position = Window.Position,
-BackgroundTransparency = 1,
-Parent = Config.Parent,
-}, {
-Window.AcrylicPaint.Frame,
-Window.TabDisplay,
-Window.ContainerCanvas,
-TabFrame,
-ResizeStartFrame,
-})
+        Window.Root = New("Frame", {
+            Size = Window.Size,
+            Position = Window.Position,
+            BackgroundTransparency = 1,
+            Parent = Config.Parent,
+        }, {
+            Window.AcrylicPaint.Frame,
+            Window.TabDisplay,
+            Window.ContainerCanvas,
+            TabFrame,
+            ResizeStartFrame,
+        })
 
-Window.TitleBar = Components.TitleBar({
-Title = Config.Title,
-SubTitle = Config.SubTitle,
-Parent = Window.Root,
-Window = Window,
-})
+        Window.TitleBar = Components.TitleBar({
+            Title = Config.Title,
+            SubTitle = Config.SubTitle,
+            Parent = Window.Root,
+            Window = Window,
+        })
 
-if Library.UseAcrylic then
-Window.AcrylicPaint.AddParent(Window.Root)
-end
+        if Library.UseAcrylic then
+            Window.AcrylicPaint.AddParent(Window.Root)
+        end
 
-local SizeMotor = Flipper.GroupMotor.new({ X = Window.Size.X.Offset, Y = Window.Size.Y.Offset })
-local PosMotor = Flipper.GroupMotor.new({ X = Window.Position.X.Offset, Y = Window.Position.Y.Offset })
+        local SizeMotor = Flipper.GroupMotor.new({ X = Window.Size.X.Offset, Y = Window.Size.Y.Offset })
+        local PosMotor = Flipper.GroupMotor.new({ X = Window.Position.X.Offset, Y = Window.Position.Y.Offset })
 
-Window.SelectorPosMotor = Flipper.SingleMotor.new(17)
-Window.SelectorSizeMotor = Flipper.SingleMotor.new(0)
-Window.ContainerBackMotor = Flipper.SingleMotor.new(0)
-Window.ContainerPosMotor = Flipper.SingleMotor.new(94)
+        Window.SelectorPosMotor = Flipper.SingleMotor.new(17)
+        Window.SelectorSizeMotor = Flipper.SingleMotor.new(0)
+        Window.ContainerBackMotor = Flipper.SingleMotor.new(0)
+        Window.ContainerPosMotor = Flipper.SingleMotor.new(94)
 
-SizeMotor:onStep(function(values) Window.Root.Size = UDim2.new(0, values.X, 0, values.Y) end)
-PosMotor:onStep(function(values) Window.Root.Position = UDim2.new(0, values.X, 0, values.Y) end)
+        SizeMotor:onStep(function(values) Window.Root.Size = UDim2.new(0, values.X, 0, values.Y) end)
+        PosMotor:onStep(function(values) Window.Root.Position = UDim2.new(0, values.X, 0, values.Y) end)
 
-local LastValue, LastTime = 0, 0
-Window.SelectorPosMotor:onStep(function(Value)
-Selector.Position = UDim2.new(0, 0, 0, Value + 17)
-local Now = tick()
-local DeltaTime = Now - LastTime
-if LastValue then
-Window.SelectorSizeMotor:setGoal(Spring((math.abs(Value - LastValue) / (DeltaTime * 60)) + 16))
-LastValue = Value
-end
-LastTime = Now
-end)
+        local LastValue, LastTime = 0, 0
+        Window.SelectorPosMotor:onStep(function(Value)
+            Selector.Position = UDim2.new(0, 0, 0, Value + 17)
+            local Now = tick()
+            local DeltaTime = Now - LastTime
+            if LastValue then
+                Window.SelectorSizeMotor:setGoal(Spring((math.abs(Value - LastValue) / (DeltaTime * 60)) + 16))
+                LastValue = Value
+            end
+            LastTime = Now
+        end)
 
-Window.SelectorSizeMotor:onStep(function(Value) Selector.Size = UDim2.new(0, 4, 0, Value) end)
-Window.ContainerBackMotor:onStep(function(Value) Window.ContainerAnim.GroupTransparency = Value end)
-Window.ContainerPosMotor:onStep(function(Value) Window.ContainerAnim.Position = UDim2.fromOffset(0, Value) end)
+        Window.SelectorSizeMotor:onStep(function(Value) Selector.Size = UDim2.new(0, 4, 0, Value) end)
+        Window.ContainerBackMotor:onStep(function(Value) Window.ContainerAnim.GroupTransparency = Value end)
+        Window.ContainerPosMotor:onStep(function(Value) Window.ContainerAnim.Position = UDim2.fromOffset(0, Value) end)
 
-local OldSizeX, OldSizeY, OldPosX, OldPosY
-Window.Maximize = function(Value, NoPos)
-if Value and not Window.Maximized then
-OldSizeX, OldSizeY = Window.Root.Size.X.Offset, Window.Root.Size.Y.Offset
-OldPosX, OldPosY = Window.Root.Position.X.Offset, Window.Root.Position.Y.Offset
-end
-Window.Maximized = Value
-Window.TitleBar.MaxButton.Frame.Icon.Image = Value and Components.Assets.Restore or Components.Assets.Max
-local SizeX = Value and Camera.ViewportSize.X or OldSizeX
-local SizeY = Value and Camera.ViewportSize.Y or OldSizeY
-local PosX, PosY = Value and 0 or OldPosX, Value and 0 or OldPosY
-Window.Root.Size = UDim2.fromOffset(SizeX, SizeY)
-Window.Root.Position = UDim2.fromOffset(PosX, PosY)
-if Window.ToggleButton then
-Window.ToggleButton.Visible = not Value
-end
-end
+        local OldSizeX, OldSizeY, OldPosX, OldPosY
+        Window.Maximize = function(Value, NoPos)
+            if Value and not Window.Maximized then
+                OldSizeX, OldSizeY = Window.Root.Size.X.Offset, Window.Root.Size.Y.Offset
+                OldPosX, OldPosY = Window.Root.Position.X.Offset, Window.Root.Position.Y.Offset
+            end
+            Window.Maximized = Value
+            Window.TitleBar.MaxButton.Frame.Icon.Image = Value and Components.Assets.Restore or Components.Assets.Max
+            local SizeX = Value and Camera.ViewportSize.X or OldSizeX
+            local SizeY = Value and Camera.ViewportSize.Y or OldSizeY
+            local PosX, PosY = Value and 0 or OldPosX, Value and 0 or OldPosY
+            Window.Root.Size = UDim2.fromOffset(SizeX, SizeY)
+            Window.Root.Position = UDim2.fromOffset(PosX, PosY)
+            if Window.ToggleButton then
+                Window.ToggleButton.Visible = not Value
+            end
+        end
 
-Creator.AddSignal(Window.TitleBar.Frame.InputBegan, function(Input)
-if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-Dragging, MousePos, StartPos = true, Input.Position, Window.Root.Position
-if Window.Maximized then
-StartPos = UDim2.fromOffset(
-Mouse.X - (Mouse.X * ((OldSizeX - 100) / Window.Root.AbsoluteSize.X)),
-Mouse.Y - (Mouse.Y * (OldSizeY / Window.Root.AbsoluteSize.Y))
-)
-end
-Input.Changed:Connect(function()
-if Input.UserInputState == Enum.UserInputState.End then Dragging = false end
-end)
-end
-end)
+        Creator.AddSignal(Window.TitleBar.Frame.InputBegan, function(Input)
+            if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+                Dragging, MousePos, StartPos = true, Input.Position, Window.Root.Position
+                if Window.Maximized then
+                    StartPos = UDim2.fromOffset(
+                        Mouse.X - (Mouse.X * ((OldSizeX - 100) / Window.Root.AbsoluteSize.X)),
+                        Mouse.Y - (Mouse.Y * (OldSizeY / Window.Root.AbsoluteSize.Y))
+                    )
+                end
+                Input.Changed:Connect(function()
+                    if Input.UserInputState == Enum.UserInputState.End then Dragging = false end
+                end)
+            end
+        end)
 
-Creator.AddSignal(Window.TitleBar.Frame.InputChanged, function(Input)
-if Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch then
-DragInput = Input
-end
-end)
+        Creator.AddSignal(Window.TitleBar.Frame.InputChanged, function(Input)
+            if Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch then
+                DragInput = Input
+            end
+        end)
 
-Creator.AddSignal(ResizeStartFrame.InputBegan, function(Input)
-if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-Resizing, ResizePos = true, Input.Position
-end
-end)
+        Creator.AddSignal(ResizeStartFrame.InputBegan, function(Input)
+            if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
+                Resizing, ResizePos = true, Input.Position
+            end
+        end)
 
-Creator.AddSignal(UserInputService.InputChanged, function(Input)
-if Input == DragInput and Dragging then
-local Delta = Input.Position - MousePos
-local NewX = StartPos.X.Offset + Delta.X
-local NewY = StartPos.Y.Offset + Delta.Y
-local Viewport = Camera.ViewportSize
-local WindowSize = Window.Root.Size
-NewX = math.clamp(NewX, 0, Viewport.X - WindowSize.X.Offset)
-NewY = math.clamp(NewY, 0, Viewport.Y - WindowSize.Y.Offset)
-Window.Position = UDim2.fromOffset(NewX, NewY)
-PosMotor:setGoal({
-X = Instant(NewX),
-Y = Instant(NewY),
-})
-if Window.Maximized then
-Window.Maximize(false, true, true)
-end
-end
-if (Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch) and Resizing then
-local Delta = Input.Position - ResizePos
-local StartSize = Window.Size
-local TargetSize = Vector3.new(StartSize.X.Offset, StartSize.Y.Offset, 0) + Vector3.new(1, 1, 0) * Delta
-SizeMotor:setGoal({
-X = Flipper.Instant.new(TargetSize.X),
-Y = Flipper.Instant.new(TargetSize.Y)
-})
-end
-end)
+        Creator.AddSignal(UserInputService.InputChanged, function(Input)
+            if Input == DragInput and Dragging then
+                local Delta = Input.Position - MousePos
+                local NewX = StartPos.X.Offset + Delta.X
+                local NewY = StartPos.Y.Offset + Delta.Y
+                local Viewport = Camera.ViewportSize
+                local WindowSize = Window.Root.Size
+                NewX = math.clamp(NewX, 0, Viewport.X - WindowSize.X.Offset)
+                NewY = math.clamp(NewY, 0, Viewport.Y - WindowSize.Y.Offset)
+                Window.Position = UDim2.fromOffset(NewX, NewY)
+                PosMotor:setGoal({ X = Instant(NewX), Y = Instant(NewY) })
+                if Window.Maximized then
+                    Window.Maximize(false, true, true)
+                end
+            end
+            if (Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch) and Resizing then
+                local Delta = Input.Position - ResizePos
+                local StartSize = Window.Size
+                local TargetSize = Vector3.new(StartSize.X.Offset, StartSize.Y.Offset, 0) + Vector3.new(1,1,0)*Delta
+                SizeMotor:setGoal({ X=Flipper.Instant.new(TargetSize.X), Y=Flipper.Instant.new(TargetSize.Y) })
+            end
+        end)
 
-Creator.AddSignal(UserInputService.InputEnded, function(Input)
-if Resizing == true or Input.UserInputType == Enum.UserInputType.Touch then
-Resizing = false
-Window.Size = UDim2.fromOffset(SizeMotor:getValue().X, SizeMotor:getValue().Y)
-end
-end)
+        Creator.AddSignal(UserInputService.InputEnded, function(Input)
+            if Resizing or Input.UserInputType == Enum.UserInputType.Touch then
+                Resizing = false
+                Window.Size = UDim2.fromOffset(SizeMotor:getValue().X, SizeMotor:getValue().Y)
+            end
+        end)
 
-Creator.AddSignal(Window.TabHolder.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
-Window.TabHolder.CanvasSize = UDim2.new(0, 0, 0, Window.TabHolder.UIListLayout.AbsoluteContentSize.Y)
-end)
+        Creator.AddSignal(Window.TabHolder.UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
+            Window.TabHolder.CanvasSize = UDim2.new(0, 0, 0, Window.TabHolder.UIListLayout.AbsoluteContentSize.Y)
+        end)
 
-local function UpdateElementVisibility(searchTerm)
-searchTerm = string.lower(searchTerm or "")
-for element, data in pairs(Window.AllElements or {}) do
-if element and element.Parent then
-local shouldShow = searchTerm == "" or
-string.find(string.lower(data.title), searchTerm, 1, true) or
-(data.description and string.find(string.lower(data.description), searchTerm, 1, true))
-element.Visible = shouldShow
-end
-end
-task.defer(function()
-if Window and Window.TabHolder then
-for _, child in pairs(Window.TabHolder:GetChildren()) do
-if child:IsA("ScrollingFrame") then
-local layout = child:FindFirstChild("UIListLayout")
-if layout then
-	child.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 2)
-end
-end
-end)
-end
+        function Window:Destroy()
+            if Library.UseAcrylic then Window.AcrylicPaint.Model:Destroy() end
+            Window.Root:Destroy()
+        end
 
-Creator.AddSignal(Window.SearchTextbox.Input:GetPropertyChangedSignal("Text"), function()
-	UpdateElementVisibility(Window.SearchTextbox.Input.Text)
-end)
+        local TabModule = Components.Tab:Init(Window)
+        function Window:AddTab(TabConfig)
+            return TabModule:New(TabConfig.Title, TabConfig.Icon, Window.TabHolder)
+        end
+        function Window:SelectTab(Tab)
+            TabModule:SelectTab(Tab)
+        end
 
-Creator.AddSignal(UserInputService.InputBegan, function(input, gameProcessed)
-	if gameProcessed then return end
-	if input.KeyCode == Enum.KeyCode.Escape and Window.SearchTextbox.Input:IsFocused() then
-		Window.SearchTextbox.Input.Text = ""
-		Window.SearchTextbox.Input:ReleaseFocus()
-	end
-end)
+        local function UpdateElementVisibility(searchTerm)
+            searchTerm = string.lower(searchTerm or "")
+            for element, data in pairs(Window.AllElements or {}) do
+                if element and element.Parent then
+                    local shouldShow = searchTerm == "" or
+                        string.find(string.lower(data.title), searchTerm, 1, true) or
+                        (data.description and string.find(string.lower(data.description), searchTerm, 1, true))
+                    element.Visible = shouldShow
+                end
+            end
+            task.defer(function()
+                if Window and Window.TabHolder then
+                    for _, child in pairs(Window.TabHolder:GetChildren()) do
+                        if child:IsA("ScrollingFrame") then
+                            local layout = child:FindFirstChild("UIListLayout")
+                            if layout then
+                                child.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 2)
+                            end
+                        end
+                    end
+                end
+            end)
+        end
 
-local TabModule = Components.Tab:Init(Window)
-function Window:AddTab(TabConfig)
-	return TabModule:New(TabConfig.Title, TabConfig.Icon, Window.TabHolder)
-end
-function Window:SelectTab(Tab)
-	TabModule:SelectTab(Tab)
-end
+        Creator.AddSignal(Window.SearchTextbox.Input:GetPropertyChangedSignal("Text"), function()
+            UpdateElementVisibility(Window.SearchTextbox.Input.Text)
+        end)
 
-Creator.AddSignal(Window.TabHolder:GetPropertyChangedSignal("CanvasPosition"), function()
-	LastValue, LastTime = TabModule:GetCurrentTabPos() + 16, 0
-	Window.SelectorPosMotor:setGoal(Instant(TabModule:GetCurrentTabPos()))
-end)
-
-return Window
-end
+        return Window
+    end
 end)()
 local ElementsTable = {}
 local AddSignal = Creator.AddSignal

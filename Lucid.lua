@@ -2454,7 +2454,7 @@ Components.Window = (function()
 
 		local function UpdateElementVisibility(query)
         	query = string.lower(query or "")
-        	for _, element in pairs(Window.Container:GetChildren()) do
+        	for _, element in pairs(Window.ContainerCanvas:GetChildren()) do
         		if element:IsA("TextButton") or element:IsA("Frame") then
         			local name = string.lower(element.Name)
         			local textLabel = element:FindFirstChildWhichIsA("TextLabel")

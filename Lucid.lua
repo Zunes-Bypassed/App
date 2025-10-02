@@ -2227,11 +2227,6 @@ Components.Window = (function()
 
 		Window.ContainerHolder = New("Frame", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1 })
 		Window.ContainerAnim = New("CanvasGroup", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1 })
-		Window.ContainerCanvas = New("Frame", {
-			Size = UDim2.new(1, -Window.TabWidth - 32, 1, -143),
-			Position = UDim2.fromOffset(Window.TabWidth + 28, 123),
-			BackgroundTransparency = 1,
-		}, { Window.ContainerAnim, Window.ContainerHolder })
 
 		Window.Root = New("Frame", {
 			Size = Window.Size,
@@ -2241,7 +2236,6 @@ Components.Window = (function()
 		}, {
 			Window.AcrylicPaint.Frame,
 			Window.TabDisplay,
-			Window.ContainerCanvas,
 			TabFrame,
 			ResizeStartFrame,
 		})
@@ -2339,10 +2333,7 @@ Components.Window = (function()
 				NewX = math.clamp(NewX, 0, Viewport.X - WindowSize.X.Offset)
 				NewY = math.clamp(NewY, 0, Viewport.Y - WindowSize.Y.Offset)
 				Window.Position = UDim2.fromOffset(NewX, NewY)
-				PosMotor:setGoal({
-					X = Instant(NewX),
-					Y = Instant(NewY),
-				})
+				PosMotor:setGoal({ X = Instant(NewX), Y = Instant(NewY) })
 				if Window.Maximized then
 					Window.Maximize(false, true, true)
 				end
@@ -2380,10 +2371,7 @@ Components.Window = (function()
 		function Window:Minimize()
 			Window.Minimized = not Window.Minimized
 			Window.Root.Visible = not Window.Minimized
-			if not MinimizeNotif then
-				MinimizeNotif = true
-				local Key = Library.MinimizeKeybind and Library.MinimizeKeybind.Value or Library.MinimizeKey.Name
-			end
+			if not MinimizeNotif then MinimizeNotif = true end
 			pcall(SwapIco)
 		end
 
@@ -2410,20 +2398,13 @@ Components.Window = (function()
 				ClipsDescendants = false,
 				ThemeTag = { TextColor3 = "Text" },
 			})
-			New("UISizeConstraint", {
-				MinSize = Vector2.new(300, 165),
-				MaxSize = Vector2.new(620, math.huge),
-				Parent = Dialog.Root,
-			})
+			New("UISizeConstraint", { MinSize = Vector2.new(300, 165), MaxSize = Vector2.new(620, math.huge), Parent = Dialog.Root })
 			Dialog.Root.Size = UDim2.fromOffset(Content.TextBounds.X + 40, 165)
 			if Content.TextBounds.X + 40 > Window.Size.X.Offset - 120 then
-				Dialog.Root.Size = UDim2.fromOffset(Window.Size.X.Offset - 120, 165)
-				Content.TextWrapped = true
 				Dialog.Root.Size = UDim2.fromOffset(Window.Size.X.Offset - 120, Content.TextBounds.Y + 150)
+				Content.TextWrapped = true
 			end
-			for _, Button in next, Config.Buttons do
-				Dialog:Button(Button.Title, Button.Callback)
-			end
+			for _, Button in next, Config.Buttons do Dialog:Button(Button.Title, Button.Callback) end
 			Dialog:Open()
 		end
 
@@ -2435,22 +2416,19 @@ Components.Window = (function()
 			end
 			return NewTab
 		end
-
-		function Window:SelectTab(Tab)
-			TabModule:SelectTab(Tab)
-		end
+		function Window:SelectTab(Tab) TabModule:SelectTab(Tab) end
 
 		Creator.AddSignal(Window.TabHolder:GetPropertyChangedSignal("CanvasPosition"), function()
 			LastValue, LastTime = TabModule:GetCurrentTabPos() + 16, 0
 			Window.SelectorPosMotor:setGoal(Instant(TabModule:GetCurrentTabPos()))
 		end)
 
-		local SearchTextbox = Components.Textbox(Window.ContainerCanvas, true)
+		-- Search nằm dưới TabDisplay
+		local SearchTextbox = Components.Textbox(Window.Root, true)
 		SearchTextbox.Frame.Size = UDim2.new(1, -32, 0, 28)
-		SearchTextbox.Frame.Position = UDim2.fromOffset(Window.TabWidth + 28, 88)
+		SearchTextbox.Frame.Position = UDim2.fromOffset(Window.TabWidth + 28, 56 + 26 + 6)
 		SearchTextbox.Input.PlaceholderText = "Search..."
 		SearchTextbox.Input.Text = ""
-
 		local SearchIcon = New("ImageLabel", {
 			Size = UDim2.fromOffset(18, 18),
 			Position = UDim2.new(1, -10, 0.5, 0),
@@ -2460,8 +2438,15 @@ Components.Window = (function()
 			Parent = SearchTextbox.Frame,
 			ThemeTag = { ImageColor3 = "SubText" },
 		})
-
 		Window.SearchTextbox = SearchTextbox
+
+		-- ContainerCanvas nằm dưới SearchTextbox
+		Window.ContainerCanvas = New("Frame", {
+			Size = UDim2.new(1, -Window.TabWidth - 32, 1, -(56 + 26 + 6 + 28 + 6 + 32)),
+			Position = UDim2.fromOffset(Window.TabWidth + 28, 56 + 26 + 6 + 28 + 6),
+			BackgroundTransparency = 1,
+		}, { Window.ContainerAnim, Window.ContainerHolder })
+		Window.Root:AddChild(Window.ContainerCanvas)
 
 		local function UpdateElementVisibility(searchTerm)
 			searchTerm = string.lower(searchTerm or "")
@@ -2473,7 +2458,6 @@ Components.Window = (function()
 					element.Visible = shouldShow
 				end
 			end
-
 			task.defer(function()
 				if Window and Window.TabHolder then
 					for _, child in pairs(Window.TabHolder:GetChildren()) do

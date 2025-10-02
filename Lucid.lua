@@ -2466,7 +2466,7 @@ Components.Window = (function()
 
 		local SearchTextbox = Components.Textbox(Window.Root, true)
 		SearchTextbox.Frame.Size = UDim2.new(0.97, -Window.TabWidth - 32, 0, 35)
-        SearchTextbox.Frame.Position = UDim2.fromOffset(Window.TabWidth + 28 + (Window.Size.X.Offset * 0.02), 88 - (Window.Size.Y.Offset * 0.01))
+        SearchTextbox.Frame.Position = UDim2.fromOffset(Window.TabWidth + 28 + (Window.Size.X.Offset * 0.09), 88 - (Window.Size.Y.Offset * 0.01))
 		SearchTextbox.Input.PlaceholderText = "Search..."
 		SearchTextbox.Input.Text = ""
 

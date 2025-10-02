@@ -2455,27 +2455,18 @@ Components.Window = (function()
 		local function UpdateElementVisibility(query)
             query = string.lower(query or "")
             local currentTab = Window.CurrentTab
-            if not currentTab or not currentTab.Container then return end
+            if not currentTab or not currentTab.Elements then return end
         
-            for _, element in pairs(currentTab.Container:GetChildren()) do
-                local elType = element:GetAttribute("__type")
-                if elType then
-                    -- gom tất cả text có trong element
-                    local searchText = string.lower(element.Name)
+            for _, element in pairs(currentTab.Elements) do
+                local searchText = string.lower(element.Name)
         
-                    for _, descendant in ipairs(element:GetDescendants()) do
-                        if descendant:IsA("TextLabel") or descendant:IsA("TextButton") then
-                            searchText = searchText .. " " .. string.lower(descendant.Text or "")
-                        end
-                    end
-        
-                    -- nếu query rỗng hoặc có chứa trong searchText thì show
-                    if query == "" or string.find(searchText, query, 1, true) then
-                        element.Visible = true
-                    else
-                        element.Visible = false
+                for _, descendant in ipairs(element:GetDescendants()) do
+                    if descendant:IsA("TextLabel") or descendant:IsA("TextButton") then
+                        searchText = searchText .. " " .. string.lower(descendant.Text or "")
                     end
                 end
+        
+                element.Visible = (query == "" or string.find(searchText, query, 1, true)) and true or false
             end
         end
         
@@ -2530,39 +2521,37 @@ local ElementsTable = {}
 local AddSignal = Creator.AddSignal
 
 ElementsTable.Button = (function()
-    local Element = {}
-    Element.__index = Element
-    Element.__type = "Button"
+	local Element = {}
+	Element.__index = Element
+	Element.__type = "Button"
 
-    function Element:New(Config)
-        if Library.Unloaded then return false end
-        assert(Config.Title, "Button - Missing Title")
-        Config.Callback = Config.Callback or function() end
+	function Element:New(Config)
+	    if Library.Unloaded then return false end
+		assert(Config.Title, "Button - Missing Title")
+		Config.Callback = Config.Callback or function() end
 
-        local ButtonFrame = Components.Element(Config.Title, Config.Description, self.Container, true, Config)
+		local ButtonFrame = Components.Element(Config.Title, Config.Description, self.Container, true, Config)
 
-        local ButtonIco = New("ImageLabel", {
-            Image = "rbxassetid://10734898355",
-            Size = UDim2.fromOffset(16, 16),
-            AnchorPoint = Vector2.new(1, 0.5),
-            Position = UDim2.new(1, -10, 0.5, 0),
-            BackgroundTransparency = 1,
-            Parent = ButtonFrame.Frame,
-            ThemeTag = {
-                ImageColor3 = "Text",
-            },
-        })
+		local ButtonIco = New("ImageLabel", {
+			Image = "rbxassetid://10734898355",
+			Size = UDim2.fromOffset(16, 16),
+			AnchorPoint = Vector2.new(1, 0.5),
+			Position = UDim2.new(1, -10, 0.5, 0),
+			BackgroundTransparency = 1,
+			Parent = ButtonFrame.Frame,
+			ThemeTag = {
+				ImageColor3 = "Text",
+			},
+		})
 
-        Creator.AddSignal(ButtonFrame.Frame.MouseButton1Click, function()
-            Library:SafeCallback(Config.Callback)
-        end)
+		Creator.AddSignal(ButtonFrame.Frame.MouseButton1Click, function()
+			Library:SafeCallback(Config.Callback)
+		end)
 
-        ButtonFrame.Frame:SetAttribute("__type", Element.__type)
+		return ButtonFrame
+	end
 
-        return ButtonFrame
-    end
-
-    return Element
+	return Element
 end)()
 ElementsTable.Toggle = (function()
 	local Element = {}

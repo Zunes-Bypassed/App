@@ -2452,37 +2452,7 @@ Components.Window = (function()
 			Window.SelectorPosMotor:setGoal(Instant(TabModule:GetCurrentTabPos()))
 		end)
 
-		local function UpdateElementVisibility(query)
-            query = string.lower(query or "")
-        
-            for _, container in pairs(TabModule.Containers) do
-                if container and typeof(container) == "Instance" and container:IsA("ScrollingFrame") then
-                    for _, child in ipairs(container:GetChildren()) do
-                        if child:IsA("Frame") then
-                            local found = false
-                            local name = string.lower(child.Name or "")
-        
-                            if query == "" or string.find(name, query, 1, true) then
-                                found = true
-                            else
-                                for _, lbl in ipairs(child:GetDescendants()) do
-                                    if lbl:IsA("TextLabel") or lbl:IsA("TextButton") then
-                                        local text = string.lower(lbl.Text or "")
-                                        if string.find(text, query, 1, true) then
-                                            found = true
-                                            break
-                                        end
-                                    end
-                                end
-                            end
-        
-                            child.Visible = found
-                        end
-                    end
-                end
-            end
-        end
-        
+		-- Thêm vào trong Window khi tạo
         local SearchTextbox = Components.Textbox(Window.Root, true)
         SearchTextbox.Frame.Size = UDim2.new(0, Window.ContainerCanvas.AbsoluteSize.X, 0, 35)
         SearchTextbox.Frame.Position = UDim2.fromOffset(Window.TabWidth + 28, 88)
@@ -2491,40 +2461,56 @@ Components.Window = (function()
         
         local UICorner = New("UICorner", { CornerRadius = UDim.new(0, 6) })
         UICorner.Parent = SearchTextbox.Frame
+        
         local UIStroke = New("UIStroke", {
-        	ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-        	Transparency = 0.8,
-        	Thickness = 1,
-        	ThemeTag = { Color = "ElementBorder" },
+            ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+            Transparency = 0.8,
+            Thickness = 1,
+            ThemeTag = { Color = "ElementBorder" },
         })
         UIStroke.Parent = SearchTextbox.Frame
         
         local SearchIcon = New("ImageLabel", {
-        	Size = UDim2.fromOffset(18, 18),
-        	Position = UDim2.new(1, -25, 0.5, 0),
-        	AnchorPoint = Vector2.new(0.5, 0.5),
-        	BackgroundTransparency = 1,
-        	Image = "rbxassetid://10734943674",
-        	Parent = SearchTextbox.Frame,
-        	ThemeTag = { ImageColor3 = "SubText" },
+            Size = UDim2.fromOffset(18, 18),
+            Position = UDim2.new(1, -25, 0.5, 0),
+            AnchorPoint = Vector2.new(0.5, 0.5),
+            BackgroundTransparency = 1,
+            Image = "rbxassetid://10734943674",
+            Parent = SearchTextbox.Frame,
+            ThemeTag = { ImageColor3 = "SubText" },
         })
         
         Window.SearchTextbox = SearchTextbox
+        
+        -- Cập nhật size khi Container thay đổi
         Window.ContainerCanvas:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
-        	SearchTextbox.Frame.Size = UDim2.new(0, Window.ContainerCanvas.AbsoluteSize.X, 0, 35)
+            SearchTextbox.Frame.Size = UDim2.new(0, Window.ContainerCanvas.AbsoluteSize.X, 0, 35)
         end)
         
+        -- Hàm lọc element
+        local function UpdateElementVisibility(keyword)
+            keyword = string.lower(keyword or "")
+            for _, element in pairs(Window.Elements or {}) do
+                if element.Object and element.Object:IsA("GuiObject") then
+                    local name = string.lower(element.Name or "")
+                    element.Object.Visible = (keyword == "" or string.find(name, keyword, 1, true))
+                end
+            end
+        end
+        
+        -- Khi người dùng gõ search
         Creator.AddSignal(SearchTextbox.Input:GetPropertyChangedSignal("Text"), function()
-        	UpdateElementVisibility(SearchTextbox.Input.Text)
+            UpdateElementVisibility(SearchTextbox.Input.Text)
         end)
         
+        -- Nhấn ESC để clear search
         Creator.AddSignal(UserInputService.InputBegan, function(input, gameProcessed)
-        	if gameProcessed then return end
-        	if input.KeyCode == Enum.KeyCode.Escape and SearchTextbox.Input:IsFocused() then
-        		SearchTextbox.Input.Text = ""
-        		SearchTextbox.Input:ReleaseFocus()
-        		UpdateElementVisibility("")
-        	end
+            if gameProcessed then return end
+            if input.KeyCode == Enum.KeyCode.Escape and SearchTextbox.Input:IsFocused() then
+                SearchTextbox.Input.Text = ""
+                SearchTextbox.Input:ReleaseFocus()
+                UpdateElementVisibility("")
+            end
         end)
 
 		return Window

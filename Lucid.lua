@@ -2253,43 +2253,6 @@ Components.Window = (function()
 		Window.SearchElements = SearchElements
 		Window.AllElements = AllElements
 
-		local function UpdateElementVisibility(searchTerm)
-			searchTerm = string.lower(searchTerm or "")
-			for element, data in pairs(AllElements) do
-				if element and element.Parent then
-					local shouldShow = searchTerm == "" or
-						string.find(string.lower(data.title), searchTerm, 1, true) or
-						(data.description and string.find(string.lower(data.description), searchTerm, 1, true))
-					element.Visible = shouldShow
-				end
-			end
-
-			task.defer(function()
-				if Window and Window.TabHolder then
-					for _, child in pairs(Window.TabHolder:GetChildren()) do
-						if child:IsA("ScrollingFrame") then
-							local layout = child:FindFirstChild("UIListLayout")
-							if layout then
-								child.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 2)
-							end
-						end
-					end
-				end
-			end)
-		end
-
-		local function RegisterElement(elementFrame, title, elementType, description)
-			if elementFrame and title then
-				AllElements[elementFrame] = {
-					title = title,
-					type = elementType or "Element",
-					description = description or ""
-				}
-			end
-		end
-		Window.RegisterElement = RegisterElement
-		Window.UpdateElementVisibility = UpdateElementVisibility
-
 		local SearchFrame = New("Frame", {
 			Size = UDim2.new(1, -Window.TabWidth - 32, 0, 35),
 			Position = UDim2.fromOffset(Window.TabWidth + 28, 52),
@@ -2327,7 +2290,26 @@ Components.Window = (function()
 		})
 
 		Creator.AddSignal(SearchTextbox.Input:GetPropertyChangedSignal("Text"), function()
-			UpdateElementVisibility(SearchTextbox.Input.Text)
+			for element, data in pairs(AllElements) do
+				if element and element.Parent then
+					local shouldShow = SearchTextbox.Input.Text == "" or
+						string.find(string.lower(data.title), string.lower(SearchTextbox.Input.Text), 1, true) or
+						(data.description and string.find(string.lower(data.description), string.lower(SearchTextbox.Input.Text), 1, true))
+					element.Visible = shouldShow
+				end
+			end
+			task.defer(function()
+				if Window and Window.TabHolder then
+					for _, child in pairs(Window.TabHolder:GetChildren()) do
+						if child:IsA("ScrollingFrame") then
+							local layout = child:FindFirstChild("UIListLayout")
+							if layout then
+								child.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 2)
+							end
+						end
+					end
+				end
+			end)
 		end)
 
 		Creator.AddSignal(UserInputService.InputBegan, function(input, gameProcessed)
@@ -2337,10 +2319,6 @@ Components.Window = (function()
 				SearchTextbox.Input:ReleaseFocus()
 			end
 		end)
-
-		local TabModule = Components.Tab:Init(Window)
-		function Window:AddTab(TabConfig) return TabModule:New(TabConfig.Title, TabConfig.Icon, Window.TabHolder) end
-		function Window:SelectTab(Tab) TabModule:SelectTab(Tab) end
 
 		Window.TabDisplay = New("TextLabel", {
 			Text = "Tab",
@@ -2355,6 +2333,21 @@ Components.Window = (function()
 			ThemeTag = { TextColor3 = "Text" },
 			Parent = Window.Root,
 		})
+
+		local function RegisterElement(elementFrame, title, elementType, description)
+			if elementFrame and title then
+				AllElements[elementFrame] = {
+					title = title,
+					type = elementType or "Element",
+					description = description or ""
+				}
+			end
+		end
+		Window.RegisterElement = RegisterElement
+
+		local TabModule = Components.Tab:Init(Window)
+		function Window:AddTab(TabConfig) return TabModule:New(TabConfig.Title, TabConfig.Icon, Window.TabHolder) end
+		function Window:SelectTab(Tab) TabModule:SelectTab(Tab) end
 
 		return Window
 	end

@@ -2445,9 +2445,8 @@ Components.Window = (function()
 			Window.SelectorPosMotor:setGoal(Instant(TabModule:GetCurrentTabPos()))
 		end)
 
-		-- Search TextBox trực tiếp trong ContainerCanvas
 		local SearchTextbox = Components.Textbox(Window.ContainerCanvas, true)
-		SearchTextbox.Frame.Size = UDim2.new(1, -32, 0, 28)
+		SearchTextbox.Frame.Size = UDim2.new(1, -50, 1, -8)
 		SearchTextbox.Frame.Position = UDim2.new(0, 8, 0, 4)
 		SearchTextbox.Input.PlaceholderText = "Search..."
 		SearchTextbox.Input.Text = ""

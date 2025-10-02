@@ -2454,17 +2454,19 @@ Components.Window = (function()
 
 		local function UpdateElementVisibility(query)
             query = string.lower(query or "")
-            for _, element in pairs(Window.Root:GetChildren()) do
-                if element:IsA("TextButton") or element:IsA("Frame") then
-                    local name = string.lower(element.Name)
-                    local textLabel = element:FindFirstChildWhichIsA("TextLabel")
+            for _, frame in pairs(CreatedElements) do
+                if frame and (frame:IsA("TextButton") or frame:IsA("Frame")) then
+                    local name = string.lower(frame.Name)
+                    local textLabel = frame:FindFirstChildWhichIsA("TextLabel")
                     if textLabel then
                         name = name .. " " .. string.lower(textLabel.Text)
                     end
-                    element.Visible = string.find(name, query) and true or false
+                    frame.Visible = string.find(name, query) and true or false
                 end
             end
         end
+        
+        local CreatedElements = {}
         
         local SearchTextbox = Components.Textbox(Window.Root, true)
         SearchTextbox.Frame.Size = UDim2.new(0, Window.ContainerCanvas.AbsoluteSize.X, 0, 35)
@@ -2543,6 +2545,8 @@ ElementsTable.Button = (function()
 		Creator.AddSignal(ButtonFrame.Frame.MouseButton1Click, function()
 			Library:SafeCallback(Config.Callback)
 		end)
+		
+		table.insert(CreatedElements, ButtonFrame.Frame)
 
 		return ButtonFrame
 	end

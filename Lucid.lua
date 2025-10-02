@@ -2492,18 +2492,23 @@ Components.Window = (function()
 
 		Window.SearchTextbox = SearchTextbox
 		Window.AllElements = AllElements
+		Window.RegisterElement = RegisterElement
+		Window.UpdateElementVisibility
 
 		local function UpdateElementVisibility(searchTerm)
 			searchTerm = string.lower(searchTerm or "")
-			for element, data in pairs(Window.AllElements or {}) do
+
+			for element, data in pairs(AllElements) do
 				if element and element.Parent then
-					local shouldShow = searchTerm == "" or
+					local shouldShow = searchTerm == "" or 
 						string.find(string.lower(data.title), searchTerm, 1, true) or
 						(data.description and string.find(string.lower(data.description), searchTerm, 1, true))
 					element.Visible = shouldShow
 				end
 			end
-			task.defer(function()
+
+			task.spawn(function()
+				task.wait(0.01)
 				if Window and Window.TabHolder then
 					for _, child in pairs(Window.TabHolder:GetChildren()) do
 						if child:IsA("ScrollingFrame") then
@@ -2515,6 +2520,16 @@ Components.Window = (function()
 					end
 				end
 			end)
+		end
+
+		local function RegisterElement(elementFrame, title, elementType, description)
+			if elementFrame and title then
+				AllElements[elementFrame] = {
+					title = title,
+					type = elementType or "Element",
+					description = description or ""
+				}
+			end
 		end
 
 		Creator.AddSignal(SearchTextbox.Input:GetPropertyChangedSignal("Text"), function()

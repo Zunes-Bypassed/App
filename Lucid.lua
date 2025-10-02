@@ -2262,117 +2262,79 @@ Components.Window = (function()
 			Window = Window,
 		})
 		
-		local SearchElements = {}
-		local AllElements = {}
-
-		local function UpdateElementVisibility(searchTerm)
-			searchTerm = string.lower(searchTerm or "")
-
-			for element, data in pairs(AllElements) do
-				if element and element.Parent then
-					local shouldShow = searchTerm == "" or 
-						string.find(string.lower(data.title), searchTerm, 1, true) or
-						(data.description and string.find(string.lower(data.description), searchTerm, 1, true))
-					element.Visible = shouldShow
-				end
-			end
-
-			task.spawn(function()
-				task.wait(0.01)
-				if Window and Window.TabHolder then
-					for _, child in pairs(Window.TabHolder:GetChildren()) do
-						if child:IsA("ScrollingFrame") then
-							local layout = child:FindFirstChild("UIListLayout")
-							if layout then
-								child.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 2)
-							end
-						end
-					end
-				end
-			end)
-		end
-
-		local function RegisterElement(elementFrame, title, elementType, description)
-			if elementFrame and title then
-				AllElements[elementFrame] = {
-					title = title,
-					type = elementType or "Element",
-					description = description or ""
-				}
-			end
-		end
-
-
 		local SearchFrame = New("Frame", {
-			Size = UDim2.new(1, 0, 0, 35),
-			Position = UDim2.new(0, 0, 0, 0),
-			BackgroundTransparency = 0.9,
-			ZIndex = 10,
-			ThemeTag = {
-				BackgroundColor3 = "Element",
-			},
-		}, {
-			New("UICorner", {
-				CornerRadius = UDim.new(0, 6),
-			}),
-			New("UIStroke", {
-				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-				Transparency = 0.8,
-				Thickness = 1,
-				ThemeTag = {
-					Color = "ElementBorder",
-				},
-			}),
-		})
-
-		local SearchTextbox = Components.Textbox(SearchFrame, true)
-		SearchTextbox.Frame.Size = UDim2.new(1, -50, 1, -8)
-		SearchTextbox.Frame.Position = UDim2.new(0, 8, 0, 4)
-		SearchTextbox.Input.PlaceholderText = "Search..."
-		SearchTextbox.Input.Text = ""
-
-
-
-
-
-
-
-
-		local SearchIcon = New("ImageLabel", {
-			Size = UDim2.fromOffset(18, 18),
-			Position = UDim2.new(1, -25, 0.5, 0),
-			AnchorPoint = Vector2.new(0.5, 0.5),
-			BackgroundTransparency = 1,
-			Image = "rbxassetid://10734943674",
-			Parent = SearchFrame,
-			ThemeTag = {
-				ImageColor3 = "SubText",
-			},
-		})
-
-
-		Creator.AddSignal(SearchTextbox.Input:GetPropertyChangedSignal("Text"), function()
-			local searchText = SearchTextbox.Input.Text
-			UpdateElementVisibility(searchText)
-		end)
-
-
-		Creator.AddSignal(SearchTextbox.Input.FocusLost, function(enterPressed)
-		end)
-
-		Creator.AddSignal(UserInputService.InputBegan, function(input, gameProcessed)
-			if gameProcessed then return end
-
-			if input.KeyCode == Enum.KeyCode.Escape and SearchTextbox.Input:IsFocused() then
-				SearchTextbox.Input.Text = ""
-				SearchTextbox.Input:ReleaseFocus()
-			end
-		end)
-		
-		Window.SearchElements = SearchElements
-		Window.AllElements = AllElements
-		Window.RegisterElement = RegisterElement
-		Window.UpdateElementVisibility = UpdateElementVisibility
+    	Size = UDim2.new(1, -Window.TabWidth - 32, 0, 35),
+    	Position = UDim2.fromOffset(Window.TabWidth + 28, 52),
+    	BackgroundTransparency = 0.9,
+    	ZIndex = 10,
+    	ThemeTag = { BackgroundColor3 = "Element" },
+    	Parent = Window.Root
+    }, {
+    	New("UICorner", { CornerRadius = UDim.new(0, 6) }),
+    	New("UIStroke", {
+    		ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+    		Transparency = 0.8,
+    		Thickness = 1,
+    		ThemeTag = { Color = "ElementBorder" },
+    	}),
+    })
+    
+    local SearchTextbox = Components.Textbox(SearchFrame, true)
+    SearchTextbox.Frame.Size = UDim2.new(1, -50, 1, -8)
+    SearchTextbox.Frame.Position = UDim2.new(0, 8, 0, 4)
+    SearchTextbox.Input.PlaceholderText = "Search..."
+    SearchTextbox.Input.Text = ""
+    SearchTextbox.Frame.Parent = SearchFrame
+    
+    local SearchIcon = New("ImageLabel", {
+    	Size = UDim2.fromOffset(18, 18),
+    	Position = UDim2.new(1, -25, 0.5, 0),
+    	AnchorPoint = Vector2.new(0.5, 0.5),
+    	BackgroundTransparency = 1,
+    	Image = "rbxassetid://10734943674",
+    	Parent = SearchFrame,
+    	ThemeTag = { ImageColor3 = "SubText" },
+    })
+    
+    Window.SearchFrame = SearchFrame
+    Window.SearchTextbox = SearchTextbox
+    
+    local function UpdateElementVisibility(searchTerm)
+    	searchTerm = string.lower(searchTerm or "")
+    	for element, data in pairs(Window.AllElements or {}) do
+    		if element and element.Parent then
+    			local shouldShow = searchTerm == "" or
+    				string.find(string.lower(data.title), searchTerm, 1, true) or
+    				(data.description and string.find(string.lower(data.description), searchTerm, 1, true))
+    			element.Visible = shouldShow
+    		end
+    	end
+    
+    	task.defer(function()
+    		if Window and Window.TabHolder then
+    			for _, child in pairs(Window.TabHolder:GetChildren()) do
+    				if child:IsA("ScrollingFrame") then
+    					local layout = child:FindFirstChild("UIListLayout")
+    					if layout then
+    						child.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 2)
+    					end
+    				end
+    			end
+    		end
+    	end)
+    end
+    
+    Creator.AddSignal(SearchTextbox.Input:GetPropertyChangedSignal("Text"), function()
+    	UpdateElementVisibility(SearchTextbox.Input.Text)
+    end)
+    
+    Creator.AddSignal(UserInputService.InputBegan, function(input, gameProcessed)
+    	if gameProcessed then return end
+    	if input.KeyCode == Enum.KeyCode.Escape and SearchTextbox.Input:IsFocused() then
+    		SearchTextbox.Input.Text = ""
+    		SearchTextbox.Input:ReleaseFocus()
+    	end
+    end)
 
 		if Library.UseAcrylic then
 			Window.AcrylicPaint.AddParent(Window.Root)
@@ -2720,8 +2682,7 @@ function Element:New(Idx, Config)
         Buttons = {},  
         Opened = false,  
         Type = "Dropdown",  
-        Callback = Config.Callback or function() end, 
-        Searchable = Config.Searchable or false
+        Callback = Config.Callback or function() end,  
     }  
 
     if Dropdown.Multi and Config.AllowNull then  
@@ -2889,23 +2850,17 @@ function Element:New(Idx, Config)
 
     local ScrollFrame = self.ScrollFrame  
 
-    function Dropdown:Open()
-    	if Library.CurrentOpenDropdown and Library.CurrentOpenDropdown ~= Dropdown then
-    		Library.CurrentOpenDropdown:Close()
-    	end
-    
-    	Library.CurrentOpenDropdown = Dropdown
-    	Dropdown.Opened = true
-    	ScrollFrame.ScrollingEnabled = false
-    	DropdownDisplay.Interactable = Dropdown.Searchable and true or false
-    	DropdownHolderCanvas.Visible = true
-    
-    	if Dropdown.Searchable then
-    		DropdownDisplay:CaptureFocus()
-    	end
-    
-    	task.defer(RecalculateListPositionAndSize)
-    end
+    function Dropdown:Open()  
+        if Library.CurrentOpenDropdown and Library.CurrentOpenDropdown ~= Dropdown then
+            Library.CurrentOpenDropdown:Close()
+        end
+
+        Library.CurrentOpenDropdown = Dropdown
+        Dropdown.Opened = true  
+        ScrollFrame.ScrollingEnabled = false  
+        DropdownHolderCanvas.Visible = true  
+        task.defer(RecalculateListPositionAndSize)  
+    end  
 
     function Dropdown:Close()  
         if Library.CurrentOpenDropdown == Dropdown then

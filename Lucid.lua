@@ -2452,41 +2452,22 @@ Components.Window = (function()
 			Window.SelectorPosMotor:setGoal(Instant(TabModule:GetCurrentTabPos()))
 		end)
 
-		local Elements = {}
-        
-        local OldButton = Components.Button
-        Components.Button = function(...)
-            local btn = OldButton(...)
-            local title = btn.Title or btn.Name or "button"
-            table.insert(Elements, {Object = btn, Keyword = string.lower(title)})
-            return btn
-        end
-        
-        local OldParagraph = Components.Paragraph
-        Components.Paragraph = function(...)
-            local p = OldParagraph(...)
-            local text = p.Text or p.Name or "paragraph"
-            table.insert(Elements, {Object = p, Keyword = string.lower(text)})
-            return p
-        end
-        
-        local OldToggle = Components.Toggle
-        Components.Toggle = function(...)
-            local t = OldToggle(...)
-            local title = t.Title or t.Name or "toggle"
-            table.insert(Elements, {Object = t, Keyword = string.lower(title)})
-            return t
-        end
-        
-        function UpdateElementVisibility(keyword)
-            keyword = string.lower(keyword or "")
-            for _, v in ipairs(Elements) do
-                if keyword == "" or string.find(v.Keyword, keyword, 1, true) then
-                    v.Object.Frame.Visible = true
-                else
-                    v.Object.Frame.Visible = false
-                end
-            end
+		local function UpdateElementVisibility(query)
+        	query = string.lower(query or "")
+        	for _, element in pairs(Window.Container:GetChildren()) do
+        		if element:IsA("TextButton") or element:IsA("Frame") then
+        			local name = string.lower(element.Name)
+        			local textLabel = element:FindFirstChildWhichIsA("TextLabel")
+        			if textLabel then
+        				name = name .. " " .. string.lower(textLabel.Text)
+        			end
+        			if string.find(name, query) then
+        				element.Visible = true
+        			else
+        				element.Visible = false
+        			end
+        		end
+        	end
         end
         
         local SearchTextbox = Components.Textbox(Window.Root, true)
@@ -2498,38 +2479,39 @@ Components.Window = (function()
         local UICorner = New("UICorner", { CornerRadius = UDim.new(0, 6) })
         UICorner.Parent = SearchTextbox.Frame
         local UIStroke = New("UIStroke", {
-            ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-            Transparency = 0.8,
-            Thickness = 1,
-            ThemeTag = { Color = "ElementBorder" },
+        	ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+        	Transparency = 0.8,
+        	Thickness = 1,
+        	ThemeTag = { Color = "ElementBorder" },
         })
         UIStroke.Parent = SearchTextbox.Frame
         
         local SearchIcon = New("ImageLabel", {
-            Size = UDim2.fromOffset(18, 18),
-            Position = UDim2.new(1, -25, 0.5, 0),
-            AnchorPoint = Vector2.new(0.5, 0.5),
-            BackgroundTransparency = 1,
-            Image = "rbxassetid://10734943674",
-            Parent = SearchTextbox.Frame,
-            ThemeTag = { ImageColor3 = "SubText" },
+        	Size = UDim2.fromOffset(18, 18),
+        	Position = UDim2.new(1, -25, 0.5, 0),
+        	AnchorPoint = Vector2.new(0.5, 0.5),
+        	BackgroundTransparency = 1,
+        	Image = "rbxassetid://10734943674",
+        	Parent = SearchTextbox.Frame,
+        	ThemeTag = { ImageColor3 = "SubText" },
         })
         
         Window.SearchTextbox = SearchTextbox
         Window.ContainerCanvas:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
-            SearchTextbox.Frame.Size = UDim2.new(0, Window.ContainerCanvas.AbsoluteSize.X, 0, 35)
+        	SearchTextbox.Frame.Size = UDim2.new(0, Window.ContainerCanvas.AbsoluteSize.X, 0, 35)
         end)
         
         Creator.AddSignal(SearchTextbox.Input:GetPropertyChangedSignal("Text"), function()
-            UpdateElementVisibility(SearchTextbox.Input.Text)
+        	UpdateElementVisibility(SearchTextbox.Input.Text)
         end)
         
         Creator.AddSignal(UserInputService.InputBegan, function(input, gameProcessed)
-            if gameProcessed then return end
-            if input.KeyCode == Enum.KeyCode.Escape and SearchTextbox.Input:IsFocused() then
-                SearchTextbox.Input.Text = ""
-                SearchTextbox.Input:ReleaseFocus()
-            end
+        	if gameProcessed then return end
+        	if input.KeyCode == Enum.KeyCode.Escape and SearchTextbox.Input:IsFocused() then
+        		SearchTextbox.Input.Text = ""
+        		SearchTextbox.Input:ReleaseFocus()
+        		UpdateElementVisibility("")
+        	end
         end)
 
 		return Window

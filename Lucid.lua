@@ -1341,6 +1341,12 @@ Components.Element = (function()
 
 		function Element:SetTitle(Set)
 			Element.TitleLabel.Text = Set
+			if Library.Windows and #Library.Windows > 0 then
+				local currentWindow = Library.Windows[#Library.Windows]
+				if currentWindow and currentWindow.AllElements and currentWindow.AllElements[Element.Frame] then
+					currentWindow.AllElements[Element.Frame].title = Set
+				end
+			end
 		end
 
 		function Element:Visible(Bool)
@@ -1357,6 +1363,12 @@ Components.Element = (function()
 				Element.DescLabel.Visible = true
 			end
 			Element.DescLabel.Text = Set
+			if Library.Windows and #Library.Windows > 0 then
+				local currentWindow = Library.Windows[#Library.Windows]
+				if currentWindow and currentWindow.AllElements and currentWindow.AllElements[Element.Frame] then
+					currentWindow.AllElements[Element.Frame].description = Set
+				end
+			end
 		end
 
 		function Element:GetTitle()
@@ -1373,6 +1385,13 @@ Components.Element = (function()
 
 		Element:SetTitle(Title)
 		Element:SetDesc(Desc)
+		
+		if Library.Windows and #Library.Windows > 0 then
+			local currentWindow = Library.Windows[#Library.Windows]
+			if currentWindow and currentWindow.RegisterElement then
+				currentWindow.RegisterElement(Element.Frame, Title, "Element", Desc)
+			end
+		end
 
 		if Hover then
 			local Motor, SetTransparency = Creator.SpringMotor(
@@ -2447,7 +2466,7 @@ Components.Window = (function()
 
 		local SearchTextbox = Components.Textbox(Window.Root, true)
 		SearchTextbox.Frame.Size = UDim2.new(0.97, -Window.TabWidth - 32, 0, 35)
-        SearchTextbox.Frame.Position = UDim2.fromOffset(Window.TabWidth + 28 + (Window.Size.X.Offset * 0.009), 88 - (Window.Size.Y.Offset * 0.01))
+        SearchTextbox.Frame.Position = UDim2.fromOffset(Window.TabWidth + 28 + (Window.Size.X.Offset * 0.02), 88 - (Window.Size.Y.Offset * 0.01))
 		SearchTextbox.Input.PlaceholderText = "Search..."
 		SearchTextbox.Input.Text = ""
 
@@ -2472,6 +2491,7 @@ Components.Window = (function()
 		})
 
 		Window.SearchTextbox = SearchTextbox
+		Window.AllElements = AllElements
 
 		local function UpdateElementVisibility(searchTerm)
 			searchTerm = string.lower(searchTerm or "")

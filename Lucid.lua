@@ -2454,11 +2454,11 @@ Components.Window = (function()
 
 		local function UpdateElementVisibility(query)
             query = string.lower(query or "")
-            if not Window.Root then return end
+            local currentTab = Window.CurrentTab
+            if not currentTab or not currentTab.Container then return end
         
-            for _, element in pairs(Window.Root:GetDescendants()) do
-                local elType = element:GetAttribute("__type")
-                if elType == "Button" or elType == "Slider" or elType == "Toggle" or elType == "Paragraph" then
+            for _, element in pairs(currentTab.Container:GetChildren()) do
+                if element:IsA("Frame") or element:IsA("TextButton") then
                     local name = string.lower(element.Name)
                     local textLabel = element:FindFirstChildWhichIsA("TextLabel")
                     if textLabel then
@@ -2520,38 +2520,39 @@ local ElementsTable = {}
 local AddSignal = Creator.AddSignal
 
 ElementsTable.Button = (function()
-	local Element = {}
-	Element.__index = Element
-	Element.__type = "Button"
+    local Element = {}
+    Element.__index = Element
+    Element.__type = "Button"
 
-	function Element:New(Config)
-	    if Library.Unloaded then return false end
-		assert(Config.Title, "Button - Missing Title")
-		Config.Callback = Config.Callback or function() end
+    function Element:New(Config)
+        if Library.Unloaded then return false end
+        assert(Config.Title, "Button - Missing Title")
+        Config.Callback = Config.Callback or function() end
 
-		local ButtonFrame = Components.Element(Config.Title, Config.Description, self.Container, true, Config)
-		ButtonFrame.Frame:SetAttribute("__type", Element.__type)
+        local ButtonFrame = Components.Element(Config.Title, Config.Description, self.Container, true, Config)
 
-		local ButtonIco = New("ImageLabel", {
-			Image = "rbxassetid://10734898355",
-			Size = UDim2.fromOffset(16, 16),
-			AnchorPoint = Vector2.new(1, 0.5),
-			Position = UDim2.new(1, -10, 0.5, 0),
-			BackgroundTransparency = 1,
-			Parent = ButtonFrame.Frame,
-			ThemeTag = {
-				ImageColor3 = "Text",
-			},
-		})
+        local ButtonIco = New("ImageLabel", {
+            Image = "rbxassetid://10734898355",
+            Size = UDim2.fromOffset(16, 16),
+            AnchorPoint = Vector2.new(1, 0.5),
+            Position = UDim2.new(1, -10, 0.5, 0),
+            BackgroundTransparency = 1,
+            Parent = ButtonFrame.Frame,
+            ThemeTag = {
+                ImageColor3 = "Text",
+            },
+        })
 
-		Creator.AddSignal(ButtonFrame.Frame.MouseButton1Click, function()
-			Library:SafeCallback(Config.Callback)
-		end)
+        Creator.AddSignal(ButtonFrame.Frame.MouseButton1Click, function()
+            Library:SafeCallback(Config.Callback)
+        end)
 
-		return ButtonFrame
-	end
+        ButtonFrame.Frame:SetAttribute("__type", Element.__type)
 
-	return Element
+        return ButtonFrame
+    end
+
+    return Element
 end)()
 ElementsTable.Toggle = (function()
 	local Element = {}

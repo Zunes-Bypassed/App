@@ -2221,9 +2221,10 @@ Components.Window = (function()
 			TextXAlignment = "Left",
 			TextYAlignment = "Center",
 			Size = UDim2.new(1, -16, 0, 26),
-			Position = UDim2.fromOffset(Window.TabWidth + 28, 56),
+			Position = UDim2.fromOffset(Window.TabWidth + 28, 16),
 			BackgroundTransparency = 1,
 			ThemeTag = { TextColor3 = "Text" },
+			Parent = Window.Root
 		})
 
 		Window.ContainerHolder = New("Frame", {
@@ -2262,9 +2263,7 @@ Components.Window = (function()
 			Window = Window,
 		})
 
-		local SearchElements = {}
 		local AllElements = {}
-		Window.SearchElements = SearchElements
 		Window.AllElements = AllElements
 
 		local function UpdateElementVisibility(searchTerm)
@@ -2359,7 +2358,6 @@ Components.Window = (function()
 		return Window
 	end
 end)()
-
 local ElementsTable = {}
 local AddSignal = Creator.AddSignal
 

@@ -1705,7 +1705,7 @@ Components.Dialog = (function()
 		function NewDialog:Open()
 			Library.DialogOpen = true
 			NewDialog.Scale.Scale = 1.08
-			TintTransparency(0.4)
+			TintTransparency(1)
 			RootTransparency(0)
 			SetScale(1)
 		end

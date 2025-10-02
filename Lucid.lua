@@ -1341,12 +1341,6 @@ Components.Element = (function()
 
 		function Element:SetTitle(Set)
 			Element.TitleLabel.Text = Set
-			if Library.Windows and #Library.Windows > 0 then
-				local currentWindow = Library.Windows[#Library.Windows]
-				if currentWindow and currentWindow.AllElements and currentWindow.AllElements[Element.Frame] then
-					currentWindow.AllElements[Element.Frame].title = Set
-				end
-			end
 		end
 
 		function Element:Visible(Bool)
@@ -1363,12 +1357,6 @@ Components.Element = (function()
 				Element.DescLabel.Visible = true
 			end
 			Element.DescLabel.Text = Set
-			if Library.Windows and #Library.Windows > 0 then
-				local currentWindow = Library.Windows[#Library.Windows]
-				if currentWindow and currentWindow.AllElements and currentWindow.AllElements[Element.Frame] then
-					currentWindow.AllElements[Element.Frame].description = Set
-				end
-			end
 		end
 
 		function Element:GetTitle()
@@ -1385,13 +1373,6 @@ Components.Element = (function()
 
 		Element:SetTitle(Title)
 		Element:SetDesc(Desc)
-		
-		if Library.Windows and #Library.Windows > 0 then
-			local currentWindow = Library.Windows[#Library.Windows]
-			if currentWindow and currentWindow.RegisterElement then
-				currentWindow.RegisterElement(Element.Frame, Title, "Element", Desc)
-			end
-		end
 
 		if Hover then
 			local Motor, SetTransparency = Creator.SpringMotor(
@@ -2466,7 +2447,7 @@ Components.Window = (function()
 
 		local SearchTextbox = Components.Textbox(Window.Root, true)
 		SearchTextbox.Frame.Size = UDim2.new(0.97, -Window.TabWidth - 32, 0, 35)
-        SearchTextbox.Frame.Position = UDim2.fromOffset(Window.TabWidth + 28 + (Window.Size.X.Offset * 0.09), 88 - (Window.Size.Y.Offset * 0.01))
+        SearchTextbox.Frame.Position = UDim2.fromOffset(Window.TabWidth + 28 + (Window.Size.X.Offset * 0.009), 88 - (Window.Size.Y.Offset * 0.01))
 		SearchTextbox.Input.PlaceholderText = "Search..."
 		SearchTextbox.Input.Text = ""
 
@@ -2491,24 +2472,18 @@ Components.Window = (function()
 		})
 
 		Window.SearchTextbox = SearchTextbox
-		Window.AllElements = AllElements
-		Window.RegisterElement = RegisterElement
-		Window.UpdateElementVisibility
 
 		local function UpdateElementVisibility(searchTerm)
 			searchTerm = string.lower(searchTerm or "")
-
-			for element, data in pairs(AllElements) do
+			for element, data in pairs(Window.AllElements or {}) do
 				if element and element.Parent then
-					local shouldShow = searchTerm == "" or 
+					local shouldShow = searchTerm == "" or
 						string.find(string.lower(data.title), searchTerm, 1, true) or
 						(data.description and string.find(string.lower(data.description), searchTerm, 1, true))
 					element.Visible = shouldShow
 				end
 			end
-
-			task.spawn(function()
-				task.wait(0.01)
+			task.defer(function()
 				if Window and Window.TabHolder then
 					for _, child in pairs(Window.TabHolder:GetChildren()) do
 						if child:IsA("ScrollingFrame") then
@@ -2520,16 +2495,6 @@ Components.Window = (function()
 					end
 				end
 			end)
-		end
-
-		local function RegisterElement(elementFrame, title, elementType, description)
-			if elementFrame and title then
-				AllElements[elementFrame] = {
-					title = title,
-					type = elementType or "Element",
-					description = description or ""
-				}
-			end
 		end
 
 		Creator.AddSignal(SearchTextbox.Input:GetPropertyChangedSignal("Text"), function()

@@ -2458,13 +2458,23 @@ Components.Window = (function()
             if not currentTab or not currentTab.Container then return end
         
             for _, element in pairs(currentTab.Container:GetChildren()) do
-                if element:IsA("Frame") or element:IsA("TextButton") then
-                    local name = string.lower(element.Name)
-                    local textLabel = element:FindFirstChildWhichIsA("TextLabel")
-                    if textLabel then
-                        name = name .. " " .. string.lower(textLabel.Text)
+                local elType = element:GetAttribute("__type")
+                if elType then
+                    -- gom tất cả text có trong element
+                    local searchText = string.lower(element.Name)
+        
+                    for _, descendant in ipairs(element:GetDescendants()) do
+                        if descendant:IsA("TextLabel") or descendant:IsA("TextButton") then
+                            searchText = searchText .. " " .. string.lower(descendant.Text or "")
+                        end
                     end
-                    element.Visible = string.find(name, query) and true or false
+        
+                    -- nếu query rỗng hoặc có chứa trong searchText thì show
+                    if query == "" or string.find(searchText, query, 1, true) then
+                        element.Visible = true
+                    else
+                        element.Visible = false
+                    end
                 end
             end
         end

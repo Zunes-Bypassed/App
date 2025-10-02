@@ -1537,20 +1537,21 @@ Components.Tab = (function()
         Window.TabDisplay.Text = sel.Name
         Window.SelectorPosMotor:setGoal(Spring(TabModule:GetCurrentTabPos(), { frequency = 6 }))
         task.spawn(function()
-            Window.ContainerHolder.Parent = Window.ContainerAnim
-            Window.ContainerPosMotor:setGoal(Spring(15, { frequency = 10 }))
-            Window.ContainerBackMotor:setGoal(Spring(1, { frequency = 10 }))
-            if Window.ContainerFadeMotor then Window.ContainerFadeMotor:setGoal(Spring(1, { frequency = 10 })) end
-            task.wait(0.12)
-            for _, c in next, TabModule.Containers do c.Visible = false end
-            TabModule.Containers[Tab].Visible = true
-            Window.ContainerPosMotor:setGoal(Spring(0, { frequency = 5 }))
-            Window.ContainerBackMotor:setGoal(Spring(0, { frequency = 8 }))
-            if Window.ContainerFadeMotor then Window.ContainerFadeMotor:setGoal(Spring(0, { frequency = 6 })) end
-            task.wait(0.12)
-            Window.ContainerHolder.Parent = Window.ContainerCanvas
-        end)
-    end
+			Window.ContainerHolder.Parent = Window.ContainerAnim
+
+			Window.ContainerPosMotor:setGoal(Spring(15, { frequency = 10 }))
+			Window.ContainerBackMotor:setGoal(Spring(1, { frequency = 10 }))
+			task.wait(0.12)
+			for _, Container in next, TabModule.Containers do
+				Container.Visible = false
+			end
+			TabModule.Containers[Tab].Visible = true
+			Window.ContainerPosMotor:setGoal(Spring(0, { frequency = 5 }))
+			Window.ContainerBackMotor:setGoal(Spring(0, { frequency = 8 }))
+			task.wait(0.12)
+			Window.ContainerHolder.Parent = Window.ContainerCanvas
+		end)
+	end
 
     return TabModule
 end)()
@@ -3849,8 +3850,8 @@ ElementsTable.Input = (function()
 		Textbox.Frame.Position = UDim2.new(1, -10, 0.5, 0)
 		Textbox.Frame.AnchorPoint = Vector2.new(1, 0.5)
 		Textbox.Frame.Size = UDim2.fromOffset(160, 30)
-		Textbox.Input.Text = Config.Default or ""
-		Textbox.Input.PlaceholderText = Config.Placeholder or ""
+		Textbox.Input.Text = Config.Default
+		Textbox.Input.PlaceholderText = Config.Placeholder
 
 		local Box = Textbox.Input
 

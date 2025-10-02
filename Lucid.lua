@@ -2456,25 +2456,11 @@ Components.Window = (function()
             query = string.lower(query or "")
         
             for _, container in pairs(TabModule.Containers) do
-                if container and typeof(container) == "Instance" and container.GetChildren then
+                if container and typeof(container) == "Instance" and container:IsA("ScrollingFrame") then
                     for _, child in ipairs(container:GetChildren()) do
-                        if child and typeof(child) == "Instance" then
-                            local title = ""
-                            local desc = ""
-        
-                            if child.Config then
-                                title = string.lower(tostring(child.Config.Title or ""))
-                                desc  = string.lower(tostring(child.Config.Description or ""))
-                            end
-        
+                        if child:IsA("Frame") then
                             local name = string.lower(child.Name or "")
-        
-                            child.Visible = (
-                                query == ""
-                                or string.find(title, query, 1, true)
-                                or string.find(desc, query, 1, true)
-                                or string.find(name, query, 1, true)
-                            )
+                            child.Visible = (query == "" or string.find(name, query, 1, true)) and true or false
                         end
                     end
                 end

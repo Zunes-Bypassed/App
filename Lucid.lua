@@ -2237,8 +2237,8 @@ Components.Window = (function()
 		})
 
 		Window.ContainerCanvas = New("Frame", {
-			Size = UDim2.new(1, -Window.TabWidth - 32, 1, -100),
-			Position = UDim2.fromOffset(Window.TabWidth + 28, 88),
+			Size = UDim2.new(1, -Window.TabWidth - 32, 1, -143),
+			Position = UDim2.fromOffset(Window.TabWidth + 28, 123),
 			BackgroundTransparency = 1,
 		}, { Window.ContainerAnim, Window.ContainerHolder })
 
@@ -2295,25 +2295,21 @@ Components.Window = (function()
 
 		local OldSizeX, OldSizeY, OldPosX, OldPosY
 		Window.Maximize = function(Value, NoPos)
-            if Value and not Window.Maximized then
-                OldSizeX, OldSizeY = Window.Root.Size.X.Offset, Window.Root.Size.Y.Offset
-                OldPosX, OldPosY = Window.Root.Position.X.Offset, Window.Root.Position.Y.Offset
-            end
-        
-            Window.Maximized = Value
-            Window.TitleBar.MaxButton.Frame.Icon.Image = Value and Components.Assets.Restore or Components.Assets.Max
-        
-            local SizeX = Value and Camera.ViewportSize.X or OldSizeX
-            local SizeY = Value and Camera.ViewportSize.Y or OldSizeY
-            local PosX, PosY = Value and 0 or OldPosX, Value and 0 or OldPosY
-        
-            Window.Root.Size = UDim2.fromOffset(SizeX, SizeY)
-            Window.Root.Position = UDim2.fromOffset(PosX, PosY)
-        
-            if Window.ToggleButton then
-                Window.ToggleButton.Visible = not Value
-            end
-        end
+			if Value and not Window.Maximized then
+				OldSizeX, OldSizeY = Window.Root.Size.X.Offset, Window.Root.Size.Y.Offset
+				OldPosX, OldPosY = Window.Root.Position.X.Offset, Window.Root.Position.Y.Offset
+			end
+			Window.Maximized = Value
+			Window.TitleBar.MaxButton.Frame.Icon.Image = Value and Components.Assets.Restore or Components.Assets.Max
+			local SizeX = Value and Camera.ViewportSize.X or OldSizeX
+			local SizeY = Value and Camera.ViewportSize.Y or OldSizeY
+			local PosX, PosY = Value and 0 or OldPosX, Value and 0 or OldPosY
+			Window.Root.Size = UDim2.fromOffset(SizeX, SizeY)
+			Window.Root.Position = UDim2.fromOffset(PosX, PosY)
+			if Window.ToggleButton then
+				Window.ToggleButton.Visible = not Value
+			end
+		end
 
 		Creator.AddSignal(Window.TitleBar.Frame.InputBegan, function(Input)
 			if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
@@ -2344,27 +2340,26 @@ Components.Window = (function()
 
 		Creator.AddSignal(UserInputService.InputChanged, function(Input)
 			if Input == DragInput and Dragging then
-                local Delta = Input.Position - MousePos
-                local NewX = StartPos.X.Offset + Delta.X
-                local NewY = StartPos.Y.Offset + Delta.Y
-                local Viewport = Camera.ViewportSize
-                local WindowSize = Window.Root.Size
-                NewX = math.clamp(NewX, 0, Viewport.X - WindowSize.X.Offset)
-                NewY = math.clamp(NewY, 0, Viewport.Y - WindowSize.Y.Offset)
-                Window.Position = UDim2.fromOffset(NewX, NewY)
-                PosMotor:setGoal({
-                    X = Instant(NewX),
-                    Y = Instant(NewY),
-                })
-                if Window.Maximized then
-                    Window.Maximize(false, true, true)
-                end
-            end
+				local Delta = Input.Position - MousePos
+				local NewX = StartPos.X.Offset + Delta.X
+				local NewY = StartPos.Y.Offset + Delta.Y
+				local Viewport = Camera.ViewportSize
+				local WindowSize = Window.Root.Size
+				NewX = math.clamp(NewX, 0, Viewport.X - WindowSize.X.Offset)
+				NewY = math.clamp(NewY, 0, Viewport.Y - WindowSize.Y.Offset)
+				Window.Position = UDim2.fromOffset(NewX, NewY)
+				PosMotor:setGoal({
+					X = Instant(NewX),
+					Y = Instant(NewY),
+				})
+				if Window.Maximized then
+					Window.Maximize(false, true, true)
+				end
+			end
 			if (Input.UserInputType == Enum.UserInputType.MouseMovement or Input.UserInputType == Enum.UserInputType.Touch) and Resizing then
 				local Delta = Input.Position - ResizePos
 				local StartSize = Window.Size
 				local TargetSize = Vector3.new(StartSize.X.Offset, StartSize.Y.Offset, 0) + Vector3.new(1, 1, 0) * Delta
-
 				SizeMotor:setGoal({
 					X = Flipper.Instant.new(TargetSize.X),
 					Y = Flipper.Instant.new(TargetSize.Y)
@@ -2393,11 +2388,7 @@ Components.Window = (function()
 
 		function Window:Minimize()
 			Window.Minimized = not Window.Minimized
-			if Window.Minimized then
-				Window.Root.Visible = false
-			else
-				Window.Root.Visible = true
-			end
+			Window.Root.Visible = not Window.Minimized
 			if not MinimizeNotif then
 				MinimizeNotif = true
 				local Key = Library.MinimizeKeybind and Library.MinimizeKeybind.Value or Library.MinimizeKey.Name
@@ -2455,20 +2446,20 @@ Components.Window = (function()
 		end)
 
 		local SearchFrame = New("Frame", {
-		    Size = UDim2.new(1, -Window.TabWidth - 32, 0, 35),
-		    Position = UDim2.fromOffset(Window.TabWidth + 28, 52),
-		    BackgroundTransparency = 0.9,
-		    ZIndex = 10,
-		    ThemeTag = { BackgroundColor3 = "Element" },
-		    Parent = Window.Root
+			Size = UDim2.new(1, -Window.TabWidth - 32, 0, 35),
+			Position = UDim2.fromOffset(Window.TabWidth + 28, 88),
+			BackgroundTransparency = 0.9,
+			ZIndex = 10,
+			ThemeTag = { BackgroundColor3 = "Element" },
+			Parent = Window.Root
 		}, {
-		    New("UICorner", { CornerRadius = UDim.new(0, 6) }),
-		    New("UIStroke", {
-		        ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-		        Transparency = 0.8,
-		        Thickness = 1,
-		        ThemeTag = { Color = "ElementBorder" },
-		    }),
+			New("UICorner", { CornerRadius = UDim.new(0, 6) }),
+			New("UIStroke", {
+				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+				Transparency = 0.8,
+				Thickness = 1,
+				ThemeTag = { Color = "ElementBorder" },
+			}),
 		})
 
 		local SearchTextbox = Components.Textbox(SearchFrame, true)
@@ -2479,53 +2470,53 @@ Components.Window = (function()
 		SearchTextbox.Frame.Parent = SearchFrame
 
 		local SearchIcon = New("ImageLabel", {
-		    Size = UDim2.fromOffset(18, 18),
-		    Position = UDim2.new(1, -25, 0.5, 0),
-		    AnchorPoint = Vector2.new(0.5, 0.5),
-		    BackgroundTransparency = 1,
-		    Image = "rbxassetid://10734943674",
-		    Parent = SearchFrame,
-		    ThemeTag = { ImageColor3 = "SubText" },
+			Size = UDim2.fromOffset(18, 18),
+			Position = UDim2.new(1, -25, 0.5, 0),
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			BackgroundTransparency = 1,
+			Image = "rbxassetid://10734943674",
+			Parent = SearchFrame,
+			ThemeTag = { ImageColor3 = "SubText" },
 		})
 
 		Window.SearchFrame = SearchFrame
 		Window.SearchTextbox = SearchTextbox
 
 		local function UpdateElementVisibility(searchTerm)
-		    searchTerm = string.lower(searchTerm or "")
-		    for element, data in pairs(Window.AllElements or {}) do
-		        if element and element.Parent then
-		            local shouldShow = searchTerm == "" or
-		                string.find(string.lower(data.title), searchTerm, 1, true) or
-		                (data.description and string.find(string.lower(data.description), searchTerm, 1, true))
-		            element.Visible = shouldShow
-		        end
-		    end
+			searchTerm = string.lower(searchTerm or "")
+			for element, data in pairs(Window.AllElements or {}) do
+				if element and element.Parent then
+					local shouldShow = searchTerm == "" or
+						string.find(string.lower(data.title), searchTerm, 1, true) or
+						(data.description and string.find(string.lower(data.description), searchTerm, 1, true))
+					element.Visible = shouldShow
+				end
+			end
 
-		    task.defer(function()
-		        if Window and Window.TabHolder then
-		            for _, child in pairs(Window.TabHolder:GetChildren()) do
-		                if child:IsA("ScrollingFrame") then
-		                    local layout = child:FindFirstChild("UIListLayout")
-		                    if layout then
-		                        child.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 2)
-		                    end
-		                end
-		            end
-		        end
-		    end)
+			task.defer(function()
+				if Window and Window.TabHolder then
+					for _, child in pairs(Window.TabHolder:GetChildren()) do
+						if child:IsA("ScrollingFrame") then
+							local layout = child:FindFirstChild("UIListLayout")
+							if layout then
+								child.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 2)
+							end
+						end
+					end
+				end
+			end)
 		end
 
 		Creator.AddSignal(SearchTextbox.Input:GetPropertyChangedSignal("Text"), function()
-		    UpdateElementVisibility(SearchTextbox.Input.Text)
+			UpdateElementVisibility(SearchTextbox.Input.Text)
 		end)
 
 		Creator.AddSignal(UserInputService.InputBegan, function(input, gameProcessed)
-		    if gameProcessed then return end
-		    if input.KeyCode == Enum.KeyCode.Escape and SearchTextbox.Input:IsFocused() then
-		        SearchTextbox.Input.Text = ""
-		        SearchTextbox.Input:ReleaseFocus()
-		    end
+			if gameProcessed then return end
+			if input.KeyCode == Enum.KeyCode.Escape and SearchTextbox.Input:IsFocused() then
+				SearchTextbox.Input.Text = ""
+				SearchTextbox.Input:ReleaseFocus()
+			end
 		end)
 
 		return Window

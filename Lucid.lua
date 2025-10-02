@@ -2455,18 +2455,20 @@ Components.Window = (function()
 		local function UpdateElementVisibility(query)
             query = string.lower(query or "")
             local currentTab = Window.CurrentTab
-            if not currentTab or not currentTab.Elements then return end
+            if not currentTab or not currentTab.Container then return end
         
-            for _, element in pairs(currentTab.Elements) do
-                local searchText = string.lower(element.Name)
-        
-                for _, descendant in ipairs(element:GetDescendants()) do
-                    if descendant:IsA("TextLabel") or descendant:IsA("TextButton") then
-                        searchText = searchText .. " " .. string.lower(descendant.Text or "")
+            for _, element in ipairs(currentTab.Container:GetChildren()) do
+                local elType = element:GetAttribute("__type")
+                if elType then
+                    local searchText = ""
+                    for _, descendant in ipairs(element:GetDescendants()) do
+                        if descendant:IsA("TextLabel") or descendant:IsA("TextButton") then
+                            searchText = searchText .. " " .. string.lower(descendant.Text or "")
+                        end
                     end
-                end
         
-                element.Visible = (query == "" or string.find(searchText, query, 1, true)) and true or false
+                    element.Visible = (query == "" or string.find(searchText, query, 1, true)) and true or false
+                end
             end
         end
         
@@ -2531,6 +2533,7 @@ ElementsTable.Button = (function()
 		Config.Callback = Config.Callback or function() end
 
 		local ButtonFrame = Components.Element(Config.Title, Config.Description, self.Container, true, Config)
+		ButtonFrame.Frame:SetAttribute("__type", Element.__type)
 
 		local ButtonIco = New("ImageLabel", {
 			Image = "rbxassetid://10734898355",

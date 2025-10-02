@@ -2455,22 +2455,24 @@ Components.Window = (function()
 		local function UpdateElementVisibility(query)
             query = string.lower(query or "")
         
-            for _, child in ipairs(Window.Container:GetChildren()) do
-                local title, desc = "", ""
+            for _, container in pairs(TabModule.Containers) do
+                for _, child in ipairs(container:GetChildren()) do
+                    local title, desc = "", ""
         
-                if child.Config then
-                    title = string.lower(tostring(child.Config.Title or ""))
-                    desc  = string.lower(tostring(child.Config.Description or ""))
+                    if child.Config then
+                        title = string.lower(tostring(child.Config.Title or ""))
+                        desc  = string.lower(tostring(child.Config.Description or ""))
+                    end
+        
+                    local name = string.lower(child.Name or "")
+        
+                    child.Visible = (
+                        query == "" 
+                        or string.find(title, query, 1, true) 
+                        or string.find(desc, query, 1, true) 
+                        or string.find(name, query, 1, true)
+                    ) and true or false
                 end
-        
-                local name = string.lower(child.Name or "")
-        
-                child.Visible = (
-                    query == "" 
-                    or string.find(title, query, 1, true) 
-                    or string.find(desc, query, 1, true) 
-                    or string.find(name, query, 1, true)
-                ) and true or false
             end
         end
         

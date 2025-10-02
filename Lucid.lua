@@ -2461,6 +2461,7 @@ Components.Window = (function()
                         if child:IsA("Frame") then
                             local found = false
                             local name = string.lower(child.Name or "")
+        
                             if query == "" or string.find(name, query, 1, true) then
                                 found = true
                             else
@@ -2474,6 +2475,7 @@ Components.Window = (function()
                                     end
                                 end
                             end
+        
                             child.Visible = found
                         end
                     end
@@ -2512,8 +2514,8 @@ Components.Window = (function()
         	SearchTextbox.Frame.Size = UDim2.new(0, Window.ContainerCanvas.AbsoluteSize.X, 0, 35)
         end)
         
-        Creator.AddSignal(SearchTextbox.Input:GetPropertyChangedSignal("Text"), function()
-        	UpdateElementVisibility(SearchTextbox.Input.Text)
+        SearchBox:GetPropertyChangedSignal("Text"):Connect(function()
+            UpdateElementVisibility(SearchBox.Text)
         end)
         
         Creator.AddSignal(UserInputService.InputBegan, function(input, gameProcessed)

@@ -2446,7 +2446,7 @@ Components.Window = (function()
 		end)
 
 		local SearchTextbox = Components.Textbox(Window.Root, true)
-        SearchTextbox.Frame.Size = UDim2.fromOffset(Window.ContainerCanvas.AbsoluteSize.X, 35)
+        SearchTextbox.Frame.Size = UDim2.new(0, Window.ContainerCanvas.AbsoluteSize.X, 0, 35)
         SearchTextbox.Frame.Position = UDim2.fromOffset(Window.TabWidth + 28, 88)
 		SearchTextbox.Input.PlaceholderText = "Search..."
 		SearchTextbox.Input.Text = ""
@@ -2472,6 +2472,9 @@ Components.Window = (function()
 		})
 
 		Window.SearchTextbox = SearchTextbox
+		Window.ContainerCanvas:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+            SearchTextbox.Frame.Size = UDim2.new(0, Window.ContainerCanvas.AbsoluteSize.X, 0, 35)
+        end)
 
 		local function UpdateElementVisibility(searchTerm)
 			searchTerm = string.lower(searchTerm or "")

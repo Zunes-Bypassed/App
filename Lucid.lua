@@ -2530,6 +2530,7 @@ ElementsTable.Button = (function()
 		Config.Callback = Config.Callback or function() end
 
 		local ButtonFrame = Components.Element(Config.Title, Config.Description, self.Container, true, Config)
+		ButtonFrame.Frame:SetAttribute("__type", Element.__type)
 
 		local ButtonIco = New("ImageLabel", {
 			Image = "rbxassetid://10734898355",

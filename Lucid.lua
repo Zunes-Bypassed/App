@@ -2000,13 +2000,13 @@ end)()
 Components.TitleBar = (function()
     local New = Creator.New
     local AddSignal = Creator.AddSignal
-    local UserInputService = game:GetService("UserInputService")
 
     return function(Config)
         local TitleBar = {}
 
         local function BarButton(Icon, Pos, Parent, Callback)
             local Button = { Callback = Callback or function() end }
+
             Button.Frame = New("TextButton", {
                 Size = UDim2.new(0, 36, 1, -6),
                 AnchorPoint = Vector2.new(1, 0),
@@ -2026,13 +2026,17 @@ Components.TitleBar = (function()
                     ThemeTag = { ImageColor3 = "Text" },
                 }),
             })
+
             local _, SetTransparency = Creator.SpringMotor(1, Button.Frame)
+
             AddSignal(Button.Frame.MouseEnter, function() SetTransparency(0.92) end)
             AddSignal(Button.Frame.MouseLeave, function() SetTransparency(1, true) end)
             AddSignal(Button.Frame.MouseButton1Down, function() SetTransparency(0.95) end)
             AddSignal(Button.Frame.MouseButton1Up, function() SetTransparency(0.92) end)
             AddSignal(Button.Frame.MouseButton1Click, Button.Callback)
+
             function Button:SetCallback(Func) self.Callback = Func end
+
             return Button
         end
 
@@ -2137,7 +2141,7 @@ Components.TitleBar = (function()
             UDim2.new(1, -124, 0, 6),
             TitleBar.Frame,
             function()
-                local currentTheme = Config.Theme
+                local currentTheme = Config.Theme 
                 local newTheme
                 if currentTheme == "Dark" then
                     newTheme = "Light"
@@ -2148,114 +2152,6 @@ Components.TitleBar = (function()
                 end
                 Config.Theme = newTheme
                 Library:SetTheme(newTheme)
-            end
-        )
-
-        TitleBar.SearchButton = BarButton(
-            Components.Assets.Search,
-            UDim2.new(1, -164, 0, 6),
-            TitleBar.Frame,
-            function()
-                local Window = Config.Window
-                if Window.SearchTextbox then
-                    Window.SearchTextbox.Frame.Visible = not Window.SearchTextbox.Frame.Visible
-                    return
-                end
-                local SearchTextbox = Components.Textbox(Window.Root, true)
-                SearchTextbox.Frame.Size = UDim2.new(0, Window.ContainerCanvas.AbsoluteSize.X, 0, 35)
-                SearchTextbox.Frame.Position = UDim2.fromOffset(Window.TabWidth + 28, 88)
-                SearchTextbox.Input.PlaceholderText = "Search..."
-                SearchTextbox.Input.Text = ""
-                New("UICorner", { CornerRadius = UDim.new(0, 6), Parent = SearchTextbox.Frame })
-                New("UIStroke", {
-                    ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-                    Transparency = 0.8,
-                    Thickness = 1,
-                    ThemeTag = { Color = "ElementBorder" },
-                    Parent = SearchTextbox.Frame,
-                })
-                New("Frame", {
-                    Size = UDim2.new(0, 1, 1, 0),
-                    Position = UDim2.new(1, -40, 0, 0),
-                    AnchorPoint = Vector2.new(0, 0),
-                    BackgroundColor3 = Color3.fromRGB(200, 200, 200),
-                    BackgroundTransparency = 0.3,
-                    Parent = SearchTextbox.Frame,
-                })
-                local SearchIcon = New("ImageButton", {
-                    Size = UDim2.fromOffset(20, 20),
-                    Position = UDim2.new(1, -10, 0.5, 0),
-                    AnchorPoint = Vector2.new(1, 0.5),
-                    BackgroundTransparency = 1,
-                    Image = "rbxassetid://10734943674",
-                    Parent = SearchTextbox.Frame,
-                    ThemeTag = { ImageColor3 = "SubText" },
-                })
-                Window.SearchTextbox = SearchTextbox
-                Window.ContainerCanvas:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
-                    SearchTextbox.Frame.Size = UDim2.new(0, Window.ContainerCanvas.AbsoluteSize.X, 0, 35)
-                end)
-                local OriginalParents = {}
-                local function InitOriginalParents()
-                    for _, container in pairs(Components.Tab.Containers) do
-                        for _, element in pairs(container:GetChildren()) do
-                            if (element:IsA("Frame") or element:IsA("TextButton")) and not OriginalParents[element] then
-                                OriginalParents[element] = container
-                            end
-                        end
-                    end
-                end
-                local function GetActiveTab()
-                    for _, container in pairs(Components.Tab.Containers) do
-                        if container.Visible then
-                            return container
-                        end
-                    end
-                end
-                local function GetSearchText(element)
-                    local parts = {}
-                    for _, child in ipairs(element:GetDescendants()) do
-                        if child:IsA("TextLabel") then
-                            table.insert(parts, string.lower(child.Text or ""))
-                        end
-                    end
-                    return table.concat(parts, " ")
-                end
-                local function DoSearch()
-                    local query = string.lower(SearchTextbox.Input.Text or "")
-                    local activeTab = GetActiveTab()
-                    if not activeTab then return end
-                    InitOriginalParents()
-                    if query == "" then
-                        for element, oldParent in pairs(OriginalParents) do
-                            if element and oldParent and oldParent.Parent then
-                                element.Parent = oldParent
-                                element.Visible = true
-                            end
-                        end
-                        return
-                    end
-                    for element, oldParent in pairs(OriginalParents) do
-                        if element and oldParent and oldParent.Parent then
-                            local searchText = GetSearchText(element)
-                            if string.find(searchText, query, 1, true) then
-                                element.Parent = activeTab
-                                element.Visible = true
-                            else
-                                element.Visible = false
-                            end
-                        end
-                    end
-                end
-                AddSignal(SearchIcon.MouseButton1Click, DoSearch)
-                AddSignal(UserInputService.InputBegan, function(input, gameProcessed)
-                    if gameProcessed then return end
-                    if input.KeyCode == Enum.KeyCode.Escape and SearchTextbox.Input:IsFocused() then
-                        SearchTextbox.Input.Text = ""
-                        SearchTextbox.Input:ReleaseFocus()
-                        DoSearch()
-                    end
-                end)
             end
         )
 
@@ -2556,6 +2452,118 @@ Components.Window = (function()
 			LastValue, LastTime = TabModule:GetCurrentTabPos() + 16, 0
 			Window.SelectorPosMotor:setGoal(Instant(TabModule:GetCurrentTabPos()))
 		end)
+        
+        local SearchTextbox = Components.Textbox(Window.Root, true)
+        SearchTextbox.Frame.Size = UDim2.new(0, Window.ContainerCanvas.AbsoluteSize.X, 0, 35)
+        SearchTextbox.Frame.Position = UDim2.fromOffset(Window.TabWidth + 28, 78)
+        SearchTextbox.Input.PlaceholderText = "Search..."
+        SearchTextbox.Input.Text = ""
+        
+        local UICorner = New("UICorner", { CornerRadius = UDim.new(0, 6) })
+        UICorner.Parent = SearchTextbox.Frame
+        
+        local UIStroke = New("UIStroke", {
+            ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
+            Transparency = 0.8,
+            Thickness = 1,
+            ThemeTag = { Color = "ElementBorder" },
+        })
+        UIStroke.Parent = SearchTextbox.Frame
+        
+        local Divider = New("Frame", {
+            Size = UDim2.new(0, 1, 1, 0),
+            Position = UDim2.new(1, -40, 0, 0),
+            AnchorPoint = Vector2.new(0, 0),
+            BackgroundColor3 = Color3.fromRGB(200, 200, 200),
+            BackgroundTransparency = 0.3,
+            Parent = SearchTextbox.Frame,
+        })
+        
+        local SearchIcon = New("ImageButton", {
+            Size = UDim2.fromOffset(20, 20),
+            Position = UDim2.new(1, -10, 0.5, 0),
+            AnchorPoint = Vector2.new(1, 0.5),
+            BackgroundTransparency = 1,
+            Image = "rbxassetid://10734943674",
+            Parent = SearchTextbox.Frame,
+            ThemeTag = { ImageColor3 = "SubText" },
+        })
+        
+        Window.SearchTextbox = SearchTextbox
+        
+        Window.ContainerCanvas:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+            SearchTextbox.Frame.Size = UDim2.new(0, Window.ContainerCanvas.AbsoluteSize.X, 0, 35)
+        end)
+        
+        local OriginalParents = {}
+        local function InitOriginalParents()
+            for _, container in pairs(Components.Tab.Containers) do
+                for _, element in pairs(container:GetChildren()) do
+                    if (element:IsA("Frame") or element:IsA("TextButton")) and not OriginalParents[element] then
+                        OriginalParents[element] = container
+                    end
+                end
+            end
+        end
+        
+        local function GetActiveTab()
+            for _, container in pairs(Components.Tab.Containers) do
+                if container.Visible then
+                    return container
+                end
+            end
+        end
+        
+        local function GetSearchText(element)
+            local parts = {}
+            for _, child in ipairs(element:GetDescendants()) do
+                if child:IsA("TextLabel") then
+                    table.insert(parts, string.lower(child.Text or ""))
+                end
+            end
+            return table.concat(parts, " ")
+        end
+        
+        local function DoSearch()
+            local query = string.lower(SearchTextbox.Input.Text or "")
+            local activeTab = GetActiveTab()
+            if not activeTab then return end
+        
+            InitOriginalParents()
+        
+            if query == "" then
+                for element, oldParent in pairs(OriginalParents) do
+                    if element and oldParent and oldParent.Parent then
+                        element.Parent = oldParent
+                        element.Visible = true
+                    end
+                end
+                return
+            end
+        
+            for element, oldParent in pairs(OriginalParents) do
+                if element and oldParent and oldParent.Parent then
+                    local searchText = GetSearchText(element)
+                    if string.find(searchText, query, 1, true) then
+                        element.Parent = activeTab
+                        element.Visible = true
+                    else
+                        element.Visible = false
+                    end
+                end
+            end
+        end
+        
+        Creator.AddSignal(SearchIcon.MouseButton1Click, DoSearch)
+        
+        Creator.AddSignal(UserInputService.InputBegan, function(input, gameProcessed)
+            if gameProcessed then return end
+            if input.KeyCode == Enum.KeyCode.Escape and SearchTextbox.Input:IsFocused() then
+                SearchTextbox.Input.Text = ""
+                SearchTextbox.Input:ReleaseFocus()
+                DoSearch()
+            end
+        end)
 
 		return Window
 	end

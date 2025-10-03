@@ -2485,22 +2485,46 @@ Components.Window = (function()
             SearchTextbox.Frame.Size = UDim2.new(0, Window.ContainerCanvas.AbsoluteSize.X, 0, 35)
         end)
         
-        Creator.AddSignal(SearchTextbox.Input:GetPropertyChangedSignal("Text"), function()
-            local query = string.lower(SearchTextbox.Input.Text)
+        local function GetActiveTab()
+            for _, container in pairs(Components.Tab.Containers) do
+                if container.Visible then
+                    return container
+                end
+            end
+        end
         
-            for _, container in pairs(Components.Tab.Containers) do  
-                for _, element in pairs(container:GetChildren()) do  
-                    if element:IsA("Frame") or element:IsA("TextButton") then  
+        Creator.AddSignal(SearchTextbox.Input:GetPropertyChangedSignal("Text"), function()
+            local query = string.lower(SearchTextbox.Input.Text or "")
+            local activeTab = GetActiveTab()
+            if not activeTab then return end
+        
+            for _, child in pairs(activeTab:GetChildren()) do
+                if child:IsA("Frame") or child:IsA("TextButton") then
+                    child.Visible = false
+                end
+            end
+        
+            if query == "" then
+                for _, child in pairs(activeTab:GetChildren()) do
+                    if child:IsA("Frame") or child:IsA("TextButton") then
+                        child.Visible = true
+                    end
+                end
+                return
+            end
+        
+            for _, container in pairs(Components.Tab.Containers) do
+                for _, element in pairs(container:GetChildren()) do
+                    if element:IsA("Frame") or element:IsA("TextButton") then
                         local searchText = ""
-                        local titleLabel = element:FindFirstChildWhichIsA("TextLabel")
+                        local titleLabel = element:FindFirstChildWhichIsA("TextLabel", true)
                         if titleLabel then
-                            searchText = string.lower(titleLabel.Text)
+                            searchText = string.lower(titleLabel.Text or "")
                         end
         
-                        if query == "" or string.find(searchText, query, 1, true) then
-                            element.Visible = true
-                        else
-                            element.Visible = false
+                        if string.find(searchText, query, 1, true) then
+                            local clone = element:Clone()
+                            clone.Parent = activeTab
                         end
                     end
                 end

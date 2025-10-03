@@ -2488,24 +2488,20 @@ Components.Window = (function()
         Creator.AddSignal(SearchTextbox.Input:GetPropertyChangedSignal("Text"), function()
             local query = string.lower(SearchTextbox.Input.Text)
         
-            for _, container in pairs(Components.Tab.Containers) do
-                for _, element in pairs(container:GetDescendants()) do
-                    if element:IsA("Frame") or element:IsA("TextButton") then
+            for _, container in pairs(Components.Tab.Containers) do  
+                for _, element in pairs(container:GetChildren()) do  
+                    if element:IsA("Frame") or element:IsA("TextButton") then  
                         local searchText = ""
-            
-                        local titleLabel = element:FindFirstChildWhichIsA("TextLabel", true)
-                        if titleLabel and titleLabel.Text then
-                            searchText = searchText .. " " .. titleLabel.Text
+                        local titleLabel = element:FindFirstChildWhichIsA("TextLabel")
+                        if titleLabel then
+                            searchText = string.lower(titleLabel.Text)
                         end
-            
-                        for _, child in pairs(element:GetDescendants()) do
-                            if child:IsA("TextLabel") and child ~= titleLabel then
-                                searchText = searchText .. " " .. child.Text
-                            end
+        
+                        if query == "" or string.find(searchText, query, 1, true) then
+                            element.Visible = true
+                        else
+                            element.Visible = false
                         end
-            
-                        searchText = string.lower(searchText)
-                        element.Visible = (query == "" or string.find(searchText, query) ~= nil)
                     end
                 end
             end

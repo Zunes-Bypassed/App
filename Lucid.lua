@@ -2486,7 +2486,7 @@ Components.Window = (function()
         end)
         
         local OriginalParents = {}
-
+        
         local function GetActiveTab()
             for _, container in pairs(Components.Tab.Containers) do
                 if container.Visible then
@@ -2504,6 +2504,7 @@ Components.Window = (function()
                 for element, oldParent in pairs(OriginalParents) do
                     if element and oldParent and oldParent.Parent then
                         element.Parent = oldParent
+                        element.Visible = true
                     end
                 end
                 table.clear(OriginalParents)
@@ -2513,6 +2514,7 @@ Components.Window = (function()
             for element, oldParent in pairs(OriginalParents) do
                 if element and oldParent and oldParent.Parent then
                     element.Parent = oldParent
+                    element.Visible = true
                 end
             end
             table.clear(OriginalParents)
@@ -2529,6 +2531,9 @@ Components.Window = (function()
                         if string.find(searchText, query, 1, true) then
                             OriginalParents[element] = container
                             element.Parent = activeTab
+                            element.Visible = true
+                        else
+                            element.Visible = false
                         end
                     end
                 end

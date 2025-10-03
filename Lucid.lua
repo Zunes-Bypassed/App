@@ -2509,24 +2509,24 @@ Components.Window = (function()
             if not activeTab then return end
         
             if query == "" then
-                for element, parent in pairs(OriginalParents) do
-                    if element and parent and parent.Parent then
-                        element.Parent = parent
+                for element, oldParent in pairs(OriginalParents) do
+                    if element and oldParent and oldParent.Parent then
+                        element.Parent = oldParent
                         element.Visible = true
                     end
                 end
                 return
             end
         
-            for element, parent in pairs(OriginalParents) do
-                if element and parent and parent.Parent then
-                    local text = ""
-                    local lbl = element:FindFirstChildWhichIsA("TextLabel", true)
-                    if lbl then
-                        text = string.lower(lbl.Text or "")
+            for element, oldParent in pairs(OriginalParents) do
+                if element and oldParent and oldParent.Parent then
+                    local searchText = ""
+                    local titleLabel = element:FindFirstChildWhichIsA("TextLabel", true)
+                    if titleLabel then
+                        searchText = string.lower(titleLabel.Text or "")
                     end
         
-                    if string.find(text, query, 1, true) then
+                    if string.find(searchText, query, 1, true) then
                         if element.Parent ~= activeTab then
                             element.Parent = activeTab
                         end

@@ -2486,11 +2486,11 @@ Components.Window = (function()
         end)
         
         local OriginalParents = {}
-        
-        local function GetActiveTab()
-            for _, container in pairs(Components.Tab.Containers) do
-                if container.Visible then
-                    return container
+
+        for _, container in pairs(Components.Tab.Containers) do
+            for _, element in pairs(container:GetChildren()) do
+                if element:IsA("Frame") or element:IsA("TextButton") then
+                    OriginalParents[element] = element.Parent
                 end
             end
         end
@@ -2507,17 +2507,8 @@ Components.Window = (function()
                         element.Visible = true
                     end
                 end
-                table.clear(OriginalParents)
                 return
             end
-        
-            for element, oldParent in pairs(OriginalParents) do
-                if element and oldParent and oldParent.Parent then
-                    element.Parent = oldParent
-                    element.Visible = true
-                end
-            end
-            table.clear(OriginalParents)
         
             for _, container in pairs(Components.Tab.Containers) do
                 for _, element in pairs(container:GetChildren()) do
@@ -2528,10 +2519,7 @@ Components.Window = (function()
                             searchText = string.lower(titleLabel.Text or "")
                         end
                         if string.find(searchText, query, 1, true) then
-                            if element.Parent ~= activeTab then
-                                OriginalParents[element] = element.Parent
-                                element.Parent = activeTab
-                            end
+                            element.Parent = activeTab
                             element.Visible = true
                         else
                             element.Visible = false

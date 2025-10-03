@@ -2486,11 +2486,14 @@ Components.Window = (function()
         end)
         
         local OriginalParents = {}
-
+        local OriginalChildrenOrder = {}
+        
         for _, container in pairs(Components.Tab.Containers) do
+            OriginalChildrenOrder[container] = {}
             for _, element in pairs(container:GetChildren()) do
                 if element:IsA("Frame") or element:IsA("TextButton") then
                     OriginalParents[element] = container
+                    table.insert(OriginalChildrenOrder[container], element)
                 end
             end
         end
@@ -2509,32 +2512,32 @@ Components.Window = (function()
             if not activeTab then return end
         
             if query == "" then
-                for element, oldParent in pairs(OriginalParents) do
-                    if element and oldParent and oldParent.Parent then
-                        element.Parent = oldParent
-                        element.Visible = true
+                for parent, list in pairs(OriginalChildrenOrder) do
+                    for _, el in ipairs(list) do
+                        if el and parent and parent.Parent then
+                            el.Parent = parent
+                            el.Visible = true
+                        end
                     end
                 end
                 return
             end
         
-            for _, container in pairs(Components.Tab.Containers) do
-                for _, element in pairs(container:GetChildren()) do
-                    if element:IsA("Frame") or element:IsA("TextButton") then
-                        local searchText = ""
-                        local titleLabel = element:FindFirstChildWhichIsA("TextLabel", true)
-                        if titleLabel then
-                            searchText = string.lower(titleLabel.Text or "")
-                        end
+            for el, parent in pairs(OriginalParents) do
+                if el and parent and parent.Parent then
+                    local searchText = ""
+                    local titleLabel = el:FindFirstChildWhichIsA("TextLabel", true)
+                    if titleLabel then
+                        searchText = string.lower(titleLabel.Text or "")
+                    end
         
-                        if string.find(searchText, query, 1, true) then
-                            if element.Parent ~= activeTab then
-                                element.Parent = activeTab
-                            end
-                            element.Visible = true
-                        else
-                            element.Visible = false
+                    if string.find(searchText, query, 1, true) then
+                        if el.Parent ~= activeTab then
+                            el.Parent = activeTab
                         end
+                        el.Visible = true
+                    else
+                        el.Visible = false
                     end
                 end
             end

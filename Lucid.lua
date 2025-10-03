@@ -2470,9 +2470,9 @@ Components.Window = (function()
         UIStroke.Parent = SearchTextbox.Frame
         
         local Divider = New("Frame", {
-            Size = UDim2.new(0, 1, 1, -10),
-            Position = UDim2.new(1, -35, 0.5, 0),
-            AnchorPoint = Vector2.new(0, 0.5),
+            Size = UDim2.new(0, 1, 1, 0),
+            Position = UDim2.new(1, -40, 0, 0),
+            AnchorPoint = Vector2.new(0, 0),
             BackgroundColor3 = Color3.fromRGB(200, 200, 200),
             BackgroundTransparency = 0.3,
             Parent = SearchTextbox.Frame,
@@ -2480,7 +2480,7 @@ Components.Window = (function()
         
         local SearchIcon = New("ImageButton", {
             Size = UDim2.fromOffset(20, 20),
-            Position = UDim2.new(1, -15, 0.5, 0),
+            Position = UDim2.new(1, -10, 0.5, 0),
             AnchorPoint = Vector2.new(1, 0.5),
             BackgroundTransparency = 1,
             Image = "rbxassetid://10734943674",
@@ -2553,7 +2553,6 @@ Components.Window = (function()
             end
         end
         
-        Creator.AddSignal(SearchTextbox.Input:GetPropertyChangedSignal("Text"), DoSearch)
         Creator.AddSignal(SearchIcon.MouseButton1Click, DoSearch)
         
         Creator.AddSignal(UserInputService.InputBegan, function(input, gameProcessed)

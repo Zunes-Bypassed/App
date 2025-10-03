@@ -2486,14 +2486,6 @@ Components.Window = (function()
         end)
         
         local OriginalParents = {}
-
-        for _, container in pairs(Components.Tab.Containers) do
-            for _, element in pairs(container:GetChildren()) do
-                if element:IsA("Frame") or element:IsA("TextButton") then
-                    OriginalParents[element] = container
-                end
-            end
-        end
         
         local function GetActiveTab()
             for _, container in pairs(Components.Tab.Containers) do
@@ -2515,24 +2507,35 @@ Components.Window = (function()
                         element.Visible = true
                     end
                 end
+                table.clear(OriginalParents)
                 return
             end
         
             for element, oldParent in pairs(OriginalParents) do
                 if element and oldParent and oldParent.Parent then
-                    local searchText = ""
-                    local titleLabel = element:FindFirstChildWhichIsA("TextLabel", true)
-                    if titleLabel then
-                        searchText = string.lower(titleLabel.Text or "")
-                    end
+                    element.Parent = oldParent
+                    element.Visible = true
+                end
+            end
+            table.clear(OriginalParents)
         
-                    if string.find(searchText, query, 1, true) then
-                        if element.Parent ~= activeTab then
-                            element.Parent = activeTab
+            for _, container in pairs(Components.Tab.Containers) do
+                for _, element in pairs(container:GetChildren()) do
+                    if element:IsA("Frame") or element:IsA("TextButton") then
+                        local searchText = ""
+                        local titleLabel = element:FindFirstChildWhichIsA("TextLabel", true)
+                        if titleLabel then
+                            searchText = string.lower(titleLabel.Text or "")
                         end
-                        element.Visible = true
-                    else
-                        element.Visible = false
+                        if string.find(searchText, query, 1, true) then
+                            if element.Parent ~= activeTab then
+                                OriginalParents[element] = element.Parent
+                                element.Parent = activeTab
+                            end
+                            element.Visible = true
+                        else
+                            element.Visible = false
+                        end
                     end
                 end
             end

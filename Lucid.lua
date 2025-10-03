@@ -2502,24 +2502,17 @@ Components.Window = (function()
         
             if query == "" then
                 for element, oldParent in pairs(OriginalParents) do
-                    if element and oldParent then
+                    if element and oldParent and oldParent.Parent then
                         element.Parent = oldParent
                         element.Visible = true
                     end
                 end
-                
-                for _, container in pairs(Components.Tab.Containers) do
-                    for _, element in pairs(container:GetChildren()) do
-                        if element:IsA("Frame") or element:IsA("TextButton") then
-                            element.Visible = true
-                        end
-                    end
-                end
+                table.clear(OriginalParents)
                 return
             end
         
             for element, oldParent in pairs(OriginalParents) do
-                if element and oldParent then
+                if element and oldParent and oldParent.Parent then
                     element.Parent = oldParent
                     element.Visible = true
                 end

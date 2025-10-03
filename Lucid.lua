@@ -2487,7 +2487,6 @@ Components.Window = (function()
         
         local OriginalParents = {}
 
-        -- Ghi nhớ parent gốc ngay từ đầu
         local function InitOriginalParents()
             for _, container in pairs(Components.Tab.Containers) do
                 for _, element in pairs(container:GetChildren()) do
@@ -2506,15 +2505,24 @@ Components.Window = (function()
             end
         end
         
+        local function GetSearchText(element)
+            local parts = {}
+            for _, child in ipairs(element:GetDescendants()) do
+                if child:IsA("TextLabel") then
+                    table.insert(parts, string.lower(child.Text or ""))
+                end
+            end
+            return table.concat(parts, " ")
+        end
+        
         Creator.AddSignal(SearchTextbox.Input:GetPropertyChangedSignal("Text"), function()
             local query = string.lower(SearchTextbox.Input.Text or "")
             local activeTab = GetActiveTab()
             if not activeTab then return end
         
-            InitOriginalParents() -- đảm bảo đã lưu parent gốc
+            InitOriginalParents()
         
             if query == "" then
-                -- Trả toàn bộ element về parent gốc
                 for element, oldParent in pairs(OriginalParents) do
                     if element and oldParent and oldParent.Parent then
                         element.Parent = oldParent
@@ -2524,17 +2532,11 @@ Components.Window = (function()
                 return
             end
         
-            -- Search
             for element, oldParent in pairs(OriginalParents) do
                 if element and oldParent and oldParent.Parent then
-                    local searchText = ""
-                    local titleLabel = element:FindFirstChildWhichIsA("TextLabel", true)
-                    if titleLabel then
-                        searchText = string.lower(titleLabel.Text or "")
-                    end
-        
+                    local searchText = GetSearchText(element)
                     if string.find(searchText, query, 1, true) then
-                        element.Parent = activeTab -- move sang tab hiện tại
+                        element.Parent = activeTab
                         element.Visible = true
                     else
                         element.Visible = false

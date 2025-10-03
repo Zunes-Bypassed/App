@@ -2487,10 +2487,21 @@ Components.Window = (function()
         
         local OriginalParents = {}
 
-        for _, container in pairs(Components.Tab.Containers) do
-            for _, element in pairs(container:GetChildren()) do
-                if element:IsA("Frame") or element:IsA("TextButton") then
-                    OriginalParents[element] = element.Parent
+        -- Ghi nhớ parent gốc ngay từ đầu
+        local function InitOriginalParents()
+            for _, container in pairs(Components.Tab.Containers) do
+                for _, element in pairs(container:GetChildren()) do
+                    if (element:IsA("Frame") or element:IsA("TextButton")) and not OriginalParents[element] then
+                        OriginalParents[element] = container
+                    end
+                end
+            end
+        end
+        
+        local function GetActiveTab()
+            for _, container in pairs(Components.Tab.Containers) do
+                if container.Visible then
+                    return container
                 end
             end
         end
@@ -2500,7 +2511,10 @@ Components.Window = (function()
             local activeTab = GetActiveTab()
             if not activeTab then return end
         
+            InitOriginalParents() -- đảm bảo đã lưu parent gốc
+        
             if query == "" then
+                -- Trả toàn bộ element về parent gốc
                 for element, oldParent in pairs(OriginalParents) do
                     if element and oldParent and oldParent.Parent then
                         element.Parent = oldParent
@@ -2510,20 +2524,20 @@ Components.Window = (function()
                 return
             end
         
-            for _, container in pairs(Components.Tab.Containers) do
-                for _, element in pairs(container:GetChildren()) do
-                    if element:IsA("Frame") or element:IsA("TextButton") then
-                        local searchText = ""
-                        local titleLabel = element:FindFirstChildWhichIsA("TextLabel", true)
-                        if titleLabel then
-                            searchText = string.lower(titleLabel.Text or "")
-                        end
-                        if string.find(searchText, query, 1, true) then
-                            element.Parent = activeTab
-                            element.Visible = true
-                        else
-                            element.Visible = false
-                        end
+            -- Search
+            for element, oldParent in pairs(OriginalParents) do
+                if element and oldParent and oldParent.Parent then
+                    local searchText = ""
+                    local titleLabel = element:FindFirstChildWhichIsA("TextLabel", true)
+                    if titleLabel then
+                        searchText = string.lower(titleLabel.Text or "")
+                    end
+        
+                    if string.find(searchText, query, 1, true) then
+                        element.Parent = activeTab -- move sang tab hiện tại
+                        element.Visible = true
+                    else
+                        element.Visible = false
                     end
                 end
             end

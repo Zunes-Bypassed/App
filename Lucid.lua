@@ -2485,6 +2485,8 @@ Components.Window = (function()
             SearchTextbox.Frame.Size = UDim2.new(0, Window.ContainerCanvas.AbsoluteSize.X, 0, 35)
         end)
         
+        local OriginalParents = {}
+
         local function GetActiveTab()
             for _, container in pairs(Components.Tab.Containers) do
                 if container.Visible then
@@ -2498,20 +2500,22 @@ Components.Window = (function()
             local activeTab = GetActiveTab()
             if not activeTab then return end
         
-            for _, child in pairs(activeTab:GetChildren()) do
-                if child:IsA("Frame") or child:IsA("TextButton") then
-                    child.Visible = false
-                end
-            end
-        
             if query == "" then
-                for _, child in pairs(activeTab:GetChildren()) do
-                    if child:IsA("Frame") or child:IsA("TextButton") then
-                        child.Visible = true
+                for element, oldParent in pairs(OriginalParents) do
+                    if element and oldParent and oldParent.Parent then
+                        element.Parent = oldParent
                     end
                 end
+                table.clear(OriginalParents)
                 return
             end
+        
+            for element, oldParent in pairs(OriginalParents) do
+                if element and oldParent and oldParent.Parent then
+                    element.Parent = oldParent
+                end
+            end
+            table.clear(OriginalParents)
         
             for _, container in pairs(Components.Tab.Containers) do
                 for _, element in pairs(container:GetChildren()) do
@@ -2523,8 +2527,8 @@ Components.Window = (function()
                         end
         
                         if string.find(searchText, query, 1, true) then
-                            local clone = element:Clone()
-                            clone.Parent = activeTab
+                            OriginalParents[element] = container
+                            element.Parent = activeTab
                         end
                     end
                 end

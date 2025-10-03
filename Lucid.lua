@@ -2469,10 +2469,19 @@ Components.Window = (function()
         })
         UIStroke.Parent = SearchTextbox.Frame
         
-        local SearchIcon = New("ImageLabel", {
-            Size = UDim2.fromOffset(18, 18),
-            Position = UDim2.new(1, -25, 0.5, 0),
-            AnchorPoint = Vector2.new(0.5, 0.5),
+        local Divider = New("Frame", {
+            Size = UDim2.new(0, 1, 1, -10),
+            Position = UDim2.new(1, -35, 0.5, 0),
+            AnchorPoint = Vector2.new(0, 0.5),
+            BackgroundColor3 = Color3.fromRGB(200, 200, 200),
+            BackgroundTransparency = 0.3,
+            Parent = SearchTextbox.Frame,
+        })
+        
+        local SearchIcon = New("ImageButton", {
+            Size = UDim2.fromOffset(20, 20),
+            Position = UDim2.new(1, -15, 0.5, 0),
+            AnchorPoint = Vector2.new(1, 0.5),
             BackgroundTransparency = 1,
             Image = "rbxassetid://10734943674",
             Parent = SearchTextbox.Frame,
@@ -2486,7 +2495,6 @@ Components.Window = (function()
         end)
         
         local OriginalParents = {}
-
         local function InitOriginalParents()
             for _, container in pairs(Components.Tab.Containers) do
                 for _, element in pairs(container:GetChildren()) do
@@ -2515,7 +2523,7 @@ Components.Window = (function()
             return table.concat(parts, " ")
         end
         
-        Creator.AddSignal(SearchTextbox.Input:GetPropertyChangedSignal("Text"), function()
+        local function DoSearch()
             local query = string.lower(SearchTextbox.Input.Text or "")
             local activeTab = GetActiveTab()
             if not activeTab then return end
@@ -2543,13 +2551,17 @@ Components.Window = (function()
                     end
                 end
             end
-        end)
+        end
+        
+        Creator.AddSignal(SearchTextbox.Input:GetPropertyChangedSignal("Text"), DoSearch)
+        Creator.AddSignal(SearchIcon.MouseButton1Click, DoSearch)
         
         Creator.AddSignal(UserInputService.InputBegan, function(input, gameProcessed)
             if gameProcessed then return end
             if input.KeyCode == Enum.KeyCode.Escape and SearchTextbox.Input:IsFocused() then
                 SearchTextbox.Input.Text = ""
                 SearchTextbox.Input:ReleaseFocus()
+                DoSearch()
             end
         end)
 

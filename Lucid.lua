@@ -2486,14 +2486,11 @@ Components.Window = (function()
         end)
         
         local OriginalParents = {}
-        local OriginalChildrenOrder = {}
-        
+
         for _, container in pairs(Components.Tab.Containers) do
-            OriginalChildrenOrder[container] = {}
             for _, element in pairs(container:GetChildren()) do
                 if element:IsA("Frame") or element:IsA("TextButton") then
                     OriginalParents[element] = container
-                    table.insert(OriginalChildrenOrder[container], element)
                 end
             end
         end
@@ -2512,32 +2509,30 @@ Components.Window = (function()
             if not activeTab then return end
         
             if query == "" then
-                for parent, list in pairs(OriginalChildrenOrder) do
-                    for _, el in ipairs(list) do
-                        if el and parent and parent.Parent then
-                            el.Parent = parent
-                            el.Visible = true
-                        end
+                for element, parent in pairs(OriginalParents) do
+                    if element and parent and parent.Parent then
+                        element.Parent = parent
+                        element.Visible = true
                     end
                 end
                 return
             end
         
-            for el, parent in pairs(OriginalParents) do
-                if el and parent and parent.Parent then
-                    local searchText = ""
-                    local titleLabel = el:FindFirstChildWhichIsA("TextLabel", true)
-                    if titleLabel then
-                        searchText = string.lower(titleLabel.Text or "")
+            for element, parent in pairs(OriginalParents) do
+                if element and parent and parent.Parent then
+                    local text = ""
+                    local lbl = element:FindFirstChildWhichIsA("TextLabel", true)
+                    if lbl then
+                        text = string.lower(lbl.Text or "")
                     end
         
-                    if string.find(searchText, query, 1, true) then
-                        if el.Parent ~= activeTab then
-                            el.Parent = activeTab
+                    if string.find(text, query, 1, true) then
+                        if element.Parent ~= activeTab then
+                            element.Parent = activeTab
                         end
-                        el.Visible = true
+                        element.Visible = true
                     else
-                        el.Visible = false
+                        element.Visible = false
                     end
                 end
             end

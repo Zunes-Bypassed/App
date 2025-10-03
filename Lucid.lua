@@ -2486,11 +2486,10 @@ Components.Window = (function()
         end)
         
         local OriginalParents = {}
-        local MovedElements = {}
-        
+
         for _, container in pairs(Components.Tab.Containers) do
             for _, element in pairs(container:GetChildren()) do
-                if (element:IsA("Frame") or element:IsA("TextButton")) and not OriginalParents[element] then
+                if element:IsA("Frame") or element:IsA("TextButton") then
                     OriginalParents[element] = container
                 end
             end
@@ -2516,7 +2515,6 @@ Components.Window = (function()
                         element.Visible = true
                     end
                 end
-                table.clear(MovedElements)
                 return
             end
         
@@ -2531,7 +2529,6 @@ Components.Window = (function()
         
                         if string.find(searchText, query, 1, true) then
                             if element.Parent ~= activeTab then
-                                MovedElements[element] = true
                                 element.Parent = activeTab
                             end
                             element.Visible = true

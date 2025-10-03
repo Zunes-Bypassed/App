@@ -1251,7 +1251,8 @@ local Components = {
 		Max = "rbxassetid://10734886496",
 		Restore = "rbxassetid://10734895530",
 		Dark = "rbxassetid://10734897102",
-		Light = "rbxassetid://10734974297"
+		Light = "rbxassetid://10734974297",
+		Search = "rbxassetid://10734943674"
 	},
 }
 
@@ -2121,8 +2122,8 @@ Components.TitleBar = (function()
                 Title = "Lucid",
                 Content = "Are you sure you want to close?",
                 Buttons = {
-                    { Title = "OK", Callback = function() Library:Destroy() end },
                     { Title = "Cancel" },
+                    { Title = "OK", Callback = function() Library:Destroy() end },
                 },
             })
         end)
@@ -2140,7 +2141,7 @@ Components.TitleBar = (function()
             UDim2.new(1, -124, 0, 6),
             TitleBar.Frame,
             function()
-                local currentTheme = Config.Theme 
+                local currentTheme = Config.Theme
                 local newTheme
                 if currentTheme == "Dark" then
                     newTheme = "Light"
@@ -2152,6 +2153,12 @@ Components.TitleBar = (function()
                 Config.Theme = newTheme
                 Library:SetTheme(newTheme)
             end
+        )
+
+        TitleBar.SearchButton = BarButton(
+            Components.Assets.Search,
+            UDim2.new(1, -164, 0, 6),
+            TitleBar.Frame
         )
 
         return TitleBar

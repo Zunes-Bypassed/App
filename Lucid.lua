@@ -2489,21 +2489,21 @@ Components.Window = (function()
             local query = string.lower(SearchTextbox.Input.Text)
         
             for _, container in pairs(Components.Tab.Containers) do
-                for _, element in pairs(container:GetChildren()) do
+                for _, element in pairs(container:GetDescendants()) do
                     if element:IsA("Frame") or element:IsA("TextButton") then
                         local searchText = ""
-        
+            
                         local titleLabel = element:FindFirstChildWhichIsA("TextLabel", true)
                         if titleLabel and titleLabel.Text then
                             searchText = searchText .. " " .. titleLabel.Text
                         end
-        
+            
                         for _, child in pairs(element:GetDescendants()) do
                             if child:IsA("TextLabel") and child ~= titleLabel then
                                 searchText = searchText .. " " .. child.Text
                             end
                         end
-        
+            
                         searchText = string.lower(searchText)
                         element.Visible = (query == "" or string.find(searchText, query) ~= nil)
                     end

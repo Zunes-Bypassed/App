@@ -2487,41 +2487,23 @@ Components.Window = (function()
         
         local OriginalParents = {}
         
-        local function GetActiveTab()
-            for _, container in pairs(Components.Tab.Containers) do
-                if container.Visible then
-                    return container
+        for _, container in pairs(Components.Tab.Containers) do
+            for _, element in pairs(container:GetChildren()) do
+                if (element:IsA("Frame") or element:IsA("TextButton")) and not OriginalParents[element] then
+                    OriginalParents[element] = container
                 end
             end
         end
         
         Creator.AddSignal(SearchTextbox.Input:GetPropertyChangedSignal("Text"), function()
             local query = string.lower(SearchTextbox.Input.Text or "")
-            local activeTab = GetActiveTab()
-            if not activeTab then return end
-        
-            if query == "" then
-                for element, oldParent in pairs(OriginalParents) do
-                    if element and oldParent and oldParent.Parent then
-                        element.Parent = oldParent
-                        element.Visible = true
-                    end
-                end
-                table.clear(OriginalParents)
-                return
-            end
         
             for element, oldParent in pairs(OriginalParents) do
                 if element and oldParent and oldParent.Parent then
-                    element.Parent = oldParent
-                    element.Visible = true
-                end
-            end
-            table.clear(OriginalParents)
-        
-            for _, container in pairs(Components.Tab.Containers) do
-                for _, element in pairs(container:GetChildren()) do
-                    if element:IsA("Frame") or element:IsA("TextButton") then
+                    if query == "" then
+                        element.Visible = true
+                        element.Parent = oldParent
+                    else
                         local searchText = ""
                         local titleLabel = element:FindFirstChildWhichIsA("TextLabel", true)
                         if titleLabel then
@@ -2529,10 +2511,6 @@ Components.Window = (function()
                         end
         
                         if string.find(searchText, query, 1, true) then
-                            if not OriginalParents[element] then
-                                OriginalParents[element] = container
-                            end
-                            element.Parent = activeTab
                             element.Visible = true
                         else
                             element.Visible = false

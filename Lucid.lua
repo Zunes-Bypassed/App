@@ -2451,8 +2451,7 @@ Components.Window = (function()
 			LastValue, LastTime = TabModule:GetCurrentTabPos() + 16, 0
 			Window.SelectorPosMotor:setGoal(Instant(TabModule:GetCurrentTabPos()))
 		end)
-
-		-- Thêm vào trong Window khi tạo
+        
         local SearchTextbox = Components.Textbox(Window.Root, true)
         SearchTextbox.Frame.Size = UDim2.new(0, Window.ContainerCanvas.AbsoluteSize.X, 0, 35)
         SearchTextbox.Frame.Position = UDim2.fromOffset(Window.TabWidth + 28, 88)
@@ -2482,34 +2481,41 @@ Components.Window = (function()
         
         Window.SearchTextbox = SearchTextbox
         
-        -- Cập nhật size khi Container thay đổi
         Window.ContainerCanvas:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
             SearchTextbox.Frame.Size = UDim2.new(0, Window.ContainerCanvas.AbsoluteSize.X, 0, 35)
         end)
         
-        -- Hàm lọc element
-        local function UpdateElementVisibility(keyword)
-            keyword = string.lower(keyword or "")
-            for _, element in pairs(Window.Elements or {}) do
-                if element.Object and element.Object:IsA("GuiObject") then
-                    local name = string.lower(element.Name or "")
-                    element.Object.Visible = (keyword == "" or string.find(name, keyword, 1, true))
+        Creator.AddSignal(SearchTextbox.Input:GetPropertyChangedSignal("Text"), function()
+            local query = string.lower(SearchTextbox.Input.Text)
+        
+            for _, container in pairs(Components.Tab.Containers) do
+                for _, element in pairs(container:GetChildren()) do
+                    if element:IsA("Frame") or element:IsA("TextButton") then
+                        local searchText = ""
+        
+                        local titleLabel = element:FindFirstChildWhichIsA("TextLabel", true)
+                        if titleLabel and titleLabel.Text then
+                            searchText = searchText .. " " .. titleLabel.Text
+                        end
+        
+                        for _, child in pairs(element:GetDescendants()) do
+                            if child:IsA("TextLabel") and child ~= titleLabel then
+                                searchText = searchText .. " " .. child.Text
+                            end
+                        end
+        
+                        searchText = string.lower(searchText)
+                        element.Visible = (query == "" or string.find(searchText, query) ~= nil)
+                    end
                 end
             end
-        end
-        
-        -- Khi người dùng gõ search
-        Creator.AddSignal(SearchTextbox.Input:GetPropertyChangedSignal("Text"), function()
-            UpdateElementVisibility(SearchTextbox.Input.Text)
         end)
         
-        -- Nhấn ESC để clear search
         Creator.AddSignal(UserInputService.InputBegan, function(input, gameProcessed)
             if gameProcessed then return end
             if input.KeyCode == Enum.KeyCode.Escape and SearchTextbox.Input:IsFocused() then
                 SearchTextbox.Input.Text = ""
                 SearchTextbox.Input:ReleaseFocus()
-                UpdateElementVisibility("")
             end
         end)
 

@@ -2556,6 +2556,12 @@ Components.Window = (function()
         
         Creator.AddSignal(SearchIcon.MouseButton1Click, DoSearch)
         
+        SearchTextbox.Input:GetPropertyChangedSignal("Text"):Connect(function()
+            if SearchTextbox.Input.Text == "" then
+                DoSearch()
+            end
+        end)
+        
         Creator.AddSignal(UserInputService.InputBegan, function(input, gameProcessed)
             if gameProcessed then return end
             if input.KeyCode == Enum.KeyCode.Escape and SearchTextbox.Input:IsFocused() then

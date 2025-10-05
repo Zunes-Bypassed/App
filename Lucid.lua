@@ -2282,7 +2282,7 @@ Components.Window = (function()
 
 		local LastValue, LastTime = 0, 0
 		Window.SelectorPosMotor:onStep(function(Value)
-			Selector.Position = UDim2.new(0, 0, 0, Value)
+			Selector.Position = UDim2.new(0, 0, 0, Value + 20)
 			local Now = tick()
 			local DeltaTime = Now - LastTime
 			if LastValue then

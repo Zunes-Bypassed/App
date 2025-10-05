@@ -2183,14 +2183,12 @@ Components.Window = (function()
 		Window.AcrylicPaint = Acrylic.AcrylicPaint()
 
 		local Selector = New("Frame", {
-            	Size = UDim2.fromOffset(4, 16),
-        	BackgroundColor3 = Color3.fromRGB(76, 194, 255),
-        	Position = UDim2.new(0, 0, 0.5, 0),
-        	AnchorPoint = Vector2.new(0, 0.5),
-        	ThemeTag = { BackgroundColor3 = "Accent" },
-        }, {
-        	New("UICorner", { CornerRadius = UDim.new(0, 3) })
-        })
+			Size = UDim2.fromOffset(4, 0),
+			BackgroundColor3 = Color3.fromRGB(76, 194, 255),
+			Position = UDim2.fromOffset(0, 17),
+			AnchorPoint = Vector2.new(0, 0.5),
+			ThemeTag = { BackgroundColor3 = "Accent" },
+		}, { New("UICorner", { CornerRadius = UDim.new(0, 3) }) })
 
 		local ResizeStartFrame = New("Frame", {
 			Size = UDim2.fromOffset(18, 18),
@@ -2282,7 +2280,7 @@ Components.Window = (function()
 
 		local LastValue, LastTime = 0, 0
 		Window.SelectorPosMotor:onStep(function(Value)
-			Selector.Position = UDim2.new(0, 0, 0, Value)
+			Selector.Position = UDim2.new(0, 0, 0, Value + 0)
 			local Now = tick()
 			local DeltaTime = Now - LastTime
 			if LastValue then
@@ -2957,14 +2955,14 @@ function Element:New(Idx, Config)
             })
     
             local ButtonSelector = New("Frame", {
-            	Size = UDim2.fromOffset(4, 20),
-            	BackgroundColor3 = Color3.fromRGB(76, 194, 255),
-            	Position = UDim2.new(0, -2, 0.5, 1), 
-            	AnchorPoint = Vector2.new(0, 0.5),
-            	Visible = false,
-            	ThemeTag = { BackgroundColor3 = "Accent" }
+                Size = UDim2.fromOffset(4, 20),
+                BackgroundColor3 = Color3.fromRGB(76, 194, 255),
+                Position = UDim2.new(0, -1, 0.5, 0),
+                AnchorPoint = Vector2.new(0, 0.5),
+                Visible = false,
+                ThemeTag = { BackgroundColor3 = "Accent" }
             }, {
-            	New("UICorner", { CornerRadius = UDim.new(0, 2) })
+                New("UICorner", { CornerRadius = UDim.new(0, 2) })
             })
     
             local Button = New("TextButton", {

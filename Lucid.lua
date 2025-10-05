@@ -2955,14 +2955,14 @@ function Element:New(Idx, Config)
             })
     
             local ButtonSelector = New("Frame", {
-                Size = UDim2.fromOffset(4, 20),
-                BackgroundColor3 = Color3.fromRGB(76, 194, 255),
-                Position = UDim2.new(0, -1, 0.5, 0),
-                AnchorPoint = Vector2.new(0, 0.5),
-                Visible = false,
-                ThemeTag = { BackgroundColor3 = "Accent" }
+            	Size = UDim2.fromOffset(4, 20),
+            	BackgroundColor3 = Color3.fromRGB(76, 194, 255),
+            	Position = UDim2.new(0, -2, 0.5, 1), 
+            	AnchorPoint = Vector2.new(0, 0.5),
+            	Visible = false,
+            	ThemeTag = { BackgroundColor3 = "Accent" }
             }, {
-                New("UICorner", { CornerRadius = UDim.new(0, 2) })
+            	New("UICorner", { CornerRadius = UDim.new(0, 2) })
             })
     
             local Button = New("TextButton", {

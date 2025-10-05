@@ -2284,7 +2284,7 @@ Components.Window = (function()
 			local Now = tick()
 			local DeltaTime = Now - LastTime
 			if LastValue then
-				Window.SelectorSizeMotor:setGoal(Spring((math.abs(Value - LastValue) / (DeltaTime * 60)))
+				Window.SelectorSizeMotor:setGoal(Spring((math.abs(Value - LastValue) / (DeltaTime * 60))))
 				LastValue = Value
 			end
 			LastTime = Now

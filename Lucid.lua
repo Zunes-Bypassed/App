@@ -4940,11 +4940,7 @@ function Library:CreateWindow(Config)
 
 	return Window
 end
-task.defer(function()
-	if Window.Minimize then
-		Window:Minimize()
-	end
-end)
+
 function Library:SetTheme(Value)
 	if Library.Window and table.find(Library.Themes, Value) then
 		Library.Theme = Value

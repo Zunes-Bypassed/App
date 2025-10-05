@@ -2183,7 +2183,7 @@ Components.Window = (function()
 		Window.AcrylicPaint = Acrylic.AcrylicPaint()
 
 		local Selector = New("Frame", {
-        	Size = UDim2.fromOffset(4, 16),
+            	Size = UDim2.fromOffset(4, 16),
         	BackgroundColor3 = Color3.fromRGB(76, 194, 255),
         	Position = UDim2.new(0, 0, 0.5, 0),
         	AnchorPoint = Vector2.new(0, 0.5),
@@ -2282,7 +2282,7 @@ Components.Window = (function()
 
 		local LastValue, LastTime = 0, 0
 		Window.SelectorPosMotor:onStep(function(Value)
-			Selector.Position = UDim2.new(0, 0, 0, Value + 17)
+			Selector.Position = UDim2.new(0, 0, 0, Value)
 			local Now = tick()
 			local DeltaTime = Now - LastTime
 			if LastValue then

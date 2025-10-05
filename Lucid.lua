@@ -2272,7 +2272,7 @@ Components.Window = (function()
 		local SizeMotor = Flipper.GroupMotor.new({ X = Window.Size.X.Offset, Y = Window.Size.Y.Offset })
 		local PosMotor = Flipper.GroupMotor.new({ X = Window.Position.X.Offset, Y = Window.Position.Y.Offset })
 
-		Window.SelectorPosMotor = Flipper.SingleMotor.new(17)
+		Window.SelectorPosMotor = Flipper.SingleMotor.new(10)
 		Window.SelectorSizeMotor = Flipper.SingleMotor.new(0)
 		Window.ContainerBackMotor = Flipper.SingleMotor.new(0)
 		Window.ContainerPosMotor = Flipper.SingleMotor.new(94)
@@ -2282,7 +2282,7 @@ Components.Window = (function()
 
 		local LastValue, LastTime = 0, 0
 		Window.SelectorPosMotor:onStep(function(Value)
-			Selector.Position = UDim2.new(0, 0, 0, Value + 20)
+			Selector.Position = UDim2.new(0, 0, 0, Value + 10)
 			local Now = tick()
 			local DeltaTime = Now - LastTime
 			if LastValue then

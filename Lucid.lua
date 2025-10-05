@@ -4885,14 +4885,14 @@ Library.Elements = Elements
 
 function Library:CreateWindow(Config)
 	assert(Config.Title)
-	
+
 	if Library.Window then
 		return
 	end
 
 	Library.MinimizeKey = Config.MinimizeKey
-	Library.UseAcrylic = Config.Acrylic 
-	Library.Acrylic = Config.Acrylic 
+	Library.UseAcrylic = Config.Acrylic
+	Library.Acrylic = Config.Acrylic
 	Library.Theme = Config.Theme
 	if Config.Acrylic then
 		Acrylic.init()
@@ -4923,10 +4923,8 @@ function Library:CreateWindow(Config)
 		Parent = Window.ToggleButton
 	})
 
-	Window.Root.Visible = false
-
 	Window.ToggleButton.MouseButton1Click:Connect(function()
-		Window.Root.Visible = not Window.Root.Visible
+		Window:Minimize()
 	end)
 
 	local oldDestroy = Window.Destroy
@@ -4939,6 +4937,10 @@ function Library:CreateWindow(Config)
 
 	Library.Window = Window
 	Library:SetTheme(Config.Theme)
+
+	if Window.Minimize then
+		Window:Minimize()
+	end
 
 	return Window
 end

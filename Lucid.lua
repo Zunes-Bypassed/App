@@ -4938,9 +4938,11 @@ function Library:CreateWindow(Config)
 	Library.Window = Window
 	Library:SetTheme(Config.Theme)
 
-	if Window.Minimize then
-		Window:Minimize()
-	end
+	task.defer(function()
+		if Window.Minimize then
+			Window:Minimize()
+		end
+	end)
 
 	return Window
 end

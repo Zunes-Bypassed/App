@@ -2183,12 +2183,14 @@ Components.Window = (function()
 		Window.AcrylicPaint = Acrylic.AcrylicPaint()
 
 		local Selector = New("Frame", {
-			Size = UDim2.fromOffset(4, 0),
-			BackgroundColor3 = Color3.fromRGB(76, 194, 255),
-			Position = UDim2.fromOffset(0, 17),
-			AnchorPoint = Vector2.new(0, 0.5),
-			ThemeTag = { BackgroundColor3 = "Accent" },
-		}, { New("UICorner", { CornerRadius = UDim.new(0, 3) }) })
+        	Size = UDim2.fromOffset(4, 16),
+        	BackgroundColor3 = Color3.fromRGB(76, 194, 255),
+        	Position = UDim2.new(0, 0, 0.5, 0),
+        	AnchorPoint = Vector2.new(0, 0.5),
+        	ThemeTag = { BackgroundColor3 = "Accent" },
+        }, {
+        	New("UICorner", { CornerRadius = UDim.new(0, 3) })
+        })
 
 		local ResizeStartFrame = New("Frame", {
 			Size = UDim2.fromOffset(18, 18),
@@ -2270,7 +2272,7 @@ Components.Window = (function()
 		local SizeMotor = Flipper.GroupMotor.new({ X = Window.Size.X.Offset, Y = Window.Size.Y.Offset })
 		local PosMotor = Flipper.GroupMotor.new({ X = Window.Position.X.Offset, Y = Window.Position.Y.Offset })
 
-		Window.SelectorPosMotor = Flipper.SingleMotor.new(19)
+		Window.SelectorPosMotor = Flipper.SingleMotor.new(18)
 		Window.SelectorSizeMotor = Flipper.SingleMotor.new(0)
 		Window.ContainerBackMotor = Flipper.SingleMotor.new(0)
 		Window.ContainerPosMotor = Flipper.SingleMotor.new(94)
@@ -2280,7 +2282,7 @@ Components.Window = (function()
 
 		local LastValue, LastTime = 0, 0
 		Window.SelectorPosMotor:onStep(function(Value)
-			Selector.Position = UDim2.new(0, 0, 0, Value + 19)
+			Selector.Position = UDim2.new(0, 0, 0, Value + 18)
 			local Now = tick()
 			local DeltaTime = Now - LastTime
 			if LastValue then

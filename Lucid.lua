@@ -2169,7 +2169,7 @@ Components.Window = (function()
 			Maximized = false,
 			Size = Config.Size,
 			CurrentPos = 0,
-			TabWidth = Config.TabWidth or 220,
+			TabWidth = Config.TabWidth
 			Position = UDim2.fromOffset(
 				Camera.ViewportSize.X / 2 - Config.Size.X.Offset / 2,
 				Camera.ViewportSize.Y / 2 - Config.Size.Y.Offset / 2
@@ -2255,6 +2255,8 @@ Components.Window = (function()
 			TabFrame,
 			ResizeStartFrame,
 		})
+		
+		Window.Root.Visible = false
 
 		Window.TitleBar = Components.TitleBar({
 			Title = Config.Title,

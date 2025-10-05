@@ -2255,8 +2255,6 @@ Components.Window = (function()
 			TabFrame,
 			ResizeStartFrame,
 		})
-		
-		Window.Root.Visible = false
 
 		Window.TitleBar = Components.TitleBar({
 			Title = Config.Title,
@@ -4925,8 +4923,10 @@ function Library:CreateWindow(Config)
 		Parent = Window.ToggleButton
 	})
 
+	Window.Root.Visible = false
+
 	Window.ToggleButton.MouseButton1Click:Connect(function()
-		Window:Minimize()
+		Window.Root.Visible = not Window.Root.Visible
 	end)
 
 	local oldDestroy = Window.Destroy

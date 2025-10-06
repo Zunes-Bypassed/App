@@ -4925,40 +4925,43 @@ function Library:CreateWindow(Config)
 
 	do
 		local UserInputService = game:GetService("UserInputService")
-		local dragging, dragStart, startPos
+		local dragging = false
+		local dragStart, startPos
+		local moved = false
 
 		Window.ToggleButton.InputBegan:Connect(function(input)
 			if input.UserInputType == Enum.UserInputType.MouseButton1 then
 				dragging = true
+				moved = false
 				dragStart = input.Position
 				startPos = Window.ToggleButton.Position
 			end
 		end)
 
 		Window.ToggleButton.InputChanged:Connect(function(input)
-			if input.UserInputType == Enum.UserInputType.MouseMovement then
-				if dragging then
-					local delta = input.Position - dragStart
-					Window.ToggleButton.Position = UDim2.new(
-						startPos.X.Scale,
-						startPos.X.Offset + delta.X,
-						startPos.Y.Scale,
-						startPos.Y.Offset + delta.Y
-					)
+			if input.UserInputType == Enum.UserInputType.MouseMovement and dragging then
+				local delta = input.Position - dragStart
+				if math.abs(delta.X) > 3 or math.abs(delta.Y) > 3 then
+					moved = true
 				end
+				Window.ToggleButton.Position = UDim2.new(
+					startPos.X.Scale,
+					startPos.X.Offset + delta.X,
+					startPos.Y.Scale,
+					startPos.Y.Offset + delta.Y
+				)
 			end
 		end)
 
 		UserInputService.InputEnded:Connect(function(input)
 			if input.UserInputType == Enum.UserInputType.MouseButton1 then
+				if dragging and not moved then
+					Window:Minimize()
+				end
 				dragging = false
 			end
 		end)
 	end
-
-	Window.ToggleButton.MouseButton1Click:Connect(function()
-		Window:Minimize()
-	end)
 
 	local oldDestroy = Window.Destroy  
 	Window.Destroy = function(self)

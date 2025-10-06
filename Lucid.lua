@@ -4885,65 +4885,64 @@ Library.Elements = Elements
 
 function Library:CreateWindow(Config)
 	assert(Config.Title)
-	if Library.Window then  
-		return  
-	end  
+	if Library.Window then
+		return
+	end
 
-	Library.MinimizeKey = Config.MinimizeKey  
-	Library.UseAcrylic = Config.Acrylic  
-	Library.Acrylic = Config.Acrylic  
-	Library.Theme = Config.Theme  
+	Library.MinimizeKey = Config.MinimizeKey
+	Library.UseAcrylic = Config.Acrylic
+	Library.Acrylic = Config.Acrylic
+	Library.Theme = Config.Theme
 
-	if Config.Acrylic then  
-		Acrylic.init()  
-	end  
+	if Config.Acrylic then
+		Acrylic.init()
+	end
 
-	local Window = Components.Window({  
-		Parent = GUI,  
-		Size = Config.Size,  
-		Title = Config.Title,  
-		SubTitle = Config.SubTitle,  
-		TabWidth = Config.TabWidth,  
-		Icon = Config.Icon  
-	})  
+	local Window = Components.Window({
+		Parent = GUI,
+		Size = Config.Size,
+		Title = Config.Title,
+		SubTitle = Config.SubTitle,
+		TabWidth = Config.TabWidth,
+		Icon = Config.Icon
+	})
 
-	Window.Icon = Config.Icon  
+	Window.Icon = Config.Icon
 
-	Window.ToggleButton = Creator.New("ImageButton", {  
-		Size = UDim2.fromOffset(45, 45),  
-		Position = UDim2.new(0, 20, 0, 200),  
-		BackgroundColor3 = Color3.fromRGB(40, 40, 40),  
-		Image = Window.Icon or "",  
-		ScaleType = Enum.ScaleType.Fit,  
-		Parent = GUI  
-	})  
+	Window.ToggleButton = Creator.New("ImageButton", {
+		Size = UDim2.fromOffset(45, 45),
+		Position = UDim2.new(0, 20, 0, 200),
+		BackgroundColor3 = Color3.fromRGB(40, 40, 40),
+		Image = Window.Icon or "",
+		ScaleType = Enum.ScaleType.Fit,
+		Parent = GUI
+	})
 
-	Creator.New("UICorner", {  
-		CornerRadius = UDim.new(0, 12),  
-		Parent = Window.ToggleButton  
-	})  
+	Creator.New("UICorner", {
+		CornerRadius = UDim.new(0, 12),
+		Parent = Window.ToggleButton
+	})
 
 	do
 		local UserInputService = game:GetService("UserInputService")
-		local dragging = false
-		local dragStart, startPos
-		local moved = false
+		local dragging, dragStart, startPos
 
 		Window.ToggleButton.InputBegan:Connect(function(input)
 			if input.UserInputType == Enum.UserInputType.MouseButton1 then
 				dragging = true
-				moved = false
 				dragStart = input.Position
 				startPos = Window.ToggleButton.Position
+				input.Changed:Connect(function()
+					if input.UserInputState == Enum.UserInputState.End then
+						dragging = false
+					end
+				end)
 			end
 		end)
 
-		Window.ToggleButton.InputChanged:Connect(function(input)
-			if input.UserInputType == Enum.UserInputType.MouseMovement and dragging then
+		UserInputService.InputChanged:Connect(function(input)
+			if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
 				local delta = input.Position - dragStart
-				if math.abs(delta.X) > 3 or math.abs(delta.Y) > 3 then
-					moved = true
-				end
 				Window.ToggleButton.Position = UDim2.new(
 					startPos.X.Scale,
 					startPos.X.Offset + delta.X,
@@ -4952,27 +4951,22 @@ function Library:CreateWindow(Config)
 				)
 			end
 		end)
-
-		UserInputService.InputEnded:Connect(function(input)
-			if input.UserInputType == Enum.UserInputType.MouseButton1 then
-				if dragging and not moved then
-					Window:Minimize()
-				end
-				dragging = false
-			end
-		end)
 	end
 
-	local oldDestroy = Window.Destroy  
-	Window.Destroy = function(self)
-		if oldDestroy then oldDestroy(self) end  
-		if self.ToggleButton then  
-			self.ToggleButton:Destroy()  
-		end  
-	end  
+	Window.ToggleButton.MouseButton1Click:Connect(function()
+		Window:Minimize()
+	end)
 
-	Library.Window = Window  
-	Library:SetTheme(Config.Theme)  
+	local oldDestroy = Window.Destroy
+	Window.Destroy = function(self)
+		if oldDestroy then oldDestroy(self) end
+		if self.ToggleButton then
+			self.ToggleButton:Destroy()
+		end
+	end
+
+	Library.Window = Window
+	Library:SetTheme(Config.Theme)
 	return Window
 end
 

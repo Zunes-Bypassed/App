@@ -2169,7 +2169,7 @@ Components.Window = (function()
 			Maximized = false,
 			Size = Config.Size,
 			CurrentPos = 0,
-			TabWidth = Config.TabWidth
+			TabWidth = Config.TabWidth or 220,
 			Position = UDim2.fromOffset(
 				Camera.ViewportSize.X / 2 - Config.Size.X.Offset / 2,
 				Camera.ViewportSize.Y / 2 - Config.Size.Y.Offset / 2

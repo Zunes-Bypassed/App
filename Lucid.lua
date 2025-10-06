@@ -4925,7 +4925,8 @@ function Library:CreateWindow(Config)
 
 	do
 		local UserInputService = game:GetService("UserInputService")
-		local dragging, dragStart, startPos
+		local RunService = game:GetService("RunService")
+		local dragging, dragStart, startPos, currentDelta = false, nil, nil, Vector2.zero
 
 		Window.ToggleButton.InputBegan:Connect(function(input)
 			if input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -4942,12 +4943,17 @@ function Library:CreateWindow(Config)
 
 		UserInputService.InputChanged:Connect(function(input)
 			if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-				local delta = input.Position - dragStart
+				currentDelta = input.Position - dragStart
+			end
+		end)
+
+		RunService.RenderStepped:Connect(function()
+			if dragging and currentDelta then
 				Window.ToggleButton.Position = UDim2.new(
 					startPos.X.Scale,
-					startPos.X.Offset + delta.X,
+					startPos.X.Offset + currentDelta.X,
 					startPos.Y.Scale,
-					startPos.Y.Offset + delta.Y
+					startPos.Y.Offset + currentDelta.Y
 				)
 			end
 		end)

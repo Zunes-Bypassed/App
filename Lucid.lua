@@ -1320,6 +1320,19 @@ Components.Tab = (function()
 
     function TabModule:Init(Window)
         TabModule.Window = Window
+        local Divider = New("Frame", {
+            Name = "TabDivider",
+            Parent = Window.MainFrame or Window,
+            BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+            BackgroundTransparency = 0.85,
+            Size = UDim2.new(0, 1, 1, -20),
+            Position = UDim2.new(0, Window.TabHolder.AbsoluteSize.X + 8, 0, 10),
+            BorderSizePixel = 0,
+            ZIndex = 50,
+        })
+        Creator.AddSignal(Window.TabHolder:GetPropertyChangedSignal("AbsoluteSize"), function()
+            Divider.Position = UDim2.new(0, Window.TabHolder.AbsoluteSize.X + 8, 0, 10)
+        end)
         return TabModule
     end
 
@@ -1334,20 +1347,17 @@ Components.Tab = (function()
         local Elements = Library.Elements
         TabModule.TabCount += 1
         local TabIndex = TabModule.TabCount
-
         local Tab = {
             Selected = false,
             Name = Title,
             Type = "Tab"
         }
-
         if Library:GetIcon(Icon) then
             Icon = Library:GetIcon(Icon)
         end
         if Icon == "" or Icon == nil then
             Icon = nil
         end
-
         Tab.Frame = New("TextButton", {
             Size = UDim2.new(1, 0, 0, 36),
             BackgroundTransparency = 1,
@@ -1368,7 +1378,7 @@ Components.Tab = (function()
                 TextSize = 14,
                 TextXAlignment = "Left",
                 TextYAlignment = "Center",
-                Size = UDim2.new(1, - 12, 1, 0),
+                Size = UDim2.new(1, -12, 1, 0),
                 BackgroundTransparency = 1,
                 ThemeTag = {
                     TextColor3 = "Text"
@@ -1385,12 +1395,10 @@ Components.Tab = (function()
                 },
             }),
         })
-
         local ContainerLayout = New("UIListLayout", {
             Padding = UDim.new(0, 8),
             SortOrder = Enum.SortOrder.LayoutOrder,
         })
-
         Tab.ContainerFrame = New("ScrollingFrame", {
             Size = UDim2.fromScale(1, 1),
             BackgroundTransparency = 1,
@@ -1411,20 +1419,16 @@ Components.Tab = (function()
                 PaddingBottom = UDim.new(0, 4),
             }),
         })
-
         Creator.AddSignal(ContainerLayout:GetPropertyChangedSignal("AbsoluteContentSize"), function()
             Tab.ContainerFrame.CanvasSize = UDim2.new(0, 0, 0, ContainerLayout.AbsoluteContentSize.Y + 8)
         end)
-
         Creator.AddSignal(Tab.Frame.MouseButton1Click, function()
             TabModule:SelectTab(TabIndex)
         end)
-
         TabModule.Containers[TabIndex] = Tab.ContainerFrame
         TabModule.Tabs[TabIndex] = Tab
         Tab.Container = Tab.ContainerFrame
         Tab.ScrollFrame = Tab.Container
-
         function Tab:AddSection(SectionTitle)
             local Section = {
                 Type = "Section"
@@ -1435,15 +1439,12 @@ Components.Tab = (function()
             setmetatable(Section, Elements)
             return Section
         end
-
         setmetatable(Tab, Elements)
-
         if TabIndex == 1 then
             task.defer(function()
                 TabModule:SelectTab(1)
             end)
         end
-
         return Tab
     end
 
@@ -2455,20 +2456,24 @@ Components.Window = (function()
         SearchTextbox.Input.PlaceholderText = "Search..."
         SearchTextbox.Input.Text = ""
         
-        local UICorner = New("UICorner", { CornerRadius = UDim.new(0, 6) })
+        local UICorner = New("UICorner", {
+            CornerRadius = UDim.new(0, 6)
+        })
         UICorner.Parent = SearchTextbox.Frame
         
         local UIStroke = New("UIStroke", {
             ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
             Transparency = 0.8,
             Thickness = 1,
-            ThemeTag = { Color = "ElementBorder" },
+            ThemeTag = {
+                Color = "ElementBorder"
+            },
         })
         UIStroke.Parent = SearchTextbox.Frame
         
         local Divider = New("Frame", {
             Size = UDim2.new(0, 1, 1, 0),
-            Position = UDim2.new(1, -40, 0, 0),
+            Position = UDim2.new(1, - 40, 0, 0),
             AnchorPoint = Vector2.new(0, 0),
             BackgroundColor3 = Color3.fromRGB(200, 200, 200),
             BackgroundTransparency = 0.3,
@@ -2477,12 +2482,14 @@ Components.Window = (function()
         
         local SearchIcon = New("ImageButton", {
             Size = UDim2.fromOffset(20, 20),
-            Position = UDim2.new(1, -10, 0.5, 0),
+            Position = UDim2.new(1, - 10, 0.5, 0),
             AnchorPoint = Vector2.new(1, 0.5),
             BackgroundTransparency = 1,
             Image = "rbxassetid://10734943674",
             Parent = SearchTextbox.Frame,
-            ThemeTag = { ImageColor3 = "SubText" },
+            ThemeTag = {
+                ImageColor3 = "SubText"
+            },
         })
         
         Window.SearchTextbox = SearchTextbox
@@ -2492,11 +2499,12 @@ Components.Window = (function()
         end)
         
         local OriginalParents = {}
-        local function InitOriginalParents(activeTab)
-            table.clear(OriginalParents)
-            for _, element in pairs(activeTab:GetChildren()) do
-                if (element:IsA("Frame") or element:IsA("TextButton")) and not OriginalParents[element] then
-                    OriginalParents[element] = activeTab
+        local function InitOriginalParents()
+            for _, container in pairs(Components.Tab.Containers) do
+                for _, element in pairs(container:GetChildren()) do
+                    if (element:IsA("Frame") or element:IsA("TextButton")) and not OriginalParents[element] then
+                        OriginalParents[element] = container
+                    end
                 end
             end
         end
@@ -2526,11 +2534,12 @@ Components.Window = (function()
                 return
             end
         
-            InitOriginalParents(activeTab)
+            InitOriginalParents()
         
             if query == "" then
                 for element, oldParent in pairs(OriginalParents) do
-                    if element and oldParent then
+                    if element and oldParent and oldParent.Parent then
+                        element.Parent = oldParent
                         element.Visible = true
                     end
                 end
@@ -2538,9 +2547,10 @@ Components.Window = (function()
             end
         
             for element, oldParent in pairs(OriginalParents) do
-                if element and oldParent then
+                if element and oldParent and oldParent.Parent then
                     local searchText = GetSearchText(element)
                     if string.find(searchText, query, 1, true) then
+                        element.Parent = activeTab
                         element.Visible = true
                     else
                         element.Visible = false
@@ -2552,11 +2562,15 @@ Components.Window = (function()
         Creator.AddSignal(SearchIcon.MouseButton1Click, DoSearch)
         
         SearchTextbox.Input:GetPropertyChangedSignal("Text"):Connect(function()
-            DoSearch()
+            if SearchTextbox.Input.Text == "" then
+                DoSearch()
+            end
         end)
         
         Creator.AddSignal(UserInputService.InputBegan, function(input, gameProcessed)
-            if gameProcessed then return end
+            if gameProcessed then
+                return
+            end
             if input.KeyCode == Enum.KeyCode.Escape and SearchTextbox.Input:IsFocused() then
                 SearchTextbox.Input.Text = ""
                 SearchTextbox.Input:ReleaseFocus()
